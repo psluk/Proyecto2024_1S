@@ -28,9 +28,7 @@ const login = (nombreUsuario, contrasena) => {
   return usuario;
 };
 
-
 module.exports = {
-    getUsuarios,
-    login
-
-}
+  getUsuarios,
+  login,
+};
