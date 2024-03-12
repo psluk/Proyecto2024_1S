@@ -1,10 +1,9 @@
-import { db as _db } from "./DBManager";
-const db = _db;
+import { _db } from "./DBManager";
 
 const getUsuarios = () => {
   try {
     const query = `SELECT * FROM Usuario`;
-    const readQuery = db.prepare(query);
+    const readQuery = _db.prepare(query);
     const rowList = readQuery.all();
     return rowList;
   } catch (err) {

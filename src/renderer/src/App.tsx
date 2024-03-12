@@ -5,7 +5,7 @@ function App(): JSX.Element {
   const ipcHandle = (): void => window.electron.ipcRenderer.send("ping");
 
   const unUsuario = window.BaseDatos.UsuariosDB.getUsuarios();
-
+  
   return (
     <>
       <img alt="logo" className="logo" src={electronLogo} />

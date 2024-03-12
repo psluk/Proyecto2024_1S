@@ -53,5 +53,16 @@
   },
   "extraResources": [
     "./database/gadt-database.db"
-]
+  ],
+  "build": {
+    "extraFiles": [
+      {
+        "from": "database",
+        "to": "resources",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
+  }
 }
