@@ -3,7 +3,7 @@ const path = require("path")
 
 const dbPath =
     process.env.NODE_ENV === "development"
-        ? "./Database/gadt-database.db"
+        ? "./database/gadt-database.db"
         : path.join(process.resourcesPath, "./gadt-database.db")
 
 const db = new Database(dbPath)

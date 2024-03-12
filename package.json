@@ -52,6 +52,6 @@
     "vite": "^5.0.12"
   },
   "extraResources": [
-    "./Database/gadt-database.db"
+    "./database/gadt-database.db"
 ]
 }

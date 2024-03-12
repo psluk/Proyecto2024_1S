@@ -1,6 +1,6 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-const UsuariosDB = require("../../Database/UsuariosManager")
+const UsuariosDB = require("../../database/UsuariosManager")
 
 // Custom APIs for renderer
 const api = {}
