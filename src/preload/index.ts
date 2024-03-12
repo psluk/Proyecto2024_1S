@@ -1,6 +1,6 @@
 import { contextBridge } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
-import UsuariosDB from "../../database/UsuariosManager";
+import * as UsuariosDB from "../../database/UsuariosManager";
 
 // Custom APIs for renderer
 const api = {};
