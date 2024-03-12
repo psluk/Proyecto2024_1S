@@ -4,10 +4,14 @@ import electronLogo from './assets/electron.svg'
 function App(): JSX.Element {
   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 
+  const unUsuario = window.BaseDatos.UsuariosDB.getUsuarios();
+
   return (
     <>
       <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
+      <div className="creator">El usuario: {unUsuario[0].Nombre}</div>
+      <div className="creator">Correo: {unUsuario[0].Correo}</div>
+      <div className="creator">De tipo: {unUsuario[0].IDTipoUsuario}</div>
       <div className="text">
         Build an Electron app with <span className="react">React</span>
         &nbsp;and <span className="ts">TypeScript</span>
