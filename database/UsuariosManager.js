@@ -1,17 +1,17 @@
-const dbmgr = require("./DBManager")
-const db = dbmgr.db
+import { db as _db } from "./DBManager";
+const db = _db;
 
 const getUsuarios = () => {
-    try {
-        const query = `SELECT * FROM Usuario`
-        const readQuery = db.prepare(query)
-        const rowList = readQuery.all()
-        return rowList
-    } catch (err) {
-        console.error(err)
-        throw err
-    }
-}
+  try {
+    const query = `SELECT * FROM Usuario`;
+    const readQuery = db.prepare(query);
+    const rowList = readQuery.all();
+    return rowList;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
 
 // Función para verificar las credenciales de inicio de sesión
 const login = (nombreUsuario, contrasena) => {

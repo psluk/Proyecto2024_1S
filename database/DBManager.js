@@ -1,12 +1,13 @@
-const Database = require("better-sqlite3")
-const path = require("path")
+import Database from "better-sqlite3";
+import { join } from "path";
 
 const dbPath =
-    process.env.NODE_ENV === "development"
-        ? "./database/gadt-database.db"
-        : path.join(process.resourcesPath, "./gadt-database.db")
+  process.env.NODE_ENV === "development"
+    ? "./database/gadt-database.db"
+    : join(process.resourcesPath, "./gadt-database.db");
 
-const db = new Database(dbPath)
-db.pragma("journal_mode = WAL")
+const db = new Database(dbPath);
+db.pragma("journal_mode = WAL");
 
-exports.db = db
+const _db = db;
+export { _db as db };
