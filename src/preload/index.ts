@@ -1,6 +1,6 @@
 import { contextBridge } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
-import UsuariosDB from "../database/UsuariosManager";
+import UserDB from "../database/UserManager";
 
 // Custom APIs for renderer
 const api = {};
@@ -12,7 +12,7 @@ if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld("electron", electronAPI);
     contextBridge.exposeInMainWorld("api", api);
-    contextBridge.exposeInMainWorld("BaseDatos", { UsuariosDB });
+    contextBridge.exposeInMainWorld("BaseDatos", { UserDB });
   } catch (error) {
     console.error(error);
   }
@@ -22,5 +22,5 @@ if (process.contextIsolated) {
   // @ts-ignore (define in dts)
   window.api = api;
   // @ts-ignore (define in dts)
-  window.BaseDatos = { UsuariosDB };
+  window.BaseDatos = { UserDB };
 }
