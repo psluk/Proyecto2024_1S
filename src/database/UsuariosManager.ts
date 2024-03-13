@@ -1,5 +1,6 @@
 import { db } from "./DBManager";
 
+//Function to get all users in the database
 const getUsuarios = () => {
   try {
     const query = `SELECT * FROM Usuario`;
@@ -12,22 +13,51 @@ const getUsuarios = () => {
   }
 };
 
-// Función para verificar las credenciales de inicio de sesión
-const login = (nombreUsuario: string, contrasena: string) => {
-  // Buscar el usuario en la base de datos por el nombre de usuario y la contraseña
+// Function to try to login with an email and password
+const login = (email: string, password: string) => {
+  // Tries to get an user with a given email and password
   const query = "SELECT * FROM Usuario WHERE Correo = ? AND Contrasena = ?";
-  const usuario = db.prepare(query).get(nombreUsuario, contrasena);
+  const user = db.prepare(query).get(email, password);
 
-  // Si no se encuentra el usuario, devolver null
-  if (!usuario) {
+  // Returns Null if no coincidence
+  if (!user) {
     return null;
   }
 
-  // Si se encuentra el usuario, devolverlo
-  return usuario;
+  // Returns the user if found
+  return user;
+};
+
+const register = (name, email, contrasena, type) => {
+  try {
+    // Checks if user already exists
+    const existingUser = db
+      .prepare("SELECT * FROM Usuario WHERE Correo = ?")
+      .get(email);
+    if (existingUser) {
+      // Returns null if already in use
+      return null;
+    }
+
+    // Inserts a new user
+    const insertQuery =
+      "INSERT INTO Usuario (Nombre, Correo, Contrasena,IDTipoUsuario) VALUES (?, ?, ?, ?)";
+    const result = db.prepare(insertQuery).run(name, email, contrasena, type);
+    const userId = result.lastInsertRowid;
+
+    const newUser = db
+      .prepare("SELECT * FROM Usuario WHERE IDUsuario = ?")
+      .get(userId);
+
+    return newUser;
+  } catch (error) {
+    console.error("Error al registrar usuario:", error);
+    throw error;
+  }
 };
 
 export default {
   getUsuarios,
   login,
+  register,
 };
