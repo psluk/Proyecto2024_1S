@@ -1,7 +1,9 @@
 import { useState } from "react";
 import electronLogo from ".././assets/electron.svg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
 export default function Login() {
+  let navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showError, setShowError] = useState(false);
@@ -26,18 +28,19 @@ export default function Login() {
       if (response) {
         const tipo = response.IDTipoUsuario;
         if (tipo === 1) {
-          window.location.href = "/coordinador/inicio";
+          console.log("Es de tipo " + tipo);
+          navigate("/admin/home");
         } else if (tipo === 2) {
-          window.location.href = "/profesor/inicio";
+          navigate("/teacher/home");
         } else if (tipo === 3) {
-          window.location.href = "/estudiante/inicio";
+          navigate("/student/home");
         } else {
           // Tipo de usuario no reconocido
           alert("Tipo de usuario no reconocido");
         }
       } else {
         // Credenciales incorrectos
-        setShowError(true);
+        return setShowError(true);
       }
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
@@ -51,11 +54,7 @@ export default function Login() {
     <>
       <div className="min-h-full flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
-            className="mx-auto h-10 w-auto"
-            src={electronLogo}
-            alt="Your Company"
-          />
+          <img className="mx-auto h-10 w-auto" src={electronLogo} alt="logo" />
           <h2 className="text-white-900 mt-10 text-center text-3xl font-bold leading-9 tracking-tight">
             Iniciar sesión
           </h2>
