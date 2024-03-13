@@ -1,9 +1,9 @@
-import { _db } from "./DBManager";
+import { db } from "./DBManager";
 
 const getUsuarios = () => {
   try {
     const query = `SELECT * FROM Usuario`;
-    const readQuery = _db.prepare(query);
+    const readQuery = db.prepare(query);
     const rowList = readQuery.all();
     return rowList;
   } catch (err) {
@@ -13,7 +13,7 @@ const getUsuarios = () => {
 };
 
 // Función para verificar las credenciales de inicio de sesión
-const login = (nombreUsuario, contrasena) => {
+const login = (nombreUsuario: string, contrasena: string) => {
   // Buscar el usuario en la base de datos por el nombre de usuario y la contraseña
   const query = "SELECT * FROM Usuario WHERE Correo = ? AND Contrasena = ?";
   const usuario = db.prepare(query).get(nombreUsuario, contrasena);
@@ -27,7 +27,7 @@ const login = (nombreUsuario, contrasena) => {
   return usuario;
 };
 
-module.exports = {
+export default {
   getUsuarios,
   login,
 };

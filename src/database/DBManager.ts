@@ -9,5 +9,4 @@ const dbPath =
 const db = new Database(dbPath);
 db.pragma("journal_mode = WAL");
 
-const _db = db;
-export { _db };
+export { db };

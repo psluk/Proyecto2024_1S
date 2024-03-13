@@ -1,8 +1,7 @@
-import { useState } from "react";
-import electronLogo from "./assets/electron.svg";
-import { Link, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Login from "./components/Login";
 import Register from "./components/Register";
+
 function App(): JSX.Element {
   return (
     <div className="">
