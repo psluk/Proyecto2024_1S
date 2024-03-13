@@ -26,5 +26,7 @@ yarn-error.log*
 /.vscode
 
 # Database
-/database/*.db,*.db-shm,*.db-wal
+/database/*.db
+/database/*.db-shm
+/database/*.db-wal
 
