@@ -54,6 +54,7 @@ function Register(): JSX.Element {
       password,
       userType,
     );
+
     if (!newUser) {
       setShowError(true);
     }
@@ -139,7 +140,7 @@ function Register(): JSX.Element {
         >
           Registrarme
         </button>
-        <p className="text-white ">
+        <p>
           ¿Ya tienes cuenta?{" "}
           <Link to="/" className="text-blue-600 hover:underline">
             Inicia sesión
