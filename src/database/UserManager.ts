@@ -1,4 +1,4 @@
-import { db } from "./DBManager";
+import { db } from "./DbManager";
 
 //Function to get all users in the database
 const getUsuarios = () => {
@@ -28,7 +28,12 @@ const login = (email: string, password: string) => {
   return user;
 };
 
-const register = (name, email, contrasena, type) => {
+const register = (
+  name: string,
+  email: string,
+  password: string,
+  type: string,
+) => {
   try {
     // Checks if user already exists
     const existingUser = db
@@ -42,7 +47,7 @@ const register = (name, email, contrasena, type) => {
     // Inserts a new user
     const insertQuery =
       "INSERT INTO Usuario (Nombre, Correo, Contrasena,IDTipoUsuario) VALUES (?, ?, ?, ?)";
-    const result = db.prepare(insertQuery).run(name, email, contrasena, type);
+    const result = db.prepare(insertQuery).run(name, email, password, type);
     const userId = result.lastInsertRowid;
 
     const newUser = db
