@@ -26,16 +26,16 @@ export default function Login() {
 
       // Correct credentials
       if (response) {
-        const tipo = response.IDTipoUsuario;
-        if (tipo === 1) {
-          console.log("Es de tipo " + tipo);
+        const type = response.userTypeId;
+        if (type === 1) {
+          console.log("Es de tipo " + type);
           navigate("/admin/home");
-        } else if (tipo === 2) {
+        } else if (type === 2) {
           navigate("/professor/home");
-        } else if (tipo === 3) {
+        } else if (type === 3) {
           navigate("/student/home");
         } else {
-          // Tipo de usuario no reconocido
+          // Unknown user type
           alert("Tipo de usuario no reconocido");
         }
       } else {

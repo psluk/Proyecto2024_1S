@@ -5,7 +5,8 @@ import Register from "./pages/Register";
 import StudentHome from "./pages/student/Home";
 import ProfessorerHome from "./pages/professor/Home";
 import AdminHome from "./pages/admin/Home";
-import Versions from "./components/Versions";
+import ManageUsers from "./pages/admin/ManageUsers";
+import EditUser from "./pages/admin/EditUser";
 
 function App(): JSX.Element {
   return (
@@ -13,10 +14,11 @@ function App(): JSX.Element {
       <Routes>
         <Route path="/" element={ShowLogin ? <Login /> : <AdminHome />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/versions" element={<Versions/>} />
         <Route path="/student/home" element={<StudentHome />} />
         <Route path="/professor/home" element={<ProfessorerHome />} />
         <Route path="/admin/home" element={<AdminHome />} />
+        <Route path="/admin/manageUsers" element={<ManageUsers />} />
+        <Route path="/admin/editUser/:userId" element={<EditUser />} />
       </Routes>
     </div>
   );
