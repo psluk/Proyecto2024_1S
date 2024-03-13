@@ -12,19 +12,19 @@ export default function Login() {
     setEmail(event.target.value);
   };
 
-  // Controlador de eventos para manejar el cambio en el campo de contraseña
+  // Event handler to handle password change
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
   };
 
-  // Controlador de eventos para manejar el inicio de sesión
+  // Event handler to handle login
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
 
     try {
       const response = await window.BaseDatos.UsuariosDB.login(email, password);
 
-      //Credenciales correctos
+      // Correct credentials
       if (response) {
         const tipo = response.IDTipoUsuario;
         if (tipo === 1) {
@@ -39,7 +39,7 @@ export default function Login() {
           alert("Tipo de usuario no reconocido");
         }
       } else {
-        // Credenciales incorrectos
+        // Wrong credentials
         return setShowError(true);
       }
     } catch (error) {
@@ -61,11 +61,11 @@ export default function Login() {
 
           {showError && (
             <div
-              className="mb-4 mt-5 rounded-lg bg-red-50 p-4 text-sm text-red-800 dark:bg-gray-800 dark:text-red-400"
+              className="mb-4 mt-5 rounded-lg bg-red-50 p-4 text-sm text-red-800"
               role="alert"
             >
               <span className="font-medium">¡No se ha iniciado sesión!</span>{" "}
-              Credenciales incorrectos
+              Credenciales incorrectas
             </div>
           )}
         </div>
@@ -100,14 +100,6 @@ export default function Login() {
                 >
                   Contraseña
                 </label>
-                <div className="text-sm">
-                  <a
-                    href="#"
-                    className="font-semibold text-blue-600 hover:text-blue-500"
-                  >
-                    ¿Olvidaste tu contraseña?
-                  </a>
-                </div>
               </div>
               <div className="mt-2">
                 <input
@@ -127,7 +119,7 @@ export default function Login() {
                 type="submit"
                 className="text-m flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
-                Iniciar Sesión
+                Iniciar sesión
               </button>
             </div>
           </form>

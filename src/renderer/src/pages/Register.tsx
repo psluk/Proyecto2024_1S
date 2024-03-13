@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 function Register(): JSX.Element {
@@ -14,17 +14,23 @@ function Register(): JSX.Element {
   const itcrDomain = /@(itcr\.ac\.cr)$/;
   const estudiantecDomain = /@(estudiantec\.cr)$/;
 
-  const handleNameChange = (event) => {
+  const handleNameChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
     setName(event.target.value);
   };
 
-  const handleEmailChange = (event) => {
+  const handleEmailChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
     setShowError(false);
     setEmailError(false);
     setEmail(event.target.value);
   };
 
-  const handlePasswordChange = (event) => {
+  const handlePasswordChange = (event: {
+    target: { value: SetStateAction<string> };
+  }) => {
     setPassword(event.target.value);
   };
 
@@ -53,7 +59,7 @@ function Register(): JSX.Element {
     }
 
     if (newUser) {
-    alert("Usuario creado con éxito")
+      alert("Usuario creado con éxito");
       navigate("/");
     }
   };
@@ -78,7 +84,7 @@ function Register(): JSX.Element {
             htmlFor="name"
             className="text-white-900 block text-sm font-medium leading-6"
           >
-            Nombre Completo
+            Nombre completo
           </label>
           <input
             type="text"
@@ -120,7 +126,7 @@ function Register(): JSX.Element {
             type="password"
             name="password"
             id="password"
-            autoComplete="password"
+            autoComplete="new-password"
             required
             onChange={handlePasswordChange}
             className="flex rounded-md border-0 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600 sm:max-w-md"
@@ -142,21 +148,21 @@ function Register(): JSX.Element {
         <div className="border-b border-gray-900/10 pb-12">
           {showError && (
             <div
-              className="mt-5 rounded-lg bg-red-50 p-4 text-sm text-red-800 dark:bg-gray-800 dark:text-red-400"
+              className="mt-5 rounded-lg bg-red-50 p-4 text-sm text-red-800"
               role="alert"
             >
               <span className="font-medium">
-                Correo ya en uso, utilice otro
+                Correo ya en uso. Utilice otro.
               </span>
             </div>
           )}
           {emailError && (
             <div
-              className="mt-5 rounded-lg bg-red-50 p-4 text-sm text-red-800 dark:bg-gray-800 dark:text-red-400"
+              className="mt-5 rounded-lg bg-red-50 p-4 text-sm text-red-800"
               role="alert"
             >
               <span className="font-medium">
-                Por favor, utilice un correo institucional
+                Por favor, utilice un correo institucional.
               </span>
             </div>
           )}

@@ -1,3 +1,3 @@
 export default function StudentHome(): JSX.Element {
-  return <div>Estudiante</div>;
+  return <div><span className="font-bold">Perfil activo:</span> Estudiante</div>;
 }
