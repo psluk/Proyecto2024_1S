@@ -1,6 +1,9 @@
 import { Route, Routes } from "react-router-dom";
-import Login from "./components/Login";
-import Register from "./components/Register";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import StudentHome from "./pages/student/Home";
+import ProfessorerHome from "./pages/professor/Home";
+import AdminHome from "./pages/admin/Home";
 import Versions from "./components/Versions";
 
 function App(): JSX.Element {
@@ -10,6 +13,9 @@ function App(): JSX.Element {
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/versions" element={<Versions/>} />
+        <Route path="/student/home" element={<StudentHome />} />
+        <Route path="/professor/home" element={<ProfessorerHome />} />
+        <Route path="/admin/home" element={<AdminHome />} />
       </Routes>
     </div>
   );

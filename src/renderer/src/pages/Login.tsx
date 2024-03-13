@@ -31,7 +31,7 @@ export default function Login() {
           console.log("Es de tipo " + tipo);
           navigate("/admin/home");
         } else if (tipo === 2) {
-          navigate("/teacher/home");
+          navigate("/professor/home");
         } else if (tipo === 3) {
           navigate("/student/home");
         } else {

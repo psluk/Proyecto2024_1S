@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 function Register(): JSX.Element {
+  const navigate = useNavigate();
+
   const [showError, setShowError] = useState(false);
   const [emailError, setEmailError] = useState(false);
 
@@ -50,7 +52,10 @@ function Register(): JSX.Element {
       setShowError(true);
     }
 
-    console.log(newUser);
+    if (newUser) {
+    alert("Usuario creado con éxito")
+      navigate("/");
+    }
   };
 
   return (
@@ -128,8 +133,11 @@ function Register(): JSX.Element {
         >
           Registrarme
         </button>
-        <p  className="text-white ">
-          ¿Ya tienes cuenta? <Link to="/" className="text-blue-600 hover:underline">Inicia sesión</Link>
+        <p className="text-white ">
+          ¿Ya tienes cuenta?{" "}
+          <Link to="/" className="text-blue-600 hover:underline">
+            Inicia sesión
+          </Link>
         </p>
         <div className="border-b border-gray-900/10 pb-12">
           {showError && (
