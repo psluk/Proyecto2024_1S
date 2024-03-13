@@ -48,7 +48,7 @@ function Register(): JSX.Element {
       return;
     }
 
-    const newUser = await window.BaseDatos.UsuariosDB.register(
+    const newUser = await window.database.UserDatabase.register(
       name,
       email,
       password,

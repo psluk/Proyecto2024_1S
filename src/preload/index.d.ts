@@ -4,6 +4,6 @@ declare global {
   interface Window {
     electron: ElectronAPI;
     api: unknown;
-    BaseDatos: any;
+    database: any;
   }
 }

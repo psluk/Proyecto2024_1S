@@ -1,7 +1,7 @@
 import { db } from "./DbManager";
 
-//Function to get all users in the database
-const getUsuarios = () => {
+// Function to get all users in the database
+const getUsers = () => {
   try {
     const query = `SELECT * FROM Usuario`;
     const readQuery = db.prepare(query);
@@ -14,7 +14,7 @@ const getUsuarios = () => {
 };
 
 // Function to try to login with an email and password
-const login = (email: string, password: string) => {
+const login = (email: string, password: string) : any => {
   // Tries to get an user with a given email and password
   const query = "SELECT * FROM Usuario WHERE Correo = ? AND Contrasena = ?";
   const user = db.prepare(query).get(email, password);
@@ -62,7 +62,7 @@ const register = (
 };
 
 export default {
-  getUsuarios,
+  getUsers,
   login,
   register,
 };

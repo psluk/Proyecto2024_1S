@@ -22,7 +22,7 @@ export default function Login() {
     event.preventDefault();
 
     try {
-      const response = await window.BaseDatos.UsuariosDB.login(email, password);
+      const response = await window.database.UserDatabase.login(email, password);
 
       // Correct credentials
       if (response) {
