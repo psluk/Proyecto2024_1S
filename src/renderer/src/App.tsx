@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import { ShowLogin } from "./global/ShowLogin";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import StudentHome from "./pages/student/Home";
@@ -10,7 +11,7 @@ function App(): JSX.Element {
   return (
     <div className="">
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={ShowLogin ? <Login /> : <AdminHome />} />
         <Route path="/register" element={<Register />} />
         <Route path="/versions" element={<Versions/>} />
         <Route path="/student/home" element={<StudentHome />} />
