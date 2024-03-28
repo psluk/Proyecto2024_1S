@@ -1,16 +1,15 @@
-import { ExcelModel } from '../models/ExcelModel';
-
+import { ExcelModel } from "../models/ExcelModel";
 
 class MainController {
-
-  static uploadProfessorsFile(data:ArrayBuffer):boolean{
+  static uploadProfessorsFile(data: ArrayBuffer) {
     ExcelModel.readProfessorsFromSheet(data);
-    console.log("Controller funcionando");
     return true;
   }
 
-
-
+  static async getProfessors() {
+    const profes = await window.database.ProfessorDatabase.getProfessors();
+    console.log(profes);
+  }
 }
 
 export default MainController;

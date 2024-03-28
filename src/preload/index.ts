@@ -1,6 +1,7 @@
 import { contextBridge } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
 import UserDatabase from "../database/UserManager";
+import ProfessorDatabase from "../database/ProfessorManager";
 
 // Custom APIs for renderer
 const api = {};
@@ -12,7 +13,7 @@ if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld("electron", electronAPI);
     contextBridge.exposeInMainWorld("api", api);
-    contextBridge.exposeInMainWorld("database", { UserDatabase });
+    contextBridge.exposeInMainWorld("database", { UserDatabase, ProfessorDatabase });
   } catch (error) {
     console.error(error);
   }
@@ -22,5 +23,5 @@ if (process.contextIsolated) {
   // @ts-ignore (define in dts)
   window.api = api;
   // @ts-ignore (define in dts)
-  window.database = { UserDatabase };
+  window.database = { UserDatabase,ProfessorDatabase };
 }

@@ -1,5 +1,5 @@
 import { RunResult } from "better-sqlite3";
-import { db } from "./DbManager";
+import { db } from "./DBManager";
 
 // Function to get all users in the database
 const getUsers = () => {
