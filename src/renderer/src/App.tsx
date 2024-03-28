@@ -7,12 +7,14 @@ import ProfessorerHome from "./pages/professor/Home";
 import AdminHome from "./pages/admin/Home";
 import ManageUsers from "./pages/admin/ManageUsers";
 import EditUser from "./pages/admin/EditUser";
+import UploadFiles from "./pages/admin/UploadFiles";
 
 function App(): JSX.Element {
   return (
     <div className="">
       <Routes>
-        <Route path="/" element={ShowLogin ? <Login /> : <AdminHome />} />
+        UploadFiles
+        <Route path="/" element={<UploadFiles/>} />
         <Route path="/register" element={<Register />} />
         <Route path="/student/home" element={<StudentHome />} />
         <Route path="/professor/home" element={<ProfessorerHome />} />
