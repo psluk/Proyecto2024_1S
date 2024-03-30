@@ -22,7 +22,10 @@ export default function Login() {
     event.preventDefault();
 
     try {
-      const response = await window.database.UserDatabase.login(email, password);
+      const response = await window.database.UserDatabase.login(
+        email,
+        password,
+      );
 
       // Correct credentials
       if (response) {
@@ -52,7 +55,7 @@ export default function Login() {
 
   return (
     <>
-      <div className="min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+      <div className="flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img className="mx-auto h-10 w-auto" src={electronLogo} alt="logo" />
           <h2 className="text-white-900 mt-10 text-center text-3xl font-bold leading-9 tracking-tight">
