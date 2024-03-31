@@ -238,3 +238,60 @@ CREATE TABLE ProfessorActivities
     professorId         INTEGER
         references Professors
 );
+
+-- Hardcoded data
+
+INSERT INTO CourseExperiences (name) VALUES
+	 ('New'),
+	 ('Existing'),
+	 ('Taught before'),
+	 ('Parallel 1'),
+	 ('Parallel 2');
+INSERT INTO CourseTypes (name) VALUES
+	 ('Theoretical'),
+	 ('Practical'),
+	 ('Theoretical-Practical'),
+	 ('Project');
+INSERT INTO ExperienceFactors (courseExperienceId,courseTypeId,factor) VALUES
+	 (1,1,2.5),
+	 (2,1,2.0),
+	 (3,1,1.75),
+	 (4,1,1.5),
+	 (5,1,1.25),
+	 (1,2,2.0),
+	 (2,2,1.75),
+	 (3,2,1.5),
+	 (4,2,1.25),
+	 (5,2,1.0);
+INSERT INTO ExperienceFactors (courseExperienceId,courseTypeId,factor) VALUES
+	 (1,4,3.0),
+	 (2,4,2.5),
+	 (3,4,2.0),
+	 (4,4,1.5),
+	 (5,4,1.25);
+INSERT INTO ProfessorTypes (typeName) VALUES
+	 ('Permanent'),
+	 ('Temporary');
+INSERT INTO StudentFactors (courseTypeId,minStudents,minHours,factor) VALUES
+	 (1,1,2,2.0),
+	 (1,16,2,3.0),
+	 (1,26,2,4.0),
+	 (1,36,2,5.0),
+	 (1,46,2,6.0),
+	 (1,1,5,2.75),
+	 (1,16,5,3.75),
+	 (1,26,5,4.75),
+	 (1,36,5,5.75),
+	 (1,46,5,6.75);
+INSERT INTO StudentFactors (courseTypeId,minStudents,minHours,factor) VALUES
+	 (2,1,0,3.0),
+	 (2,16,0,4.5),
+	 (2,26,0,6.0),
+	 (3,1,0,2.5),
+	 (3,16,0,3.75),
+	 (3,26,0,5.25),
+	 (3,36,0,6.5);
+INSERT INTO UserTypes (typeName) VALUES
+	 ('Administrator'),
+	 ('Professor'),
+	 ('Student');
