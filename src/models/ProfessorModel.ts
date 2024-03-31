@@ -10,8 +10,8 @@ export class ProfessorModel {
 
   private mapType(type: string): string {
     const typeMapping: { [key: string]: string } = {
-      "profesores de planta": "De planta",
-      "profesores iterinos": "Interino",
+      "profesores de planta": "Permanent",
+      "profesores iterinos": "Temporary",
       // Agregsr mapeos si hubieran
     };
 
