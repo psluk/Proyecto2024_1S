@@ -29,7 +29,22 @@ const getProfessors = () => {
   }
 };
 
+const deleteProfessor = (professorId) => {
+  try {
+    // Optional: Add logic here to handle related records in other tables
+    // e.g., delete or update records in ProfessorActivities, GroupProfessors, etc.
+
+    const deleteQuery = `DELETE FROM Professors WHERE professorId = ?;`;
+    const result = db.prepare(deleteQuery).run(professorId);
+    console.log(`Deleted professor with ID: ${professorId}`, result);
+  } catch (err) {
+    console.error(err);
+    throw err; 
+  }
+};
+
 export default {
   insertProfessors,
   getProfessors,
+  deleteProfessor,
 };

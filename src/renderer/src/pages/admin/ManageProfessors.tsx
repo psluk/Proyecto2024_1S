@@ -35,6 +35,15 @@ export default function ManageProfessors(): JSX.Element {
     }
   }, [search, professors]);
 
+  const deleteProfessor = (professorId: number) => {
+    MainController.deleteProfessor(professorId).then(() => {
+      const newProfessors = professors.filter(
+        (professor) => professor.getProfessorId() !== professorId,
+      );
+      setProfessors(newProfessors);
+      setFilteredProfessors(newProfessors);
+    });
+  }
   return (
     <main className="gap-6">
       <h1 className="text-3xl font-bold">Administrar profesores</h1>
@@ -95,7 +104,7 @@ export default function ManageProfessors(): JSX.Element {
                       >
                         <FontAwesomeIcon icon={faPen} />
                       </Link>
-                      <button className="text-sm font-semibold text-red-600">
+                      <button className="text-sm font-semibold text-red-600" onClick={()=>deleteProfessor(professor.getProfessorId())}>
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
                     </td>

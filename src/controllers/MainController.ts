@@ -15,6 +15,10 @@ class MainController {
 
     return professors;
   }
+
+  static async deleteProfessor(professorId: number) {
+    return await window.database.ProfessorDatabase.deleteProfessor(professorId);
+  }
 }
 
 export default MainController;
