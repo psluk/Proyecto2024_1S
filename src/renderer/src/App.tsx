@@ -8,21 +8,21 @@ import AdminHome from "./pages/admin/Home";
 import ManageUsers from "./pages/admin/ManageUsers";
 import EditUser from "./pages/admin/EditUser";
 import UploadFiles from "./pages/admin/UploadFiles";
+import ManageProfessors from "./pages/admin/ManageProfessors";
 
 function App(): JSX.Element {
   return (
-    <div className="">
-      <Routes>
-        UploadFiles
-        <Route path="/" element={<UploadFiles/>} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/student/home" element={<StudentHome />} />
-        <Route path="/professor/home" element={<ProfessorerHome />} />
-        <Route path="/admin/home" element={<AdminHome />} />
-        <Route path="/admin/manageUsers" element={<ManageUsers />} />
-        <Route path="/admin/editUser/:userId" element={<EditUser />} />
-      </Routes>
-    </div>
+    <Routes>
+      <Route path="/" element={<UploadFiles />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/student/home" element={<StudentHome />} />
+      <Route path="/professor/home" element={<ProfessorerHome />} />
+      <Route path="/admin/home" element={<AdminHome />} />
+      <Route path="/admin/manageUsers" element={<ManageUsers />} />
+      <Route path="/admin/editUser/:userId" element={<EditUser />} />
+      <Route path="/admin/uploadFiles" element={<UploadFiles />} />
+      <Route path="/admin/manageProfessors" element={<ManageProfessors />} />
+    </Routes>
   );
 }
 

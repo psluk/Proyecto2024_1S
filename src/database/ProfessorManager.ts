@@ -19,7 +19,7 @@ const insertProfessors = (list: ProfessorModel[]) => {
 
 const getProfessors = () => {
   try {
-    const query = `SELECT * FROM Professors;`;
+    const query = `SELECT Name, professorId, email, typeName as professorType FROM Professors JOIN ProfessorTypes USING(professorTypeId)`;
     const readQuery = db.prepare(query);
     const rowList = readQuery.all();
     return rowList;
