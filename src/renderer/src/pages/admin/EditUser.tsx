@@ -76,9 +76,9 @@ export default function EditUser(): JSX.Element {
                   setUserData({ ...userData, type: event.target.value });
                 }}
               >
-                <option value="Estudiante">Estudiante</option>
-                <option value="Profesor">Profesor</option>
-                <option value="Administrador">Administrador</option>
+                <option value="Student">Estudiante</option>
+                <option value="Professor">Profesor</option>
+                <option value="Administrator">Administrador</option>
               </select>
             </div>
             <div className="flex w-full flex-col gap-3">

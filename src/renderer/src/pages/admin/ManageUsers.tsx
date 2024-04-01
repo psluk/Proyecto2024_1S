@@ -15,13 +15,13 @@ export default function ManageUsers(): JSX.Element {
 
   const fetchData = async () => {
     setStudents(
-      await window.database.UserDatabase.getUsersByType("Estudiante"),
+      await window.database.UserDatabase.getUsersByType("Student"),
     );
     setProfessors(
-      await window.database.UserDatabase.getUsersByType("Profesor"),
+      await window.database.UserDatabase.getUsersByType("Professor"),
     );
     setAdmins(
-      await window.database.UserDatabase.getUsersByType("Administrador"),
+      await window.database.UserDatabase.getUsersByType("Administrator"),
     );
   };
 
