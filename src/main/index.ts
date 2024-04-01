@@ -10,6 +10,7 @@ function createWindow(): void {
     height: 670,
     show: false,
     autoHideMenuBar: true,
+    frame: false,
     ...(process.platform === "linux" ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
@@ -33,6 +34,32 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
   }
+
+  // Handle minimize, maximize, and close actions
+  ipcMain.on("minimize", () => {
+    mainWindow.minimize();
+  });
+
+  ipcMain.on("maximize", () => {
+    if (mainWindow.isMaximized()) {
+      mainWindow.restore();
+    } else {
+      mainWindow.maximize();
+    }
+  });
+
+  ipcMain.on("close", () => {
+    mainWindow.close();
+  });
+
+  // Listen to maximize/restore change
+  mainWindow.on("maximize", () => {
+    mainWindow.webContents.send("maximize");
+  });
+
+  mainWindow.on("unmaximize", () => {
+    mainWindow.webContents.send("unmaximize");
+  });
 }
 
 // This method will be called when Electron has finished

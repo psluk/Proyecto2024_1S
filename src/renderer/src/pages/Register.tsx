@@ -66,7 +66,7 @@ function Register(): JSX.Element {
   };
 
   return (
-    <div className="w-full space-y-10 p-6 ">
+    <main className="gap-10">
       <div>
         <h1 className="text-white-900 mt-10 text-center text-3xl font-bold leading-9 tracking-tight">
           Crear cuenta
@@ -78,7 +78,7 @@ function Register(): JSX.Element {
 
       <form
         onSubmit={createUser}
-        className="flex w-full flex-col items-center justify-center gap-4"
+        className="flex w-full max-w-sm flex-col items-center justify-center gap-4"
       >
         <div className="flex w-full flex-col gap-3">
           <label
@@ -94,7 +94,7 @@ function Register(): JSX.Element {
             autoComplete="name"
             required
             onChange={handleNameChange}
-            className="flex rounded-md border-0 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600 sm:max-w-md"
+            className="flex rounded-md border-0 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600 sm:max-w-sm"
             placeholder="Nombre completo"
           />
         </div>
@@ -112,7 +112,7 @@ function Register(): JSX.Element {
             autoComplete="email"
             required
             onChange={handleEmailChange}
-            className="flex rounded-md border-0 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600 sm:max-w-md"
+            className="flex rounded-md border-0 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600 sm:max-w-sm"
             placeholder="@itcr.ac.cr / @estudiantec.cr"
           />
         </div>
@@ -130,13 +130,13 @@ function Register(): JSX.Element {
             autoComplete="new-password"
             required
             onChange={handlePasswordChange}
-            className="flex rounded-md border-0 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600 sm:max-w-md"
+            className="flex rounded-md border-0 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600 sm:max-w-sm"
             placeholder="Contraseña"
           />
         </div>
         <button
           type="submit"
-          className="mt-4 w-2/3 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          className="mt-4 w-full rounded-md bg-blue-600 px-3 py-1.5 font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         >
           Registrarme
         </button>
@@ -169,7 +169,7 @@ function Register(): JSX.Element {
           )}
         </div>
       </form>
-    </div>
+    </main>
   );
 }
 

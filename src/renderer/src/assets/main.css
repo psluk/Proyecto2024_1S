@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --title-bar-height: 2rem;
+}
+
 html,
 body,
 #root {
@@ -38,4 +42,25 @@ body {
   align-items: center;
   justify-content: center;
   flex-direction: column;
+}
+
+#root > main {
+  margin-top: var(--title-bar-height);
+  padding: 2.5rem;
+  padding-top: calc(2.5rem + var(--title-bar-height));
+  overflow: auto;
+  max-height: calc(100% - var(--title-bar-height));
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+#title-bar {
+  height: var(--title-bar-height);
+}
+
+#draggable-title-bar {
+  -webkit-app-region: drag;
 }

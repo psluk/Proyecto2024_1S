@@ -36,7 +36,7 @@ export default function ManageProfessors(): JSX.Element {
   }, [search, professors]);
 
   return (
-    <main className="flex max-h-screen w-full flex-col items-center justify-between gap-6 overflow-auto p-10">
+    <main className="gap-6">
       <h1 className="text-3xl font-bold">Administrar profesores</h1>
 
       <div className="flex w-full max-w-7xl items-center justify-between">

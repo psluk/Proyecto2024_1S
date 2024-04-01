@@ -45,7 +45,7 @@ export default function EditUser(): JSX.Element {
   }, []);
 
   return (
-    <div className="flex flex-col gap-10">
+    <main className="gap-10">
       <Link
         to="/admin/manageUsers"
         className="text-m mb-8 flex w-auto justify-center rounded-md bg-blue-600 px-3 py-1.5 font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
@@ -152,6 +152,6 @@ export default function EditUser(): JSX.Element {
           Guardar cambios
         </button>
       </form>
-    </div>
+    </main>
   );
 }

@@ -9,11 +9,11 @@ export default function UploadFiles(): JSX.Element {
   };
 
   return (
-    <div className="flex flex-col gap-10">
+    <main className="gap-10">
       <p>
         <span className="font-bold">Cargue los archivos de datos:</span>
       </p>{" "}
       <input type="file" onChange={(e) => handleFile(e)} />
-    </div>
+    </main>
   );
 }
