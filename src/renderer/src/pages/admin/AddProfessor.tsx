@@ -73,8 +73,8 @@ export default function AddProfessor() {
             className="flex rounded-md border-0 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
             required
           >
-            <option value="De planta">De planta</option>
-            <option value="Interino">Interino</option>
+            <option value="Permanent">De planta</option>
+            <option value="Temporary">Interino</option>
           </select>
         </div>
         <button

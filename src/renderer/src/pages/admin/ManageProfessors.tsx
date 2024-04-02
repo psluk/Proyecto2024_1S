@@ -50,6 +50,16 @@ export default function ManageProfessors(): JSX.Element {
       setFilteredProfessors(newProfessors);
     });
   };
+
+  const typeMapping = (type: string) => {
+    const typeMapping: { [key: string]: string } = {
+      Permanent: "De planta",
+      Temporary: "Interino",
+    };
+
+    return typeMapping[type] || type;
+  };
+
   return (
     <main className="gap-6">
       <h1 className="text-3xl font-bold">Administrar profesores</h1>
@@ -99,7 +109,7 @@ export default function ManageProfessors(): JSX.Element {
                 filteredProfessors.map((professor) => (
                   <tr key={professor.getProfessorId()}>
                     <td>{toNormalCase(professor.getName())}</td>
-                    <td>{professor.getProfessorType()}</td>
+                    <td>{typeMapping(professor.getProfessorType())}</td>
                     <td>
                       {professor.getEmail() == null ? (
                         <p>No tiene</p>

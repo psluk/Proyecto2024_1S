@@ -6,24 +6,12 @@ export class ProfessorModel {
 
   constructor(name: string, type: string, email?: string, id?: number) {
     this.name = name;
-    this.professorType = this.mapType(type);
+    this.professorType = type
     this.professorId = id || 0;
     this.email = email || null;
   }
 
-  private mapType(type: string): string {
-    const typeMapping: { [key: string]: string } = {
-      "profesores de planta": "Permanent",
-      "profesores iterinos": "Temporary",
-      permanent: "De planta",
-      temporary: "Interino",
-      "de planta": "Permanent",
-      "interino": "Temporary",
-      // Agregsr mapeos si hubieran
-    };
-
-    return typeMapping[type.toLowerCase()] || type;
-  }
+  
 
   public getProfessorType(): string {
     return this.professorType;

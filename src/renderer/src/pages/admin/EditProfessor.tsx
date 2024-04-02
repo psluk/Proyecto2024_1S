@@ -40,7 +40,7 @@ export default function EditProfessor() {
       setProfessorData({
         ...professor,
         professorType:
-          professor.professorType === "Temporary" ? "Interino" : "De planta",
+          professor.professorType 
       });
     }
   };
@@ -114,8 +114,8 @@ export default function EditProfessor() {
               value={professorData.professorType}
               onChange={updateData}
             >
-              <option value="De planta">De planta</option>
-              <option value="Interino">Interino</option>
+              <option value="Permanent">De planta</option>
+              <option value="Temporary">Interino</option>
             </select>
           </div>
           <button
