@@ -5,7 +5,7 @@ export class ProfessorModel {
   public professorType: string;
 
   constructor(name: string, type: string, email?: string, id?: number) {
-    this.name = this.toNormalCase(name);
+    this.name = name;
     this.professorType = this.mapType(type);
     this.professorId = id || 0;
     this.email = email || null;
@@ -41,10 +41,5 @@ export class ProfessorModel {
     return this.email;
   }
   
-  private toNormalCase(input: string): string {
-    return input
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-  }
+ 
 }

@@ -8,6 +8,7 @@ import {
   faTrash,
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
+import { toNormalCase } from "@renderer/utils/NameFormatter";
 
 export default function ManageProfessors(): JSX.Element {
   const [professors, setProfessors] = useState<ProfessorModel[]>([]);
@@ -37,7 +38,6 @@ export default function ManageProfessors(): JSX.Element {
   }, [search, professors]);
 
   const deleteProfessor = (professorId: number) => {
-
     if (!window.confirm("¿Está seguro de que desea eliminar este profesor?")) {
       return;
     }
@@ -49,7 +49,7 @@ export default function ManageProfessors(): JSX.Element {
       setProfessors(newProfessors);
       setFilteredProfessors(newProfessors);
     });
-  }
+  };
   return (
     <main className="gap-6">
       <h1 className="text-3xl font-bold">Administrar profesores</h1>
@@ -69,7 +69,11 @@ export default function ManageProfessors(): JSX.Element {
             }}
           />
         </div>
-        <button className="h-8 rounded-md bg-sky-600 px-4 text-white font-semibold shadow-sm" type="button" onClick={() => navigate("/admin/addProfessor")}>
+        <button
+          className="h-8 rounded-md bg-sky-600 px-4 font-semibold text-white shadow-sm"
+          type="button"
+          onClick={() => navigate("/admin/addProfessor")}
+        >
           Agregar profesor
         </button>
       </div>
@@ -94,13 +98,15 @@ export default function ManageProfessors(): JSX.Element {
               {filteredProfessors.length ? (
                 filteredProfessors.map((professor) => (
                   <tr key={professor.getProfessorId()}>
-                    <td>{professor.getName()}</td>
+                    <td>{toNormalCase(professor.getName())}</td>
                     <td>{professor.getProfessorType()}</td>
                     <td>
                       {professor.getEmail() == null ? (
                         <p>No tiene</p>
                       ) : (
-                        <a href={`mailto:${professor.getEmail()}`}>{professor.getEmail()}</a>
+                        <a href={`mailto:${professor.getEmail()}`}>
+                          {professor.getEmail()}
+                        </a>
                       )}
                     </td>
                     <td className="space-x-3">
@@ -111,7 +117,14 @@ export default function ManageProfessors(): JSX.Element {
                       >
                         <FontAwesomeIcon icon={faPen} />
                       </Link>
-                      <button className="text-sm font-semibold text-red-600" onClick={()=>deleteProfessor(professor.getProfessorId())} title="Eliminar" type="button">
+                      <button
+                        className="text-sm font-semibold text-red-600"
+                        onClick={() =>
+                          deleteProfessor(professor.getProfessorId())
+                        }
+                        title="Eliminar"
+                        type="button"
+                      >
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
                     </td>

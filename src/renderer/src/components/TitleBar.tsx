@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { adminOptions } from "@renderer/constants/AdminOptions";
 import { SessionContext } from "@renderer/context/SessionContext";
 import { ShowLogin } from "@renderer/global/ShowLogin";
-import { getNameInitials } from "@renderer/utils/Initials";
+import { getNameInitials } from "../utils/NameFormatter";
 import { useContext, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
