@@ -1,4 +1,4 @@
-import LogoutButton from "@renderer/components/LogoutButton";
+import UserCard from "@renderer/components/UserCard";
 
 export default function ProfessorHome(): JSX.Element {
   return (
@@ -6,7 +6,7 @@ export default function ProfessorHome(): JSX.Element {
       <p>
         <span className="font-bold">Perfil activo:</span> Profesor
       </p>{" "}
-      <LogoutButton />
+      <UserCard />
     </main>
   );
 }

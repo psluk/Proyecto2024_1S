@@ -47,13 +47,13 @@ export default function Login() {
         const type = response.userTypeId;
         if (type === 1) {
           navigate("/admin/home");
-          saveSession(response.name, response.email);
+          saveSession(response.name, response.email, response.userTypeId);
         } else if (type === 2) {
           navigate("/professor/home");
-          saveSession(response.name, response.email);
+          saveSession(response.name, response.email, response.userTypeId);
         } else if (type === 3) {
           navigate("/student/home");
-          saveSession(response.name, response.email);
+          saveSession(response.name, response.email, response.userTypeId);
         } else {
           // Unknown user type
           alert("Tipo de usuario no reconocido");
@@ -70,11 +70,9 @@ export default function Login() {
     }
   };
 
-  const saveSession = (name: string, email: string) => {
-    console.log("Logging in as", name, email);
+  const saveSession = (name: string, email: string, type: number) => {
     if (sessionContext != null) {
-      console.log("Session found");
-      login(name, email);
+      login(name, email, type);
     }
   };
 
