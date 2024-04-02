@@ -29,17 +29,7 @@ export default function UploadFiles(): JSX.Element {
       alert("Error en la carga del archivo: " + error);
     }
   };
-
-  const transformType = (type: string) => {
-    switch (type) {
-      case "professors":
-        return "profesores";
-      case "students":
-        return "estudiantes";
-      default:
-        return "";
-    }
-  };
+  
 
   return (
     <main className="flex flex-col items-center gap-10">
@@ -66,7 +56,7 @@ export default function UploadFiles(): JSX.Element {
             disabled={!professorsFile}
             className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700  focus:outline-none focus:ring-4 focus:ring-sky-300  ${
               !professorsFile
-                ? "bg-black-300 cursor-not-allowed text-gray-300"
+                ? "bg-black cursor-not-allowed text-gray-300"
                 : "bg-sky-700 text-white"
             }`}
             onClick={handleProfessorsFile}
@@ -90,7 +80,7 @@ export default function UploadFiles(): JSX.Element {
             disabled={!studentsFile}
             className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700  focus:outline-none focus:ring-4 focus:ring-sky-300 ${
               !studentsFile
-                ? "bg-black-300 cursor-not-allowed text-gray-300"
+                ? "bg-black cursor-not-allowed text-gray-300"
                 : "bg-sky-700 text-white"
             }`}
             onClick={handleStudentsFile}
