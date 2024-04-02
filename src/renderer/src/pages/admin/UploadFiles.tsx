@@ -30,13 +30,24 @@ export default function UploadFiles(): JSX.Element {
     }
   };
 
+  const transformType = (type: string) => {
+    switch (type) {
+      case "professors":
+        return "profesores";
+      case "students":
+        return "estudiantes";
+      default:
+        return "";
+    }
+  };
+
   return (
     <main className="flex flex-col items-center gap-10">
       <h3 className="mb-10 text-3xl font-bold text-sky-700">
         MÓDULO DE CARGA DE DATOS
       </h3>
       <div className="flex justify-center">
-        <div className="mr-3 flex flex-col items-startjustify-center rounded-md bg-sky-200 p-4 text-left">
+        <div className="mr-3 flex flex-col items-start justify-center rounded-md bg-sky-200 p-4 text-left">
           <h4 className="mb-5 text-center font-serif">Archivo de profesores</h4>
           <FileSelector
             identifier="professors"
@@ -77,7 +88,7 @@ export default function UploadFiles(): JSX.Element {
           <button
             type="button"
             disabled={!studentsFile}
-            className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700  focus:outline-none focus:ring-4 focus:ring-sky-300 {
+            className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700  focus:outline-none focus:ring-4 focus:ring-sky-300 ${
               !studentsFile
                 ? "bg-black-300 cursor-not-allowed text-gray-300"
                 : "bg-sky-700 text-white"
