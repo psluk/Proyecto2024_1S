@@ -36,7 +36,7 @@ export default function UploadFiles(): JSX.Element {
         MÓDULO DE CARGA DE DATOS
       </h3>
       <div className="flex justify-center">
-        <div className="mr-3 flex flex-col items-start items-center justify-center rounded-md bg-sky-200 p-4 text-left">
+        <div className="mr-3 flex flex-col items-startjustify-center rounded-md bg-sky-200 p-4 text-left">
           <h4 className="mb-5 text-center font-serif">Archivo de profesores</h4>
           <FileSelector
             identifier="professors"
@@ -53,7 +53,7 @@ export default function UploadFiles(): JSX.Element {
           <button
             type="button"
             disabled={!professorsFile}
-            className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-sky-300 focus:ring-sky-800 ${
+            className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700  focus:outline-none focus:ring-4 focus:ring-sky-300  ${
               !professorsFile
                 ? "bg-black-300 cursor-not-allowed text-gray-300"
                 : "bg-sky-700 text-white"
@@ -63,7 +63,7 @@ export default function UploadFiles(): JSX.Element {
             Cargar archivo
           </button>
         </div>
-        <div className="ml-10 flex flex-col items-start items-center justify-center rounded-md bg-sky-200 p-4 text-left">
+        <div className="ml-10 flex flex-col items-start  justify-center rounded-md bg-sky-200 p-4 text-left">
           <p className="mb-5 text-center font-serif">Archivo de estudiantes</p>
           <FileSelector identifier="students" onChangeFile={setStudentsFile} />
           <div className="ml-3 mt-2 place-self-start">
@@ -77,7 +77,7 @@ export default function UploadFiles(): JSX.Element {
           <button
             type="button"
             disabled={!studentsFile}
-            className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-sky-300 focus:ring-sky-800 ${
+            className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700  focus:outline-none focus:ring-4 focus:ring-sky-300 {
               !studentsFile
                 ? "bg-black-300 cursor-not-allowed text-gray-300"
                 : "bg-sky-700 text-white"
