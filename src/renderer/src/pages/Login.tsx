@@ -1,12 +1,27 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import electronLogo from ".././assets/electron.svg";
 import { Link, useNavigate } from "react-router-dom";
+import { SessionContext } from "@renderer/context/SessionContext";
+import { ShowLogin } from "@renderer/global/ShowLogin";
 
 export default function Login() {
-  let navigate = useNavigate();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showError, setShowError] = useState(false);
+  const sessionContext = useContext(SessionContext);
+
+  if (!sessionContext) {
+    throw new Error("useContext must be inside a Provider with a value");
+  }
+
+  useEffect(() => {
+    if (!ShowLogin) {
+      navigate("/admin/home");
+    }
+  }, []);
+
+  const { login } = sessionContext;
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -31,12 +46,14 @@ export default function Login() {
       if (response) {
         const type = response.userTypeId;
         if (type === 1) {
-          console.log("Es de tipo " + type);
           navigate("/admin/home");
+          saveSession(response.name, response.email);
         } else if (type === 2) {
           navigate("/professor/home");
+          saveSession(response.name, response.email);
         } else if (type === 3) {
           navigate("/student/home");
+          saveSession(response.name, response.email);
         } else {
           // Unknown user type
           alert("Tipo de usuario no reconocido");
@@ -48,13 +65,21 @@ export default function Login() {
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
       alert(
-        "Ocurrió un error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.",
+        "Ocurrió un error al iniciar sesión. Por favor, inténtelo de nuevo más tarde.",
       );
     }
   };
 
+  const saveSession = (name: string, email: string) => {
+    console.log("Logging in as", name, email);
+    if (sessionContext != null) {
+      console.log("Session found");
+      login(name, email);
+    }
+  };
+
   return (
-    <>
+    ShowLogin && (
       <main className="px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img className="mx-auto h-10 w-auto" src={electronLogo} alt="logo" />
@@ -139,6 +164,6 @@ export default function Login() {
           </p>
         </div>
       </main>
-    </>
+    )
   );
 }

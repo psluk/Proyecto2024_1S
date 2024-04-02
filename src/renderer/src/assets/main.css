@@ -46,10 +46,13 @@ body {
 
 #root > main {
   margin-top: var(--title-bar-height);
-  padding: 2.5rem;
-  padding-top: calc(2.5rem + var(--title-bar-height));
   overflow: auto;
   max-height: calc(100% - var(--title-bar-height));
+  width: 100%;
+}
+
+#root > main > main {
+  padding: 2.5rem;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -63,4 +66,9 @@ body {
 
 #draggable-title-bar {
   -webkit-app-region: drag;
+}
+
+#side-menu, #side-menu-shadow {
+  top: var(--title-bar-height);
+  height: calc(100vh - var(--title-bar-height));
 }

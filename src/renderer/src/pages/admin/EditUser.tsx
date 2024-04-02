@@ -57,7 +57,7 @@ export default function EditUser(): JSX.Element {
 
       <form
         onSubmit={handleUserUpdate}
-        className="flex w-full flex-col items-center justify-center gap-4"
+        className="flex w-full max-w-md flex-col items-center justify-center gap-4"
       >
         {userData && (
           <>
@@ -69,6 +69,7 @@ export default function EditUser(): JSX.Element {
                 Tipo de usuario
               </label>
               <select
+                className="rounded-md"
                 name="userType"
                 id="userType"
                 value={userData.type}
