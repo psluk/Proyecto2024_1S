@@ -64,7 +64,7 @@ export default function EditProfessor() {
   return (
     professorData && (
       <main className="gap-10">
-        <h1 className="text-3xl font-bold">Agregar profesor</h1>
+        <h1 className="text-3xl font-bold">Editar profesor</h1>
         <form
           className="flex w-full max-w-2xl flex-col gap-4"
           onSubmit={handleUpdate}
@@ -122,7 +122,7 @@ export default function EditProfessor() {
             type="submit"
             className="mt-4 w-full rounded-md bg-blue-600 px-3 py-1.5 font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           >
-            Agregar
+            Actualizar
           </button>
         </form>
       </main>
