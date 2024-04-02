@@ -94,17 +94,18 @@ export default function ManageProfessors(): JSX.Element {
                       {professor.getEmail() == null ? (
                         <p>No tiene</p>
                       ) : (
-                        <a href={`mailto:${professor.getEmail()}`}></a>
+                        <a href={`mailto:${professor.getEmail()}`}>professor.getEmail()</a>
                       )}
                     </td>
                     <td className="space-x-3">
                       <Link
                         to={`/admin/editProfessor/${professor.getProfessorId()}`}
                         className="text-sm font-semibold text-blue-600"
+                        title="Editar"
                       >
                         <FontAwesomeIcon icon={faPen} />
                       </Link>
-                      <button className="text-sm font-semibold text-red-600" onClick={()=>deleteProfessor(professor.getProfessorId())}>
+                      <button className="text-sm font-semibold text-red-600" onClick={()=>deleteProfessor(professor.getProfessorId())} title="Eliminar" type="button">
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
                     </td>
