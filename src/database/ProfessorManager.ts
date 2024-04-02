@@ -3,6 +3,9 @@ import { ProfessorModel } from "src/models/ProfessorModel";
 
 const insertProfessors = (list: ProfessorModel[]) => {
   try {
+    const deleteQuery = `DELETE FROM Professors;`;
+    db.prepare(deleteQuery).run();
+
     list.forEach((professor) => {
       const insertQuery = `
       INSERT INTO Professors (name, professorTypeId) VALUES (?, (SELECT professorTypeId FROM ProfessorTypes WHERE typeName = ?));
