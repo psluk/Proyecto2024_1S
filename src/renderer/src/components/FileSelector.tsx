@@ -2,10 +2,21 @@ export default function FileSelector({
   identifier,
   onChangeFile,
 }): JSX.Element {
+  const isValidFileType = (file) => {
+    return (
+      file.type ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+      file.type === "application/vnd.ms-excel.sheet.macroEnabled.12"
+    );
+  };
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file) {
+    if (file && isValidFileType(file)) {
       onChangeFile(file);
+    } else {
+      // Display a warning if the file is not a valid Excel file
+      window.alert("Por favor seleccione un archivo .xlsx o .xlsm válido.");
     }
   };
 
@@ -16,8 +27,12 @@ export default function FileSelector({
   const handleDrop = (event) => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
-    if (file) {
+    if (file && isValidFileType(file)) {
       onChangeFile(file);
+    } else {
+      // Display a warning if the file is not a valid Excel file
+      window.alert("Por favor seleccione un archivo .xlsx o .xlsm válido.");
+
     }
   };
 
@@ -62,6 +77,7 @@ export default function FileSelector({
           type="file"
           className="absolute h-0 w-0 overflow-hidden"
           onChange={handleFileChange}
+          accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12"
         />
       </label>
     </div>
