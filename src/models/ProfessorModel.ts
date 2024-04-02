@@ -1,7 +1,7 @@
 export class ProfessorModel {
   public professorId: number;
   public name: string;
-  private email: string | null;
+  public email: string | null;
   public professorType: string;
 
   constructor(name: string, type: string, email?: string, id?: number) {
@@ -17,6 +17,8 @@ export class ProfessorModel {
       "profesores iterinos": "Temporary",
       permanent: "De planta",
       temporary: "Interino",
+      "de planta": "Permanent",
+      "interino": "Temporary",
       // Agregsr mapeos si hubieran
     };
 

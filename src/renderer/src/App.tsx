@@ -11,6 +11,8 @@ import TitleBar from "./components/TitleBar";
 import ManageProfessors from "./pages/admin/ManageProfessors";
 import NotFound from "./pages/NotFound";
 import { SessionContextProvider } from "./context/SessionContext";
+import AddProfessor from "./pages/admin/AddProfessor";
+import EditProfessor from "./pages/admin/EditProfessor";
 
 function App(): JSX.Element {
   return (
@@ -22,6 +24,11 @@ function App(): JSX.Element {
           <Route path="/register" element={<Register />} />
           <Route path="/student/home" element={<StudentHome />} />
           <Route path="/professor/home" element={<ProfessorerHome />} />
+          <Route path="/admin/addProfessor" element={<AddProfessor />} />
+          <Route
+            path="/admin/editProfessor/:professorId"
+            element={<EditProfessor />}
+          />
           <Route path="/admin/home" element={<AdminHome />} />
           <Route path="/admin/manageUsers" element={<ManageUsers />} />
           <Route path="/admin/editUser/:userId" element={<EditUser />} />

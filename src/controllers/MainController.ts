@@ -19,6 +19,15 @@ class MainController {
   static async deleteProfessor(professorId: number) {
     return await window.database.ProfessorDatabase.deleteProfessor(professorId);
   }
+
+  static async getProfessorById(professorId: number): Promise<ProfessorModel> {
+    const professor = await window.database.ProfessorDatabase.getProfessorById(professorId);
+    return new ProfessorModel(professor.name, professor.professorType, professor.email, professor.professorId);
+  }
+
+  static async addProfessor(professor: ProfessorModel) {
+    return await window.database.ProfessorDatabase.addProfessor(professor);
+  }
 }
 
 export default MainController;

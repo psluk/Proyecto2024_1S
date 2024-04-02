@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import MainController from "../../../../controllers/MainController";
 import { ProfessorModel } from "../../../../models/ProfessorModel";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPen,
@@ -15,6 +15,7 @@ export default function ManageProfessors(): JSX.Element {
   const [filteredProfessors, setFilteredProfessors] = useState<
     ProfessorModel[]
   >([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     MainController.getProfessors().then((professors) => {
@@ -63,7 +64,7 @@ export default function ManageProfessors(): JSX.Element {
             }}
           />
         </div>
-        <button className="h-8 rounded-md bg-sky-600 px-4 text-white">
+        <button className="h-8 rounded-md bg-sky-600 px-4 text-white font-semibold shadow-sm" type="button" onClick={() => navigate("/admin/addProfessor")}>
           Agregar profesor
         </button>
       </div>
@@ -94,7 +95,7 @@ export default function ManageProfessors(): JSX.Element {
                       {professor.getEmail() == null ? (
                         <p>No tiene</p>
                       ) : (
-                        <a href={`mailto:${professor.getEmail()}`}>professor.getEmail()</a>
+                        <a href={`mailto:${professor.getEmail()}`}>{professor.getEmail()}</a>
                       )}
                     </td>
                     <td className="space-x-3">
