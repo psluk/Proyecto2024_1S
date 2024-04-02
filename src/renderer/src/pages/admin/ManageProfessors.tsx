@@ -37,6 +37,11 @@ export default function ManageProfessors(): JSX.Element {
   }, [search, professors]);
 
   const deleteProfessor = (professorId: number) => {
+
+    if (!window.confirm("¿Está seguro de que desea eliminar este profesor?")) {
+      return;
+    }
+
     MainController.deleteProfessor(professorId).then(() => {
       const newProfessors = professors.filter(
         (professor) => professor.getProfessorId() !== professorId,
