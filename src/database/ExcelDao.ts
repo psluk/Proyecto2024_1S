@@ -1,8 +1,13 @@
 import * as XLSX from "xlsx";
 import Professor from "../models/Professor";
-import { toNormalCase } from "../utils/NameFormatter"
+import { toNormalCase } from "../utils/NameFormatter";
 
 export default class ExcelDao {
+  /**
+   * Gets a list of professors from an Excel file.
+   * @param fileBuffer The Excel file's array buffer.
+   * @returns A list of professors.
+   */
   async getProfessors(fileBuffer: ArrayBuffer): Promise<Professor[]> {
     const mapType = (type: string): string => {
       const typeMapping: { [key: string]: string } = {

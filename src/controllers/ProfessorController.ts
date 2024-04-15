@@ -30,7 +30,7 @@ export default class ProfessorController {
 
   /**
    * Imports a list of professors from an Excel file.
-   * @param filepath The Excel file's array buffer.
+   * @param fileBuffer The Excel file's array buffer.
    * @returns An object containing two arrays: one for the professors added successfully, and another for errors.
    */
   public async importProfessors(fileBuffer: ArrayBuffer): Promise<{
