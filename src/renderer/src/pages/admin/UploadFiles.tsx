@@ -1,4 +1,3 @@
-import MainController from "../../../../controllers/MainController";
 import FileSelector from "@renderer/components/FileSelector";
 import { useState } from "react";
 
@@ -7,41 +6,64 @@ export default function UploadFiles(): JSX.Element {
   const [studentsFile, setStudentsFile] = useState<File | null>(null);
 
   const handleProfessorsFile = async () => {
-    try {
-      if (professorsFile) {
-        const data = await professorsFile.arrayBuffer();
-        MainController.uploadProfessorsFile(data);
-        alert("Se han cargado los datos correctamente");
-      }
-    } catch (error) {
-      alert("Error en la carga del archivo: " + error);
+    if (!professorsFile) {
+      return;
     }
+    
+    window.mainController.importProfessors(await professorsFile.arrayBuffer()).then((result) => {
+      let message = "";
+
+      if (result.successfulInserts.length > 0) {
+        message += `Se importaron ${result.successfulInserts.length} profesores correctamente.\n`;
+      }
+
+      if (result.errors.length > 0) {
+        message += `No se pudieron importar ${result.errors.length} profesores.\n`;
+      }
+
+      if (message === "") {
+        message = "No se encontraron profesores para importar.";
+      }
+
+      alert(message.trim());
+    });
   };
 
   const handleStudentsFile = async () => {
-    try {
-      if (studentsFile) {
-        const data = await studentsFile.arrayBuffer();
-        console.log(data);
-        //MainController.uploadStudentsFile(data);
-      }
-    } catch (error) {
-      alert("Error en la carga del archivo: " + error);
+    if (!studentsFile) {
+      return;
     }
+
+    // window.mainController.importStudents(await studentsFile.arrayBuffer()).then((result) => {
+    //   let message = "";
+
+    //   if (result.successfulInserts.length > 0) {
+    //     message += `Se importaron ${result.successfulInserts.length} estudiantes correctamente.\n`;
+    //   }
+
+    //   if (result.errors.length > 0) {
+    //     message += `No se pudieron importar ${result.errors.length} estudiantes.\n`;
+    //   }
+
+    //   if (message === "") {
+    //     message = "No se encontraron estudiantes para importar.";
+    //   }
+
+    //   alert(message.trim());
+    // });
   };
-  
 
   return (
     <main className="flex flex-col items-center gap-10">
-      <h3 className="mb-10 text-3xl font-bold text-sky-700">
-        MÓDULO DE CARGA DE DATOS
+      <h3 className="mb-10 text-3xl font-bold uppercase text-sky-700">
+        Módulo de carga de datos
       </h3>
       <div className="flex justify-center">
         <div className="mr-3 flex flex-col items-start justify-center rounded-md bg-sky-200 p-4 text-left">
           <h4 className="mb-5 text-center font-serif">Archivo de profesores</h4>
           <FileSelector
             identifier="professors"
-            onChangeFile={setProfessorsFile}
+            onFileChange={setProfessorsFile}
           />
           <div className="ml-3 mt-2 place-self-start">
             <label>
@@ -56,7 +78,7 @@ export default function UploadFiles(): JSX.Element {
             disabled={!professorsFile}
             className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700  focus:outline-none focus:ring-4 focus:ring-sky-300  ${
               !professorsFile
-                ? "bg-black cursor-not-allowed text-gray-300"
+                ? "cursor-not-allowed bg-black text-gray-300"
                 : "bg-sky-700 text-white"
             }`}
             onClick={handleProfessorsFile}
@@ -66,7 +88,7 @@ export default function UploadFiles(): JSX.Element {
         </div>
         <div className="ml-10 flex flex-col items-start  justify-center rounded-md bg-sky-200 p-4 text-left">
           <p className="mb-5 text-center font-serif">Archivo de estudiantes</p>
-          <FileSelector identifier="students" onChangeFile={setStudentsFile} />
+          <FileSelector identifier="students" onFileChange={setStudentsFile} />
           <div className="ml-3 mt-2 place-self-start">
             <label>
               {studentsFile
@@ -80,7 +102,7 @@ export default function UploadFiles(): JSX.Element {
             disabled={!studentsFile}
             className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700  focus:outline-none focus:ring-4 focus:ring-sky-300 ${
               !studentsFile
-                ? "bg-black cursor-not-allowed text-gray-300"
+                ? "cursor-not-allowed bg-black text-gray-300"
                 : "bg-sky-700 text-white"
             }`}
             onClick={handleStudentsFile}

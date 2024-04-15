@@ -1,8 +1,15 @@
+import { ChangeEvent, Dispatch, DragEvent, SetStateAction } from "react";
+
+interface FileSelectorProps {
+  identifier: string;
+  onFileChange: Dispatch<SetStateAction<File | null>>;
+}
+
 export default function FileSelector({
   identifier,
-  onChangeFile,
-}): JSX.Element {
-  const isValidFileType = (file) => {
+  onFileChange,
+}: FileSelectorProps): JSX.Element {
+  const isValidFileType = (file: File) => {
     return (
       file.type ===
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
@@ -10,29 +17,31 @@ export default function FileSelector({
     );
   };
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && isValidFileType(file)) {
-      onChangeFile(file);
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files !== null && files.length > 0) {
+      const file = files[0];
+      if (file && isValidFileType(file)) {
+        onFileChange(file);
+      }
     } else {
       // Display a warning if the file is not a valid Excel file
       window.alert("Por favor seleccione un archivo .xlsx o .xlsm válido.");
     }
   };
 
-  const handleDragOver = (event) => {
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
   };
 
-  const handleDrop = (event) => {
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
     if (file && isValidFileType(file)) {
-      onChangeFile(file);
+      onFileChange(file);
     } else {
       // Display a warning if the file is not a valid Excel file
       window.alert("Por favor seleccione un archivo .xlsx o .xlsm válido.");
-
     }
   };
 

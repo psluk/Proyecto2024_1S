@@ -8,6 +8,7 @@
     "src/controllers/*.ts",
     "src/models/*.ts",
     "src/database/*.ts",
+    "src/utils/*.ts",
   ],
   "compilerOptions": {
     "composite": true,

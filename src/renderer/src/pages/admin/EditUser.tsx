@@ -1,7 +1,10 @@
+import { userTypes } from "../../constants/RecordTypes";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import User from "../../../../models/User";
 
-interface UserDetails {
+interface UserData {
+  id: number;
   type: string;
   name: string;
   email: string;
@@ -9,21 +12,16 @@ interface UserDetails {
 }
 
 export default function EditUser(): JSX.Element {
-  const { userId } = useParams();
-  const [userData, setUserData] = useState<UserDetails | undefined>(undefined);
+  const { id } = useParams();
+  const [userData, setUserData] = useState<UserData | undefined>(undefined);
   const navigate = useNavigate();
 
   const handleUserUpdate = async (event: React.FormEvent) => {
     event.preventDefault();
     if (userData) {
       try {
-        await window.database.UserDatabase.updateUser(
-          userId,
-          userData.type,
-          userData.name,
-          userData.email,
-          userData.password,
-        );
+        const { id, name, email, password, type } = userData;
+        window.mainController.updateUser(id, type, name, email, password);
         alert("Usuario modificado con éxito");
         navigate("/admin/manageUsers");
       } catch (error) {
@@ -33,10 +31,16 @@ export default function EditUser(): JSX.Element {
   };
 
   const fetchData = async () => {
-    const user = await window.database.UserDatabase.getUser(userId);
-    console.log(userId)
+    const user = User.reinstantiate(window.mainController.getUserById(parseInt(id!)));
+    console.log(user);
     if (user) {
-      setUserData(user);
+      setUserData({
+        id: user.getId(),
+        name: user.getName(),
+        email: user.getEmail(),
+        password: user.getPassword(),
+        type: user.getType(),
+      });
     }
   };
 
@@ -77,9 +81,11 @@ export default function EditUser(): JSX.Element {
                   setUserData({ ...userData, type: event.target.value });
                 }}
               >
-                <option value="Student">Estudiante</option>
-                <option value="Professor">Profesor</option>
-                <option value="Administrator">Administrador</option>
+                {userTypes.map((type, index) => (
+                  <option key={index} value={type.value}>
+                    {type.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex w-full flex-col gap-3">

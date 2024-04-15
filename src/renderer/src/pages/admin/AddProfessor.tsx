@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { ProfessorModel } from "../../../../models/ProfessorModel";
 
 export default function AddProfessor() {
   const navigate = useNavigate();
@@ -9,17 +8,12 @@ export default function AddProfessor() {
     const form = event.currentTarget as HTMLFormElement;
     const name = (form.elements.namedItem("name") as HTMLInputElement).value;
     const email = (form.elements.namedItem("email") as HTMLInputElement).value || undefined;
-    const professorType = (
+    const type = (
       form.elements.namedItem("professorType") as HTMLSelectElement
     ).value;
 
-    const professor = new ProfessorModel(name, professorType, email);
     try {
-      const result = await window.database.ProfessorDatabase.addProfessor(professor);
-      if (!result) {
-        alert("Error al agregar profesor");
-        return;
-      }
+      window.mainController.addProfessor(type, name, email);
       alert("Profesor agregado con éxito");
       navigate("/admin/manageProfessors");
     } catch {

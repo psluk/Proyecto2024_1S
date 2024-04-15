@@ -1,6 +1,8 @@
 import { SetStateAction, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import User from "../../../models/User";
+
 function Register(): JSX.Element {
   const navigate = useNavigate();
 
@@ -10,9 +12,6 @@ function Register(): JSX.Element {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const itcrDomain = /@(itcr\.ac\.cr)$/;
-  const estudiantecDomain = /@(estudiantec\.cr)$/;
 
   const handleNameChange = (event: {
     target: { value: SetStateAction<string> };
@@ -34,26 +33,16 @@ function Register(): JSX.Element {
     setPassword(event.target.value);
   };
 
-  const createUser = async (event: React.FormEvent) => {
+  const createUser = (event: React.FormEvent) => {
     event.preventDefault();
 
-    let userType = 0;
+    let newUser: User | null;
 
-    if (itcrDomain.test(email)) {
-      userType = 2;
-    } else if (estudiantecDomain.test(email)) {
-      userType = 3;
-    } else {
-      setEmailError(true);
-      return;
+    try {
+      newUser = User.reinstantiate(window.mainController.addUser(name, email, password));
+    } catch {
+      newUser = null;
     }
-
-    const newUser = await window.database.UserDatabase.register(
-      name,
-      email,
-      password,
-      userType,
-    );
 
     if (!newUser) {
       setShowError(true);

@@ -26,12 +26,12 @@ function App(): JSX.Element {
           <Route path="/professor/home" element={<ProfessorerHome />} />
           <Route path="/admin/addProfessor" element={<AddProfessor />} />
           <Route
-            path="/admin/editProfessor/:professorId"
+            path="/admin/editProfessor/:id"
             element={<EditProfessor />}
           />
           <Route path="/admin/home" element={<AdminHome />} />
           <Route path="/admin/manageUsers" element={<ManageUsers />} />
-          <Route path="/admin/editUser/:userId" element={<EditUser />} />
+          <Route path="/admin/editUser/:id" element={<EditUser />} />
           <Route path="/admin/uploadFiles" element={<UploadFiles />} />
           <Route
             path="/admin/manageProfessors"

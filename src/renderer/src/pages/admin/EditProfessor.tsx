@@ -1,29 +1,33 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { ProfessorModel } from "../../../../models/ProfessorModel";
 import { useEffect, useState } from "react";
+import { professorTypes } from "../../constants/RecordTypes";
+import Professor from "../../../../models/Professor";
+
+interface ProfessorData {
+  id: number;
+  type: string;
+  name: string;
+  email: string;
+}
 
 export default function EditProfessor() {
-  const { professorId } = useParams();
-  const [professorData, setProfessorData] = useState<any>(undefined);
+  const { id } = useParams();
+  const [professorData, setProfessorData] = useState<ProfessorData | undefined>(
+    undefined,
+  );
   const navigate = useNavigate();
 
   const handleUpdate = async (event: React.FormEvent) => {
     event.preventDefault();
     if (professorData) {
-      try {
-        const result = await window.database.ProfessorDatabase.updateProfessor(
-          new ProfessorModel(
-            professorData.name,
-            professorData.professorType,
-            professorData.email || undefined,
-            parseInt(professorId!),
-          ),
-        );
+      const { id, name, email, type } = professorData;
+      if (!name || !type) {
+        alert("Por favor, complete todos los campos");
+        return;
+      }
 
-        if (!result) {
-          alert("Error al modificar profesor");
-          return;
-        }
+      try {
+        window.mainController.updateProfessor(id, type, name, email);
         alert("Profesor modificado con éxito");
         navigate("/admin/manageProfessors");
       } catch (error) {
@@ -32,21 +36,20 @@ export default function EditProfessor() {
     }
   };
 
-  const fetchData = async () => {
-    const professor = await window.database.ProfessorDatabase.getProfessor(
-      parseInt(professorId!),
-    );
+  const fetchData = () => {
+    const professor = Professor.reinstantiate(window.mainController.getProfessorById(parseInt(id!)));
     if (professor) {
       setProfessorData({
-        ...professor,
-        professorType:
-          professor.professorType 
+        id: professor.getId(),
+        name: professor.getName(),
+        email: professor.getEmail() || "",
+        type: professor.getType(),
       });
     }
   };
 
   useEffect(() => {
-    if (!professorId) {
+    if (!id) {
       navigate("/admin/manageProfessors");
     }
     fetchData();
@@ -56,7 +59,7 @@ export default function EditProfessor() {
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     setProfessorData({
-      ...professorData,
+      ...professorData!,
       [event.target.id]: event.target.value,
     });
   };
@@ -96,7 +99,7 @@ export default function EditProfessor() {
               type="email"
               id="email"
               className="flex rounded-md border-0 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
-              value={professorData.email || ""}
+              value={professorData.email}
               onChange={updateData}
             />
           </div>
@@ -108,14 +111,17 @@ export default function EditProfessor() {
               Tipo
             </label>
             <select
-              id="professorType"
+              id="type"
               className="flex rounded-md border-0 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
               required
-              value={professorData.professorType}
+              value={professorData.type}
               onChange={updateData}
             >
-              <option value="Permanent">De planta</option>
-              <option value="Temporary">Interino</option>
+              {professorTypes.map((type, index) => (
+                <option key={index} value={type.value}>
+                  {type.name}
+                </option>
+              ))}
             </select>
           </div>
           <button

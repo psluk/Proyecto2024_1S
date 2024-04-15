@@ -4,9 +4,9 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
 const userColors = {
-  1: "bg-red-500",
-  2: "bg-blue-500",
-  3: "bg-emerald-500",
+  Administrator: "bg-red-500",
+  Professor: "bg-blue-500",
+  Student: "bg-emerald-500",
 };
 
 export default function UserCard() {

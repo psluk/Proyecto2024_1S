@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import MainController from "../../../../controllers/MainController";
-import { ProfessorModel } from "../../../../models/ProfessorModel";
+import Professor from "../../../../models/Professor";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -8,21 +7,21 @@ import {
   faTrash,
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
-import { toNormalCase } from "@renderer/utils/NameFormatter";
+import { getTranslation } from "@renderer/utils/Translator";
+import { professorTypes } from "@renderer/constants/RecordTypes";
 
 export default function ManageProfessors(): JSX.Element {
-  const [professors, setProfessors] = useState<ProfessorModel[]>([]);
+  const [professors, setProfessors] = useState<Professor[]>([]);
   const [search, setSearch] = useState<string>("");
-  const [filteredProfessors, setFilteredProfessors] = useState<
-    ProfessorModel[]
-  >([]);
+  const [filteredProfessors, setFilteredProfessors] = useState<Professor[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    MainController.getProfessors().then((professors) => {
-      setProfessors(professors);
-      setFilteredProfessors(professors);
-    });
+    const loadedProfessors = window.mainController
+      .getProfessors()
+      .map((professor) => Professor.reinstantiate(professor) as Professor);
+    setProfessors(loadedProfessors);
+    setFilteredProfessors(loadedProfessors);
   }, []);
 
   useEffect(() => {
@@ -37,27 +36,22 @@ export default function ManageProfessors(): JSX.Element {
     }
   }, [search, professors]);
 
-  const deleteProfessor = (professorId: number) => {
+  const deleteProfessor = (id: number) => {
     if (!window.confirm("¿Está seguro de que desea eliminar este profesor?")) {
       return;
     }
 
-    MainController.deleteProfessor(professorId).then(() => {
-      const newProfessors = professors.filter(
-        (professor) => professor.getProfessorId() !== professorId,
-      );
-      setProfessors(newProfessors);
-      setFilteredProfessors(newProfessors);
-    });
-  };
+    try {
+      window.mainController.deleteProfessor(id);
+    } catch (error) {
+      alert("No se pudo eliminar al profesor.");
+    }
 
-  const typeMapping = (type: string) => {
-    const typeMapping: { [key: string]: string } = {
-      Permanent: "De planta",
-      Temporary: "Interino",
-    };
-
-    return typeMapping[type] || type;
+    const newProfessors = professors.filter(
+      (professor) => professor.getId() !== id,
+    );
+    setProfessors(newProfessors);
+    setFilteredProfessors(newProfessors);
   };
 
   return (
@@ -107,9 +101,11 @@ export default function ManageProfessors(): JSX.Element {
             <tbody>
               {filteredProfessors.length ? (
                 filteredProfessors.map((professor) => (
-                  <tr key={professor.getProfessorId()}>
-                    <td>{toNormalCase(professor.getName())}</td>
-                    <td>{typeMapping(professor.getProfessorType())}</td>
+                  <tr key={professor.getId()}>
+                    <td>{professor.getName()}</td>
+                    <td>
+                      {getTranslation(professorTypes, professor.getType())}
+                    </td>
                     <td>
                       {professor.getEmail() == null ? (
                         <p>No tiene</p>
@@ -121,7 +117,7 @@ export default function ManageProfessors(): JSX.Element {
                     </td>
                     <td className="space-x-3">
                       <Link
-                        to={`/admin/editProfessor/${professor.getProfessorId()}`}
+                        to={`/admin/editProfessor/${professor.getId()}`}
                         className="text-sm font-semibold text-blue-600"
                         title="Editar"
                       >
@@ -129,9 +125,7 @@ export default function ManageProfessors(): JSX.Element {
                       </Link>
                       <button
                         className="text-sm font-semibold text-red-600"
-                        onClick={() =>
-                          deleteProfessor(professor.getProfessorId())
-                        }
+                        onClick={() => deleteProfessor(professor.getId())}
                         title="Eliminar"
                         type="button"
                       >

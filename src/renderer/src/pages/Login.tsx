@@ -3,6 +3,7 @@ import electronLogo from ".././assets/electron.svg";
 import { Link, useNavigate } from "react-router-dom";
 import { SessionContext } from "@renderer/context/SessionContext";
 import { ShowLogin } from "@renderer/global/ShowLogin";
+import User from "../../../models/User";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -37,40 +38,36 @@ export default function Login() {
     event.preventDefault();
 
     try {
-      const response = await window.database.UserDatabase.login(
-        email,
-        password,
-      );
+      const matchingUser = User.reinstantiate(window.mainController.login(email, password));
 
-      // Correct credentials
-      if (response) {
-        const type = response.userTypeId;
-        if (type === 1) {
-          navigate("/admin/home");
-          saveSession(response.name, response.email, response.userTypeId);
-        } else if (type === 2) {
-          navigate("/professor/home");
-          saveSession(response.name, response.email, response.userTypeId);
-        } else if (type === 3) {
-          navigate("/student/home");
-          saveSession(response.name, response.email, response.userTypeId);
-        } else {
-          // Unknown user type
-          alert("Tipo de usuario no reconocido");
+      if (matchingUser !== null) {
+        saveSession(matchingUser.getName(), matchingUser.getEmail(), matchingUser.getType());
+        switch (matchingUser.getType()) {
+          case "Administrator":
+            navigate("/admin/home");
+            break;
+          case "Professor":
+            navigate("/professor/home");
+            break;
+          case "Student":
+            navigate("/student/home");
+            break;
+          default:
+            break;
         }
       } else {
         // Wrong credentials
         return setShowError(true);
       }
     } catch (error) {
-      console.error("Error al iniciar sesión:", error);
+      console.error("Error when logging in:", error);
       alert(
         "Ocurrió un error al iniciar sesión. Por favor, inténtelo de nuevo más tarde.",
       );
     }
   };
 
-  const saveSession = (name: string, email: string, type: number) => {
+  const saveSession = (name: string, email: string, type: string) => {
     if (sessionContext != null) {
       login(name, email, type);
     }

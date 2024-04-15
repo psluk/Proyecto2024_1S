@@ -1,24 +1,27 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
-interface UserData {
-  userId: number;
-  name: string;
-  email: string;
-}
+import User from "../../../../models/User";
 
 export default function ManageUsers(): JSX.Element {
-  const [students, setStudents] = useState<UserData[]>([]);
-  const [professors, setProfessors] = useState<UserData[]>([]);
-  const [admins, setAdmins] = useState<UserData[]>([]);
+  const [students, setStudents] = useState<User[]>([]);
+  const [professors, setProfessors] = useState<User[]>([]);
+  const [admins, setAdmins] = useState<User[]>([]);
 
-  const fetchData = async () => {
-    setStudents(await window.database.UserDatabase.getUsersByType("Student"));
+  const fetchData = () => {
+    setStudents(
+      window.mainController
+        .getUsersByType("Student")
+        .map((user) => User.reinstantiate(user) as User),
+    );
     setProfessors(
-      await window.database.UserDatabase.getUsersByType("Professor"),
+      window.mainController
+        .getUsersByType("Professor")
+        .map((user) => User.reinstantiate(user) as User),
     );
     setAdmins(
-      await window.database.UserDatabase.getUsersByType("Administrator"),
+      window.mainController
+        .getUsersByType("Administrator")
+        .map((user) => User.reinstantiate(user) as User),
     );
   };
 
@@ -26,12 +29,18 @@ export default function ManageUsers(): JSX.Element {
     fetchData();
   }, []);
 
-  const handleDelete = async (email: string) => {
+  const handleDelete = (id: number) => {
     // Confirm first
     if (!window.confirm("¿Está seguro de que desea eliminar este usuario?")) {
       return;
     }
-    await window.database.UserDatabase.deleteUser(email);
+
+    try {
+      window.mainController.deleteUser(id);
+    } catch {
+      alert("No se pudo eliminar al usuario.");
+      return;
+    }
     fetchData();
   };
 
@@ -62,14 +71,14 @@ export default function ManageUsers(): JSX.Element {
               {students.length ? (
                 students.map((user, index) => (
                   <tr key={index}>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
+                    <td>{user.getName()}</td>
+                    <td>{user.getEmail()}</td>
                     <td className="flex flex-row justify-evenly">
-                      <Link to={`/admin/editUser/${user.userId}`}>Editar</Link>
+                      <Link to={`/admin/editUser/${user.getId()}`}>Editar</Link>
                       <button
                         type="button"
                         onClick={() => {
-                          handleDelete(user.email);
+                          handleDelete(user.getId());
                         }}
                       >
                         Eliminar
@@ -105,14 +114,14 @@ export default function ManageUsers(): JSX.Element {
               {professors.length ? (
                 professors.map((user, index) => (
                   <tr key={index}>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
+                    <td>{user.getName()}</td>
+                    <td>{user.getEmail()}</td>
                     <td className="flex flex-row justify-evenly">
-                      <Link to={`/admin/editUser/${user.userId}`}>Editar</Link>
+                      <Link to={`/admin/editUser/${user.getId()}`}>Editar</Link>
                       <button
                         type="button"
                         onClick={() => {
-                          handleDelete(user.email);
+                          handleDelete(user.getId());
                         }}
                       >
                         Eliminar
@@ -147,14 +156,14 @@ export default function ManageUsers(): JSX.Element {
               {admins.length ? (
                 admins.map((user, index) => (
                   <tr key={index}>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
+                    <td>{user.getName()}</td>
+                    <td>{user.getEmail()}</td>
                     <td className="flex flex-row justify-evenly">
-                      <Link to={`/admin/editUser/${user.userId}`}>Editar</Link>
+                      <Link to={`/admin/editUser/${user.getId()}`}>Editar</Link>
                       <button
                         type="button"
                         onClick={() => {
-                          handleDelete(user.email);
+                          handleDelete(user.getId());
                         }}
                       >
                         Eliminar
