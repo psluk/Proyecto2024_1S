@@ -9,8 +9,9 @@ export default function UploadFiles(): JSX.Element {
     if (!professorsFile) {
       return;
     }
-    
-    window.mainController.importProfessors(await professorsFile.arrayBuffer()).then((result) => {
+
+    try {
+      const result = window.mainController.importProfessors(await professorsFile.arrayBuffer());
       let message = "";
 
       if (result.successfulInserts.length > 0) {
@@ -26,15 +27,18 @@ export default function UploadFiles(): JSX.Element {
       }
 
       alert(message.trim());
-    });
+    } catch {
+      alert("Error al importar profesores.");
+    }
   };
 
-  const handleStudentsFile = async () => {
+  const handleStudentsFile = () => {
     if (!studentsFile) {
       return;
     }
 
-    // window.mainController.importStudents(await studentsFile.arrayBuffer()).then((result) => {
+    // try {
+    //   const result = window.mainController.importStudents(await studentsFile.arrayBuffer());
     //   let message = "";
 
     //   if (result.successfulInserts.length > 0) {
@@ -50,7 +54,9 @@ export default function UploadFiles(): JSX.Element {
     //   }
 
     //   alert(message.trim());
-    // });
+    // } catch {
+    //   alert("Error al importar estudiantes.");
+    // }
   };
 
   return (

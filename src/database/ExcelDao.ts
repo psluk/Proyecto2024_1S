@@ -8,7 +8,7 @@ export default class ExcelDao {
    * @param fileBuffer The Excel file's array buffer.
    * @returns A list of professors.
    */
-  async getProfessors(fileBuffer: ArrayBuffer): Promise<Professor[]> {
+  getProfessors(fileBuffer: ArrayBuffer): Professor[] {
     const mapType = (type: string): string => {
       const typeMapping: { [key: string]: string } = {
         "profesores de planta": "Permanent",

@@ -33,11 +33,11 @@ export default class ProfessorController {
    * @param fileBuffer The Excel file's array buffer.
    * @returns An object containing two arrays: one for the professors added successfully, and another for errors.
    */
-  public async importProfessors(fileBuffer: ArrayBuffer): Promise<{
+  public importProfessors(fileBuffer: ArrayBuffer): {
     successfulInserts: Professor[];
     errors: Professor[];
-  }> {
-    const professors = await this.excelDao.getProfessors(fileBuffer);
+  } {
+    const professors = this.excelDao.getProfessors(fileBuffer);
     return this.professorDao.addProfessors(professors, true);
   }
 

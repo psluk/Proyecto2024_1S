@@ -158,12 +158,12 @@ export default class MainController {
    * @param fileBuffer The Excel file's array buffer.
    * @returns An object containing two arrays: one for the professors added successfully, and another for errors.
    */
-  public async importProfessors(fileBuffer: ArrayBuffer): Promise<{
+  public importProfessors(fileBuffer: ArrayBuffer): {
     successfulInserts: ProfessorInterface[];
     errors: ProfessorInterface[];
-  }> {
+  } {
     const { successfulInserts, errors } =
-      await this.professorController.importProfessors(fileBuffer);
+      this.professorController.importProfessors(fileBuffer);
     return {
       successfulInserts: successfulInserts.map((professor) =>
         professor.asObject(),
