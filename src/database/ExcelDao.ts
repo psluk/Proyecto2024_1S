@@ -37,7 +37,10 @@ export default class ExcelDao {
     };
 
     const workbook = XLSX.read(fileBuffer);
-    const worksheet = workbook.Sheets[workbook.SheetNames[7]];
+    const sheetIndex = workbook.SheetNames.findIndex(
+      (name) => name === "profesores",
+    );
+    const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
     const result = jsonToProfessorList(jsonData);
     return result;
