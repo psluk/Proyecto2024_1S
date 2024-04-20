@@ -1,6 +1,7 @@
 import * as XLSX from "xlsx";
 import Professor from "../models/Professor";
 import { toNormalCase } from "../utils/NameFormatter";
+import Course from "../models/Course";
 
 export default class ExcelDao {
   /**
@@ -43,6 +44,66 @@ export default class ExcelDao {
     const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
     const result = jsonToProfessorList(jsonData);
+    return result;
+  }
+
+  /**
+   * Gets a list of courses from HourGuide sheet from an Excel file.
+   * @param fileBuffer The Excel file's array buffer.
+   * @returns A list of course.
+   */
+  getHourGuide(fileBuffer: ArrayBuffer): string[] {
+    const workbook = XLSX.read(fileBuffer);
+    const sheetIndex = workbook.SheetNames.findIndex(
+      (name) => name === "guiaHorario",
+    );
+    const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
+    const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, { range: 1 });
+    return jsonData;
+  }
+
+  /**
+   * Gets a list of courses from CourseHours sheet from an Excel file.
+   * @param fileBuffer The Excel file's array buffer.
+   * @returns A list of professors.
+   */
+  getCourseHours(fileBuffer: ArrayBuffer): Course[] {
+    const mapType = (type: string): string => {
+      const typeMapping: { [key: string]: string } = {
+        "teórico": "Theoretical",
+        "práctico": "Practical",
+        "teórico practico": "Theoretical-Practical",
+        "proyecto": "Project",
+      };
+      return typeMapping[type.toLowerCase()] || type;
+    };
+
+    const jsonToCourseList = (jsonData: any): Course[] => {
+      let courseList: Course[] = [];
+      let type: string;
+      jsonData.forEach((course: any) => {
+        console.log("Tipo antes del map: ", course["tipo"]);
+        type = mapType(course["tipo"]);
+        console.log("Después del map: ", type);
+        let newCourse = new Course(
+          null,
+          type,
+          course["codigo"],
+          toNormalCase(course["curso"]),
+          parseInt(course["horas"]),
+        );
+        courseList.push(newCourse);
+      });
+      return courseList;
+    };
+
+    const workbook = XLSX.read(fileBuffer);
+    const sheetIndex = workbook.SheetNames.findIndex(
+      (name) => name === "horasCurso",
+    );
+    const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    const result = jsonToCourseList(jsonData);
     return result;
   }
 }

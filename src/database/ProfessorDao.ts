@@ -1,5 +1,6 @@
 import database from "./DatabaseProvider";
 import Professor from "../models/Professor";
+import Course from "src/models/Course";
 
 interface ProfessorRow {
   id: number;
@@ -21,11 +22,7 @@ export default class ProfessorDao {
     VALUES (?, ?, (SELECT professorTypeId FROM ProfessorTypes WHERE typeName = ?));`;
     const result = database
       .prepare(query)
-      .run(
-        professor.getName(),
-        professor.getEmail(),
-        professor.getType(),
-      );
+      .run(professor.getName(), professor.getEmail(), professor.getType());
     if (result.changes === 0) {
       throw new Error(`Failed to add professor: ${professor.getName()}`);
     }
@@ -41,7 +38,10 @@ export default class ProfessorDao {
    * @param shouldClearList Whether to clear the list of professors before adding new ones.
    * @returns An object containing two arrays: one for the professors added successfully, and another for errors.
    */
-  addProfessors(list: Professor[], shouldClearList: boolean = false): {
+  addProfessors(
+    list: Professor[],
+    shouldClearList: boolean = false,
+  ): {
     successfulInserts: Professor[];
     errors: Professor[];
   } {
@@ -110,7 +110,9 @@ export default class ProfessorDao {
     FROM Professors JOIN ProfessorTypes USING(professorTypeId)`;
     const readQuery = database.prepare(query);
     const rowList = readQuery.all() as ProfessorRow[];
-    return rowList.map((row) => new Professor(row.id, row.type, row.name, row.email));
+    return rowList.map(
+      (row) => new Professor(row.id, row.type, row.name, row.email),
+    );
   }
 
   /**
@@ -135,7 +137,7 @@ export default class ProfessorDao {
     if (result.changes === 0) {
       throw new Error(`Failed to update professor: ${professor.getName()}`);
     }
-    
+
     return this.getProfessorById(professor.getId() as number);
   }
 
@@ -149,5 +151,57 @@ export default class ProfessorDao {
     if (result.changes === 0) {
       throw new Error(`No professor found with ID ${id} to delete.`);
     }
+  }
+
+  /**
+   * Adds multiple courses into the database.
+   * Continues adding courses even if one fails, collecting errors for each failed insertion.
+   * @param list Array of Course objects to be added.
+   * @param shouldClearList Whether to clear the list of courses before adding new ones.
+   * @returns An object containing two arrays: one for the courses added successfully, and another for errors.
+   */
+  addCoursesHours(
+    list: Course[],
+    shouldClearList: boolean = false,
+  ): {
+    successfulInserts: Course[];
+    errors: Course[];
+  } {
+    const successfulInserts: Course[] = [];
+    const errors: Course[] = [];
+
+    const clearQuery = database.prepare(`DELETE FROM Courses;`);
+
+    const insertQuery = database.prepare(`
+      INSERT INTO Courses (code, name, hours, courseTypeID)
+      VALUES (?,?,?,  (SELECT courseTypeId FROM CourseTypes WHERE name = ?));`);
+
+    database.transaction(() => {
+      if (shouldClearList) {
+        clearQuery.run();
+      }
+
+      list.forEach((course) => {
+        try {
+          const result = insertQuery.run(
+            course.getCode(),
+            course.getName(),
+            course.getHours(),
+            course.getType(),
+          );
+          if (result.changes === 0) {
+            throw new Error(`Failed to insert course: ${course.getName()}`, {
+              cause: course,
+            });
+          }
+          successfulInserts.push(course);
+        } catch (error) {
+          console.error(error);
+          errors.push(course);
+        }
+      });
+    })();
+
+    return { successfulInserts, errors };
   }
 }

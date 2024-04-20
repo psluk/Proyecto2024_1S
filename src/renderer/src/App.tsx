@@ -13,6 +13,7 @@ import NotFound from "./pages/NotFound";
 import { SessionContextProvider } from "./context/SessionContext";
 import AddProfessor from "./pages/admin/AddProfessor";
 import EditProfessor from "./pages/admin/EditProfessor";
+import ManageWorkloads from "./pages/admin/ManageWorkloads";
 
 function App(): JSX.Element {
   return (
@@ -37,6 +38,7 @@ function App(): JSX.Element {
             path="/admin/manageProfessors"
             element={<ManageProfessors />}
           />
+          <Route path="/admin/manageWorkloads" element={<ManageWorkloads />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

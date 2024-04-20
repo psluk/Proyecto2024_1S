@@ -74,12 +74,20 @@ export default function ManageProfessors(): JSX.Element {
           />
         </div>
         <button
+          className="h-8 rounded-md bg-cyan-600 px-4 font-semibold text-white shadow-sm"
+          type="button"
+          onClick={() => navigate("/admin/manageWorkloads")}
+        >
+          Ver cargas de trabajo
+        </button>
+        <button
           className="h-8 rounded-md bg-sky-600 px-4 font-semibold text-white shadow-sm"
           type="button"
           onClick={() => navigate("/admin/addProfessor")}
         >
           Agregar profesor
         </button>
+
       </div>
       <div className="w-full">
         <div className="mx-auto w-full max-w-7xl overflow-hidden rounded-md shadow-md ">

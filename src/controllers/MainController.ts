@@ -164,6 +164,7 @@ export default class MainController {
   } {
     const { successfulInserts, errors } =
       this.professorController.importProfessors(fileBuffer);
+    this.professorController.importCourses(fileBuffer);
     return {
       successfulInserts: successfulInserts.map((professor) =>
         professor.asObject(),

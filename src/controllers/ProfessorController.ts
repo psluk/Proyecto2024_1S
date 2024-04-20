@@ -1,6 +1,7 @@
 import ProfessorDao from "../database/ProfessorDao";
 import ExcelDao from "../database/ExcelDao";
 import Professor from "../models/Professor";
+import Course from "src/models/Course";
 
 export default class ProfessorController {
   private professorDao: ProfessorDao;
@@ -83,5 +84,21 @@ export default class ProfessorController {
    */
   public deleteProfessor(id: number): void {
     this.professorDao.deleteProfessor(id);
+  }
+
+  /**
+   * Imports a list of courses from an Excel file.
+   * @param fileBuffer The Excel file's array buffer.
+   * @returns An object containing two arrays: one for the courses added successfully, and another for errors.
+   */
+  public importCourses(fileBuffer: ArrayBuffer): {
+    successfulInserts: Course[];
+    errors: Course[];
+  } {
+    //const coursesGuide = this.excelDao.getHourGuide(fileBuffer);
+    const coursesHours = this.excelDao.getCourseHours(fileBuffer);
+    console.log("El Excel da: ", coursesHours);
+    console.log("Voy para el DAO");
+    return this.professorDao.addCoursesHours(coursesHours, true);
   }
 }
