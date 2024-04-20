@@ -1,9 +1,14 @@
 import FileSelector from "@renderer/components/FileSelector";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import DialogAlert from "@renderer/components/DialogAlert";
 
 export default function UploadFiles(): JSX.Element {
   const [professorsFile, setProfessorsFile] = useState<File | null>(null);
   const [studentsFile, setStudentsFile] = useState<File | null>(null);
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [title, setTitle] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+  const [type, setType] = useState<"success" | "error">("success");
 
   const handleProfessorsFile = async () => {
     if (!professorsFile) {
@@ -11,24 +16,36 @@ export default function UploadFiles(): JSX.Element {
     }
 
     try {
-      const result = window.mainController.importProfessors(await professorsFile.arrayBuffer());
-      let message = "";
+      const result = await window.mainController.importProfessors(
+        await professorsFile.arrayBuffer(),
+      );
+      let newMessage = "";
 
       if (result.successfulInserts.length > 0) {
-        message += `Se importaron ${result.successfulInserts.length} profesores correctamente.\n`;
+        setTitle("Importación exitosa");
+        newMessage = `Se importaron ${result.successfulInserts.length} profesores correctamente.\n`;
+        setType("success");
       }
 
       if (result.errors.length > 0) {
-        message += `No se pudieron importar ${result.errors.length} profesores.\n`;
+        setTitle("Importación con errores");
+        newMessage = `No se pudieron importar ${result.errors.length} profesores.\n`;
+        setType("error");
       }
 
-      if (message === "") {
-        message = "No se encontraron profesores para importar.";
+      if (newMessage === "") {
+        setTitle("Importación fallida");
+        newMessage = "No se encontraron profesores para importar.";
+        setType("error");
       }
 
-      alert(message.trim());
-    } catch {
-      alert("Error al importar profesores.");
+      setMessage(newMessage.trim()); // Update message state
+      setShowDialog(true); // Show dialog after state has been updated
+    } catch (error) {
+      setTitle("Error");
+      setMessage("Error al importar profesores.");
+      setType("error");
+      setShowDialog(true);
     }
   };
 
@@ -58,6 +75,13 @@ export default function UploadFiles(): JSX.Element {
     //   alert("Error al importar estudiantes.");
     // }
   };
+
+  // Add this inside your component
+  useEffect(() => {
+    if (message !== "") {
+      setShowDialog(true); // Only show dialog if message is not empty
+    }
+  }, [message]);
 
   return (
     <main className="flex flex-col items-center gap-10">
@@ -117,6 +141,15 @@ export default function UploadFiles(): JSX.Element {
           </button>
         </div>
       </div>
+      <DialogAlert
+        title={title}
+        message={message}
+        show={showDialog}
+        handleConfirm={() => {
+          setShowDialog(!showDialog);
+        }}
+        type={type}
+      />
     </main>
   );
 }

@@ -9,11 +9,15 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { getTranslation } from "@renderer/utils/Translator";
 import { professorTypes } from "@renderer/constants/RecordTypes";
+import DialogConfirm from "../../components/DialogConfirm";
 
 export default function ManageProfessors(): JSX.Element {
   const [professors, setProfessors] = useState<Professor[]>([]);
   const [search, setSearch] = useState<string>("");
   const [filteredProfessors, setFilteredProfessors] = useState<Professor[]>([]);
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [professorId, setProfessorId] = useState<number>(0);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,18 +41,19 @@ export default function ManageProfessors(): JSX.Element {
   }, [search, professors]);
 
   const deleteProfessor = (id: number) => {
-    if (!window.confirm("¿Está seguro de que desea eliminar este profesor?")) {
-      return;
-    }
+    setProfessorId(id);
+    setShowDialog(true);
+  };
 
+  const handleConfirm = () => {
     try {
-      window.mainController.deleteProfessor(id);
+      window.mainController.deleteProfessor(professorId);
     } catch (error) {
       alert("No se pudo eliminar al profesor.");
     }
 
     const newProfessors = professors.filter(
-      (professor) => professor.getId() !== id,
+      (professor) => professor.getId() !== professorId,
     );
     setProfessors(newProfessors);
     setFilteredProfessors(newProfessors);
@@ -153,6 +158,16 @@ export default function ManageProfessors(): JSX.Element {
           </table>
         </div>
       </div>
+
+      <DialogConfirm
+        title="Eliminar profesor"
+        message="¿Estás seguro de que deseas eliminar al profesor?"
+        handleConfirm={handleConfirm}
+        handleCancel={() => {
+          setShowDialog(false);
+        }}
+        show={showDialog}
+      />
     </main>
   );
 }
