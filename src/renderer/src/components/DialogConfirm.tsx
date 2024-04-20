@@ -18,7 +18,7 @@ export default function DialogConfirm({
 }: Props): JSX.Element {
   return (
     <div
-      className={`absolute top-0 z-0 h-full w-full items-center justify-center bg-gray-600/40 ${show ? "flex" : "hidden"}`}
+      className={`absolute top-0 left-0 z-0 h-full w-full items-center justify-center bg-gray-600/40 ${show ? "flex" : "hidden"}`}
       onClick={handleCancel}
     >
       <div className="relative">
