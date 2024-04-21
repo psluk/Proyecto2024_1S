@@ -1,5 +1,12 @@
-import { ChangeEvent, Dispatch, DragEvent, SetStateAction } from "react";
-
+import {
+  ChangeEvent,
+  Dispatch,
+  DragEvent,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
+import DialogAlert from "./DialogAlert";
 interface FileSelectorProps {
   identifier: string;
   onFileChange: Dispatch<SetStateAction<File | null>>;
@@ -17,6 +24,8 @@ export default function FileSelector({
     );
   };
 
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files !== null && files.length > 0) {
@@ -25,8 +34,7 @@ export default function FileSelector({
         onFileChange(file);
       }
     } else {
-      // Display a warning if the file is not a valid Excel file
-      window.alert("Por favor seleccione un archivo .xlsx o .xlsm válido.");
+      setShowDialog(true);
     }
   };
 
@@ -40,8 +48,7 @@ export default function FileSelector({
     if (file && isValidFileType(file)) {
       onFileChange(file);
     } else {
-      // Display a warning if the file is not a valid Excel file
-      window.alert("Por favor seleccione un archivo .xlsx o .xlsm válido.");
+      setShowDialog(true);
     }
   };
 
@@ -89,6 +96,15 @@ export default function FileSelector({
           accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12"
         />
       </label>
+      <DialogAlert
+        title="Archivo inválido"
+        message="Por favor seleccione un archivo .xlsx o .xlsm válido."
+        show={showDialog}
+        handleConfirm={() => {
+          setShowDialog(!showDialog);
+        }}
+        type="error"
+      />
     </div>
   );
 }
