@@ -2,6 +2,7 @@ import { SetStateAction, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import User from "../../../models/User";
+import DialogAlert from "@renderer/components/DialogAlert";
 
 function Register(): JSX.Element {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ function Register(): JSX.Element {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [showDialog, setShowDialog] = useState<boolean>(false);
 
   const handleNameChange = (event: {
     target: { value: SetStateAction<string> };
@@ -39,7 +42,9 @@ function Register(): JSX.Element {
     let newUser: User | null;
 
     try {
-      newUser = User.reinstantiate(window.mainController.addUser(name, email, password));
+      newUser = User.reinstantiate(
+        window.mainController.addUser(name, email, password),
+      );
     } catch {
       newUser = null;
     }
@@ -49,8 +54,7 @@ function Register(): JSX.Element {
     }
 
     if (newUser) {
-      alert("Usuario creado con éxito");
-      navigate("/");
+      setShowDialog(true);
     }
   };
 
@@ -158,6 +162,16 @@ function Register(): JSX.Element {
           )}
         </div>
       </form>
+      <DialogAlert
+        title="¡Éxito!"
+        message="¡Usuario creado con éxito!"
+        show={showDialog}
+        handleConfirm={() => {
+          setShowDialog(!showDialog);
+          navigate("/");
+        }}
+        type="success"
+      />
     </main>
   );
 }
