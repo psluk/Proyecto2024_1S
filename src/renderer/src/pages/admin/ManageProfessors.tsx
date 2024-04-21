@@ -10,13 +10,17 @@ import {
 import { getTranslation } from "@renderer/utils/Translator";
 import { professorTypes } from "@renderer/constants/RecordTypes";
 import DialogConfirm from "../../components/DialogConfirm";
+import DialogAlert from "@renderer/components/DialogAlert";
 
 export default function ManageProfessors(): JSX.Element {
   const [professors, setProfessors] = useState<Professor[]>([]);
   const [search, setSearch] = useState<string>("");
   const [filteredProfessors, setFilteredProfessors] = useState<Professor[]>([]);
-  const [showDialog, setShowDialog] = useState<boolean>(false);
+
   const [professorId, setProfessorId] = useState<number>(0);
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+
+  const [showDialogAlert, setShowDialogAlert] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
@@ -49,7 +53,7 @@ export default function ManageProfessors(): JSX.Element {
     try {
       window.mainController.deleteProfessor(professorId);
     } catch (error) {
-      alert("No se pudo eliminar al profesor.");
+      setShowDialogAlert(true);
     }
 
     const newProfessors = professors.filter(
@@ -92,7 +96,6 @@ export default function ManageProfessors(): JSX.Element {
         >
           Agregar profesor
         </button>
-
       </div>
       <div className="w-full">
         <div className="mx-auto w-full max-w-7xl overflow-hidden rounded-md shadow-md ">
@@ -167,6 +170,18 @@ export default function ManageProfessors(): JSX.Element {
           setShowDialog(false);
         }}
         show={showDialog}
+      />
+
+      <DialogAlert
+        title="Error"
+        message={
+          "Ocurrió un error al eliminar al profesor."
+        }
+        show={showDialogAlert}
+        handleConfirm={() => {
+          setShowDialogAlert(!showDialogAlert);
+        }}
+        type="error"
       />
     </main>
   );
