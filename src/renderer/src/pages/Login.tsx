@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { SessionContext } from "@renderer/context/SessionContext";
 import { ShowLogin } from "@renderer/global/ShowLogin";
 import User from "../../../models/User";
+import DialogAlert from "@renderer/components/DialogAlert";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showError, setShowError] = useState(false);
   const sessionContext = useContext(SessionContext);
+  const [showDialog, setShowDialog] = useState<boolean>(false);
 
   if (!sessionContext) {
     throw new Error("useContext must be inside a Provider with a value");
@@ -38,10 +40,16 @@ export default function Login() {
     event.preventDefault();
 
     try {
-      const matchingUser = User.reinstantiate(window.mainController.login(email, password));
+      const matchingUser = User.reinstantiate(
+        window.mainController.login(email, password),
+      );
 
       if (matchingUser !== null) {
-        saveSession(matchingUser.getName(), matchingUser.getEmail(), matchingUser.getType());
+        saveSession(
+          matchingUser.getName(),
+          matchingUser.getEmail(),
+          matchingUser.getType(),
+        );
         switch (matchingUser.getType()) {
           case "Administrator":
             navigate("/admin/home");
@@ -60,10 +68,7 @@ export default function Login() {
         return setShowError(true);
       }
     } catch (error) {
-      console.error("Error when logging in:", error);
-      alert(
-        "Ocurrió un error al iniciar sesión. Por favor, inténtelo de nuevo más tarde.",
-      );
+      setShowDialog(true);
     }
   };
 
@@ -158,6 +163,15 @@ export default function Login() {
             </Link>
           </p>
         </div>
+        <DialogAlert
+          title="Error"
+          message={"Ocurrió un error al iniciar sesión. Por favor, inténtelo de nuevo más tarde."}
+          show={showDialog}
+          handleConfirm={() => {
+            setShowDialog(!showDialog);
+          }}
+          type="error"
+        />
       </main>
     )
   );
