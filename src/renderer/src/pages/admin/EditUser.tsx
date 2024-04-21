@@ -2,6 +2,7 @@ import { userTypes } from "../../constants/RecordTypes";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import User from "../../../../models/User";
+import DialogAlert from "@renderer/components/DialogAlert";
 
 interface UserData {
   id: number;
@@ -16,22 +17,32 @@ export default function EditUser(): JSX.Element {
   const [userData, setUserData] = useState<UserData | undefined>(undefined);
   const navigate = useNavigate();
 
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [typeDialog, setTypeDialog] = useState<"success" | "error">("success");
+
   const handleUserUpdate = async (event: React.FormEvent) => {
     event.preventDefault();
     if (userData) {
       try {
         const { id, name, email, password, type } = userData;
         window.mainController.updateUser(id, type, name, email, password);
-        alert("Usuario modificado con éxito");
-        navigate("/admin/manageUsers");
+        setTitle("Éxito");
+        setTypeDialog("success");
+        setMessage("Usuario modificado con éxito");
       } catch (error) {
-        alert("Error al modificar usuario");
+        setTitle("Error");
+        setTypeDialog("error");
+        setMessage("Error al modificar usuario");
       }
     }
   };
 
   const fetchData = async () => {
-    const user = User.reinstantiate(window.mainController.getUserById(parseInt(id!)));
+    const user = User.reinstantiate(
+      window.mainController.getUserById(parseInt(id!)),
+    );
     console.log(user);
     if (user) {
       setUserData({
@@ -47,6 +58,12 @@ export default function EditUser(): JSX.Element {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (message !== "") {
+      setShowDialog(true);
+    }
+  }, [message]);
 
   return (
     <main className="gap-10">
@@ -159,6 +176,16 @@ export default function EditUser(): JSX.Element {
           Guardar cambios
         </button>
       </form>
+      <DialogAlert
+        title={title}
+        message={message}
+        show={showDialog}
+        handleConfirm={() => {
+          setShowDialog(false);
+          typeDialog === "success" && navigate("/admin/manageUsers");
+        }}
+        type={typeDialog}
+      />
     </main>
   );
 }
