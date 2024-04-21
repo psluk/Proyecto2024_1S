@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { professorTypes } from "../../constants/RecordTypes";
 import Professor from "../../../../models/Professor";
+import DialogAlert from "@renderer/components/DialogAlert";
 
 interface ProfessorData {
   id: number;
@@ -16,28 +17,39 @@ export default function EditProfessor() {
     undefined,
   );
   const navigate = useNavigate();
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [typeDialog, setTypeDialog] = useState<"success" | "error">("success");
 
   const handleUpdate = async (event: React.FormEvent) => {
     event.preventDefault();
     if (professorData) {
       const { id, name, email, type } = professorData;
-      if (!name || !type) {
-        alert("Por favor, complete todos los campos");
+      if (!name.trim() || !type) {
+        setTitle("Campos vacíos");
+        setTypeDialog("error");
+        setMessage("Por favor, complete todos los campos");
         return;
       }
 
       try {
         window.mainController.updateProfessor(id, type, name, email);
-        alert("Profesor modificado con éxito");
-        navigate("/admin/manageProfessors");
+        setTitle("Éxito");
+        setTypeDialog("success");
+        setMessage("Profesor modificado con éxito");
       } catch (error) {
-        alert("Error al modificar profesor");
+        setTitle("Error");
+        setTypeDialog("error");
+        setMessage("Error al modificar profesor");
       }
     }
   };
 
   const fetchData = () => {
-    const professor = Professor.reinstantiate(window.mainController.getProfessorById(parseInt(id!)));
+    const professor = Professor.reinstantiate(
+      window.mainController.getProfessorById(parseInt(id!)),
+    );
     if (professor) {
       setProfessorData({
         id: professor.getId(),
@@ -54,6 +66,13 @@ export default function EditProfessor() {
     }
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (message !== "") {
+      setShowDialog(true);
+    }
+  }
+  , [message]);
 
   const updateData = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -131,6 +150,16 @@ export default function EditProfessor() {
             Actualizar
           </button>
         </form>
+        <DialogAlert
+          show={showDialog}
+          handleConfirm={() => {
+            setShowDialog(false);
+            typeDialog === "success" && navigate("/admin/manageProfessors");
+          }}
+          message={message}
+          title={title}
+          type={typeDialog}
+        />
       </main>
     )
   );
