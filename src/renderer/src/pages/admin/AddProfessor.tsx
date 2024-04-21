@@ -1,23 +1,39 @@
 import { useNavigate } from "react-router-dom";
+import DialogAlert from "@renderer/components/DialogAlert";
+import { useState, useEffect } from "react";
 
 export default function AddProfessor() {
   const navigate = useNavigate();
+  const [message, setMessage] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [typeDialog, setTypeDialog] = useState<"success" | "error">("success");
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (message !== "") {
+      setShowDialog(true); // Only show dialog if message is not empty
+    }
+  }, [message]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
     const name = (form.elements.namedItem("name") as HTMLInputElement).value;
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value || undefined;
-    const type = (
-      form.elements.namedItem("professorType") as HTMLSelectElement
-    ).value;
+    const email =
+      (form.elements.namedItem("email") as HTMLInputElement).value || undefined;
+
+    const type = (form.elements.namedItem("professorType") as HTMLSelectElement)
+      .value;
 
     try {
       window.mainController.addProfessor(type, name, email);
-      alert("Profesor agregado con éxito");
-      navigate("/admin/manageProfessors");
+      setTitle("Éxito");
+      setTypeDialog("success");
+      setMessage("Profesor agregado con éxito");
     } catch {
-      alert("Error al agregar profesor");
+      setTitle("Error");
+      setTypeDialog("error");
+      setMessage("Error al agregar profesor");
     }
   };
 
@@ -78,6 +94,16 @@ export default function AddProfessor() {
           Agregar
         </button>
       </form>
+      <DialogAlert
+        show={showDialog}
+        type={typeDialog}
+        title={title}
+        message={message}
+        handleConfirm={() => {
+          setShowDialog(false);
+          typeDialog === "success" && navigate("/admin/manageProfessors");
+        }}
+      />
     </main>
   );
 }
