@@ -14,6 +14,7 @@ import { SessionContextProvider } from "./context/SessionContext";
 import AddProfessor from "./pages/admin/AddProfessor";
 import EditProfessor from "./pages/admin/EditProfessor";
 import ManageWorkloads from "./pages/admin/ManageWorkloads";
+import PFGHome from "./pages/pfg/Home";
 
 function App(): JSX.Element {
   return (
@@ -26,10 +27,7 @@ function App(): JSX.Element {
           <Route path="/student/home" element={<StudentHome />} />
           <Route path="/professor/home" element={<ProfessorerHome />} />
           <Route path="/admin/addProfessor" element={<AddProfessor />} />
-          <Route
-            path="/admin/editProfessor/:id"
-            element={<EditProfessor />}
-          />
+          <Route path="/admin/editProfessor/:id" element={<EditProfessor />} />
           <Route path="/admin/home" element={<AdminHome />} />
           <Route path="/admin/manageUsers" element={<ManageUsers />} />
           <Route path="/admin/editUser/:id" element={<EditUser />} />
@@ -39,6 +37,7 @@ function App(): JSX.Element {
             element={<ManageProfessors />}
           />
           <Route path="/admin/manageWorkloads" element={<ManageWorkloads />} />
+          <Route path="/admin/manageTheses" element={<PFGHome />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
