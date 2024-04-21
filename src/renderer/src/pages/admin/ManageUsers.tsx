@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import User from "../../../../models/User";
+import DialogAlert from "@renderer/components/DialogAlert";
+import DialogConfirm from "@renderer/components/DialogConfirm";
 
 export default function ManageUsers(): JSX.Element {
   const [students, setStudents] = useState<User[]>([]);
   const [professors, setProfessors] = useState<User[]>([]);
   const [admins, setAdmins] = useState<User[]>([]);
+
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [showDialogConfirm, setShowDialogConfirm] = useState<boolean>(false);
+  const [userToDelete, setUserToDelete] = useState<number>(0);
 
   const fetchData = () => {
     setStudents(
@@ -30,20 +36,19 @@ export default function ManageUsers(): JSX.Element {
   }, []);
 
   const handleDelete = (id: number) => {
-    // Confirm first
-    if (!window.confirm("¿Está seguro de que desea eliminar este usuario?")) {
-      return;
-    }
+    setUserToDelete(id);
+    setShowDialogConfirm(true);
+  };
 
+  const deleteUser = () => {
     try {
-      window.mainController.deleteUser(id);
-    } catch {
-      alert("No se pudo eliminar al usuario.");
+      window.mainController.deleteUser(userToDelete);
+    } catch (error) {
+      setShowDialog(true);
       return;
     }
     fetchData();
   };
-
   return (
     <main className="gap-2">
       <Link
@@ -182,6 +187,20 @@ export default function ManageUsers(): JSX.Element {
           </table>
         </div>
       </div>
+      <DialogAlert
+        type="error"
+        title="Error"
+        message="No se pudo eliminar al usuario."
+        show={showDialog}
+        handleConfirm={() => setShowDialog(false)}
+      />
+      <DialogConfirm
+        title="Eliminar usuario"
+        message="¿Está seguro de que desea eliminar este usuario?"
+        show={showDialogConfirm}
+        handleConfirm={() => deleteUser()}
+        handleCancel={() => setShowDialogConfirm(false)}
+      />
     </main>
   );
 }
