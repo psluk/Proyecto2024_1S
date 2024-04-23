@@ -37,6 +37,7 @@ export default class MainController {
     this.addGroups = this.addGroups.bind(this);
     this.getGroupById = this.getGroupById.bind(this);
     this.getGroups = this.getGroups.bind(this);
+    this.updateGroup = this.updateGroup.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -330,7 +331,7 @@ export default class MainController {
             : null,
         );
       }),
-    )
+    );
   }
 
   /**
@@ -348,5 +349,56 @@ export default class MainController {
    */
   public getGroups(): GroupInterface[] {
     return this.groupController.getGroups().map((group) => group.asObject());
+  }
+
+  /**
+   * Updates a group in the database.
+   * Throws an error if the group could not be updated.
+   * @param group The group to update.
+   * @returns The group that was updated.
+   */
+  public updateGroup(
+    id: number,
+    groupNumber: number,
+    classroom: string | null,
+    students: StudentInterface[],
+    professors: ProfessorInterface[],
+    moderator: ProfessorInterface | null,
+  ): { success: boolean; error?: any } {
+    return this.groupController.updateGroup(
+      new Group(
+        id,
+        groupNumber,
+        classroom,
+        students.map(
+          (student) =>
+            new Student(
+              student.studentId,
+              student.name,
+              student.phoneNum,
+              student.email,
+              student.universityId,
+              student.isEnabled,
+            ),
+        ),
+        professors.map(
+          (professor) =>
+            new Professor(
+              professor.id,
+              professor.type,
+              professor.name,
+              professor.email,
+            ),
+        ),
+        moderator
+          ? new Professor(
+              moderator.id,
+              moderator.type,
+              moderator.name,
+              moderator.email,
+            )
+          : null,
+      ),
+    );
   }
 }

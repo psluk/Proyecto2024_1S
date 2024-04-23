@@ -88,4 +88,37 @@ export default class Group {
   public getModerator(): Professor | null {
     return this.moderator;
   }
+
+  public setClassroom(classroom: string | null): void {
+    this.classroom = classroom;
+  }
+
+  public setStudents(students: Student[]): void {
+    this.students = students;
+  }
+
+  public setProfessors(professors: Professor[]): void {
+    this.professors = professors;
+  }
+
+  public setModerator(moderator: Professor | null): void {
+    this.moderator = moderator;
+  }
+
+  public addStudent(student: Student): void {
+    this.students.push(student);
+  }
+
+  public addProfessor(professor: Professor): void {
+    this.professors.push(professor);
+  }
+
+  public removeStudent(student: Student): void {
+    this.students = this.students.filter((s) => s.getId() !== student.getId());
+  }
+
+  public removeProfessor(professor: Professor): void {
+    this.professors = this.professors.filter((p) => p.getId() !== professor.getId());
+  }
+  
 }

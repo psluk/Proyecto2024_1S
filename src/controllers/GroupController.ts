@@ -61,4 +61,15 @@ export default class GroupController {
   public getGroups(): Group[] {
     return this.groupDao.getGroups();
   }
+
+  /**
+   * Updates a group in the database.
+   * Throws an error if the group could not be updated.
+   * @param group The group to update.
+   * @returns The group that was updated.
+   */
+  public updateGroup(group: Group): { success: boolean; error?: any } {
+    return this.groupDao.updateGroup(group);
+  }
 }
+

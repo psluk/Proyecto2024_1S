@@ -8,7 +8,7 @@ interface GroupRow {
   groupNumber: number;
   classroom: string;
   students: string;
-  professors:string;
+  professors: string;
   moderator: string | null;
 }
 
@@ -264,7 +264,7 @@ GROUP BY
 
     return rowList.map((row) => {
       const students = JSON.parse(row.students).map(
-        (student:any) =>
+        (student: any) =>
           new Student(
             student.id,
             student.name,
@@ -286,10 +286,10 @@ GROUP BY
 
       const moderator = row.moderator
         ? new Professor(
-          JSON.parse(row.moderator).id,
-          JSON.parse(row.moderator).type,
-          JSON.parse(row.moderator).name,
-          JSON.parse(row.moderator).email,
+            JSON.parse(row.moderator).id,
+            JSON.parse(row.moderator).type,
+            JSON.parse(row.moderator).name,
+            JSON.parse(row.moderator).email,
           )
         : null;
 
@@ -309,7 +309,7 @@ GROUP BY
    * @param group The group to update.
    * @returns Whether the update was successful.
    */
-  updateGroup(group: Group): { success: boolean } {
+  updateGroup(group: Group): { success: boolean; error?: any } {
     const updateQuery = database.prepare(`
       UPDATE Groups
       SET groupNumber = ?, classroom = ?
@@ -338,7 +338,11 @@ GROUP BY
 
     try {
       database.transaction(() => {
-        updateQuery.run(group.getGroupNumber(), group.getClassroom(), group.getId());
+        updateQuery.run(
+          group.getGroupNumber(),
+          group.getClassroom(),
+          group.getId(),
+        );
         deleteProfessorsQuery.run(group.getId());
         deleteStudentsQuery.run(group.getId());
 
@@ -355,8 +359,8 @@ GROUP BY
         });
       })();
       return { success: true };
-    } catch (error) {
-      return { success: false };
+    } catch (error: any) {
+      return { success: false, error: error.message };
     }
   }
 }
