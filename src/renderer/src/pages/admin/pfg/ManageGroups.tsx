@@ -28,7 +28,26 @@ const ManageGroups = () => {
   };
 
   const handleRoomChange = (value: string | null, id: number | null) => {
-    console.log(value, id);
+    if (id === null) {
+      return;
+    }
+
+    const group = groups.find((group) => group.getId() === id);
+
+    if (!group) {
+      return;
+    }
+
+    window.mainController.updateGroup(
+      group.getId(),
+      group.getGroupNumber(),
+      value,
+      group.getStudents().map((student) => student.asObject()),
+      group.getProfessors().map((professor) => professor.asObject()),
+      group.getModerator()?.asObject() || null,
+    );
+
+    fetchGroups();
   };
 
   const addGroup = () => {
@@ -96,7 +115,7 @@ const ManageGroups = () => {
                 <h5 className="text-xl font-medium">Profesores y lectores</h5>
                 <div className="w-full text-lg">
                   {group.getProfessors().map((professor) => (
-                    <p>
+                    <p key={professor.getId()}>
                       {group.getModerator()?.getId() == professor.getId()
                         ? `${professor.getName()} (Moderador)`
                         : professor.getName()}
@@ -113,7 +132,7 @@ const ManageGroups = () => {
                 <h5 className="text-xl font-medium">Estudiantes</h5>
                 <div className="w-full text-lg">
                   {group.getStudents().map((student) => (
-                    <p>{student.getName()}</p>
+                    <p key={student.getId()}>{student.getName()}</p>
                   ))}
                 </div>
                 <div className="flex w-full justify-end">
