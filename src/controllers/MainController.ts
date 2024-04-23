@@ -1,16 +1,22 @@
 import ProfessorController from "./ProfessorController";
 import UserController from "./UserController";
-import { ProfessorInterface } from "../models/Professor";
+import Professor, { ProfessorInterface } from "../models/Professor";
 import { UserInterface } from "../models/User";
+import Group, { GroupInterface } from "../models/Group";
+import Student, { StudentInterface } from "../models/Student";
+
+import GroupController from "./GroupController";
 
 export default class MainController {
   private static instance: MainController;
   private userController: UserController;
   private professorController: ProfessorController;
+  private groupController: GroupController;
 
   private constructor() {
     this.userController = new UserController();
     this.professorController = new ProfessorController();
+    this.groupController = new GroupController();
 
     // Bind methods
     this.login = this.login.bind(this);
@@ -27,6 +33,10 @@ export default class MainController {
     this.getProfessors = this.getProfessors.bind(this);
     this.updateProfessor = this.updateProfessor.bind(this);
     this.deleteProfessor = this.deleteProfessor.bind(this);
+    this.addGroup = this.addGroup.bind(this);
+    this.addGroups = this.addGroups.bind(this);
+    this.getGroupById = this.getGroupById.bind(this);
+    this.getGroups = this.getGroups.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -218,5 +228,125 @@ export default class MainController {
    */
   public deleteProfessor(id: number) {
     this.professorController.deleteProfessor(id);
+  }
+
+  /**
+   * GROUP CONTROLLER METHODS
+   */
+
+  /**
+   * Adds a group to the database.
+   * Throws an error if the group could not be added.
+   * @param groupNumber The number of the group.
+   * @param classroom The classroom of the group.
+   * @param students The students in the group.
+   * @param professors The professors in the group.
+   * @param moderator The moderator of the group.
+   * @returns The group that was added.
+   */
+  public addGroup(
+    groupNumber: number,
+    classroom: string | null,
+    students: StudentInterface[],
+    professors: ProfessorInterface[],
+    moderator: ProfessorInterface | null,
+  ): { success: boolean; error?: any } {
+    return this.groupController.addGroup(
+      groupNumber,
+      classroom || null,
+      students.map(
+        (student) =>
+          new Student(
+            student.studentId,
+            student.name,
+            student.phoneNum,
+            student.email,
+            student.universityId,
+            student.isEnabled,
+          ),
+      ),
+      professors.map(
+        (professor) =>
+          new Professor(
+            professor.id,
+            professor.type,
+            professor.name,
+            professor.email,
+          ),
+      ),
+      moderator
+        ? new Professor(
+            moderator.id,
+            moderator.type,
+            moderator.name,
+            moderator.email,
+          )
+        : null,
+    );
+  }
+
+  /**
+   * Adds a list of groups to the database.
+   * @param groups The groups to add.
+   * @returns An object containing two arrays: one for the groups added successfully, and another for errors.
+   */
+  public addGroups(groups: GroupInterface[]): {
+    successfulInserts: Group[];
+    errors: Group[];
+  } {
+    return this.groupController.addGroups(
+      groups.map((group) => {
+        return new Group(
+          group.groupId,
+          group.groupNumber,
+          group.classroom,
+          group.students.map(
+            (student) =>
+              new Student(
+                student.studentId,
+                student.name,
+                student.phoneNum,
+                student.email,
+                student.universityId,
+                student.isEnabled,
+              ),
+          ),
+          group.professors.map(
+            (professor) =>
+              new Professor(
+                professor.id,
+                professor.type,
+                professor.name,
+                professor.email,
+              ),
+          ),
+          group.moderator
+            ? new Professor(
+                group.moderator.id,
+                group.moderator.type,
+                group.moderator.name,
+                group.moderator.email,
+              )
+            : null,
+        );
+      }),
+    )
+  }
+
+  /**
+   * Gets a group from the database.
+   * @param id The id of the group to get.
+   * @returns The group with the given id.
+   */
+  public getGroupById(id: number): GroupInterface | null {
+    return this.groupController.getGroupById(id)?.asObject() || null;
+  }
+
+  /**
+   * Gets all groups from the database.
+   * @returns An array of all groups.
+   */
+  public getGroups(): GroupInterface[] {
+    return this.groupController.getGroups().map((group) => group.asObject());
   }
 }
