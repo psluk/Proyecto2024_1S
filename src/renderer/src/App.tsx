@@ -14,8 +14,8 @@ import { SessionContextProvider } from "./context/SessionContext";
 import AddProfessor from "./pages/admin/AddProfessor";
 import EditProfessor from "./pages/admin/EditProfessor";
 import ManageWorkloads from "./pages/admin/ManageWorkloads";
-import PFGHome from "./pages/pfg/Home";
-
+import PFGHome from "./pages/admin/pfg/Home";
+import ManageGroups from "./pages/admin/pfg/ManageGroups";
 function App(): JSX.Element {
   return (
     <SessionContextProvider>
@@ -38,6 +38,7 @@ function App(): JSX.Element {
           />
           <Route path="/admin/manageWorkloads" element={<ManageWorkloads />} />
           <Route path="/admin/manageTheses" element={<PFGHome />} />
+          <Route path="/admin/manageTheses/groups" element={<ManageGroups />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
