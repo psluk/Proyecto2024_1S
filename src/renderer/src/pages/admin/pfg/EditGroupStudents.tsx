@@ -168,7 +168,7 @@ const EditGroupStudents = () => {
             <div className="w-full space-y-3">
               <div className="mx-auto w-full max-w-7xl space-y-2">
                 <h2 className=" text-2xl font-semibold text-gray-800">
-                  Lista general de profesores
+                  Lista general de estudiantes
                 </h2>
                 <div className=" flex w-full max-w-sm items-center rounded-md border border-gray-300 bg-white">
                   <FontAwesomeIcon
@@ -177,7 +177,7 @@ const EditGroupStudents = () => {
                   />
                   <input
                     type="text"
-                    placeholder="Buscar profesor"
+                    placeholder="Buscar estudiante"
                     className="h-8 flex-1 rounded-md border-none pl-4 pr-10 focus:outline-none focus:ring-0"
                     onChange={(e) => {
                       setSearch(e.target.value);
