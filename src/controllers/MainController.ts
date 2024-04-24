@@ -4,7 +4,6 @@ import Professor, { ProfessorInterface } from "../models/Professor";
 import { UserInterface } from "../models/User";
 import Group, { GroupInterface } from "../models/Group";
 import Student, { StudentInterface } from "../models/Student";
-import StudentController from "./StudentController";
 
 import GroupController from "./GroupController";
 
@@ -13,13 +12,11 @@ export default class MainController {
   private userController: UserController;
   private professorController: ProfessorController;
   private groupController: GroupController;
-  private studentController: StudentController;
 
   private constructor() {
     this.userController = new UserController();
     this.professorController = new ProfessorController();
     this.groupController = new GroupController();
-    this.studentController = new StudentController();
 
     // Bind methods
     this.login = this.login.bind(this);
@@ -403,100 +400,5 @@ export default class MainController {
           : null,
       ),
     );
-  }
-
-  /**
-   * STUDENT CONTROLLER METHODS
-   */
-
-  /**
-   * Adds a student to the database.
-   * Throws an error if the student could not be added.
-   * @param name The name of the student.
-   * @param phoneNumber The phone number of the student.
-   * @param email The email of the student.
-   * @param universityId The ID of the university the student belongs to.
-   * @param isEnabled Whether the student is enabled or not.
-   * @returns The student that was added.
-   */
-  public addStudent(
-    name: string,
-    phoneNumber: string,
-    email: string,
-    universityId: string,
-    isEnabled: boolean,
-  ): StudentInterface {
-    return this.studentController
-      .addStudent(name, phoneNumber, email, universityId, isEnabled)
-      .asObject();
-  }
-
-  /**
-   * Imports a list of students from an Excel file.
-   * @param fileBuffer The Excel file's array buffer.
-   * @returns An object containing two arrays: one for the students added successfully, and another for errors.
-   */
-  public importStudents(fileBuffer: ArrayBuffer): {
-    successfulInserts: StudentInterface[];
-    errors: StudentInterface[];
-  } {
-    const { successfulInserts, errors } =
-      this.studentController.importStudents(fileBuffer);
-    // Se puede agregar aquí la importación de cursos si es necesario
-    return {
-      successfulInserts: successfulInserts.map((student) => student.asObject()),
-      errors: errors.map((student) => student.asObject()),
-    };
-  }
-
-  /**
-   * Gets a student from the database.
-   * @param id The id of the student to get.
-   * @returns The student with the given id.
-   */
-  public getStudentById(id: number): StudentInterface | null {
-    return this.studentController.getStudentById(id)?.asObject() || null;
-  }
-
-  /**
-   * Gets all students from the database.
-   * @returns An array of all students.
-   */
-  public getStudents(): StudentInterface[] {
-    return this.studentController
-      .getStudents()
-      .map((student) => student.asObject());
-  }
-
-  /**
-   * Updates a student in the database.
-   * @param id The ID of the student to update.
-   * @param name The name of the student.
-   * @param phoneNumber The phone number of the student.
-   * @param email The email of the student.
-   * @param universityId The ID of the university the student belongs to.
-   * @param isEnabled Whether the student is enabled or not.
-   * @returns The student that was updated.
-   */
-  public updateStudent(
-    id: number,
-    name: string,
-    phoneNumber: string,
-    email: string,
-    universityId: string,
-    isEnabled: boolean,
-  ): StudentInterface {
-    return this.studentController
-      .updateStudent(id, name, phoneNumber, email, universityId, isEnabled)
-      .asObject();
-  }
-
-  /**
-   * Deletes a student from the database.
-   * Throws an error if the student could not be deleted.
-   * @param id The id of the student to delete.
-   */
-  public deleteStudent(id: number): void {
-    this.studentController.deleteStudent(id);
   }
 }
