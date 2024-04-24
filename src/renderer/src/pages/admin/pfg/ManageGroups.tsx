@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 import Group from "../../../../../models/Group";
 import DebouncedInput from "@renderer/components/DebouncedInput";
-
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import DialogAlert from "@renderer/components/DialogAlert";
 const ManageGroups = () => {
   const [groups, setGroups] = useState<Group[]>([]);
+  const [showDialog, setShowDialog] = useState(false);
 
   const fetchGroups = () => {
     const groups = window.mainController
@@ -25,6 +29,14 @@ const ManageGroups = () => {
     });
 
     setGroups(groups);
+  };
+
+  const handleDeleteGroup = (id: number) => {
+    window.mainController.deleteGroup(id);
+    fetchGroups();
+    if (groups.length === 0) {
+      console.log("No hay grupos registrados");
+    }
   };
 
   const handleRoomChange = (value: string | null, id: number | null) => {
@@ -78,7 +90,7 @@ const ManageGroups = () => {
   return (
     <main className="gap-10">
       <h1 className="text-3xl font-bold">Listado de grupos</h1>
-      <div className="mx-auto">
+      <div className="mx-auto space-x-6">
         <button
           className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
           onClick={() => {
@@ -88,28 +100,33 @@ const ManageGroups = () => {
           Añadir grupo
         </button>
         {!groups.length && (
-          <button className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white">
+          <button className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white" onClick={()=>setShowDialog(true)}>
             Generar aleatoriamente
           </button>
         )}
       </div>
-      <div className="flex w-full max-w-7xl flex-col items-center justify-between gap-10">
+      <div className="flex max-w-7xl flex-col flex-wrap items-center justify-center gap-10">
         {groups.length ? (
           groups.map((group) => (
             <div
-              className="min-w-[600px] overflow-hidden rounded-md border-2 border-gray-800 bg-white shadow-sm"
+              className="min-w-[600px] overflow-hidden rounded-md bg-white shadow-md"
               key={group.getId()}
             >
               <div className="flex w-full justify-between bg-gray-600 p-3 font-semibold text-white">
                 <h3 className="text-2xl">Grupo {group.getGroupNumber()}</h3>
-                <p>
-                  Aula:{" "}
-                  <DebouncedInput
-                    initialValue={group.getClassroom()}
-                    onChange={handleRoomChange}
-                    id={group.getId()}
-                  />
-                </p>
+                <div className="flex gap-6">
+                  <p>
+                    Aula:{" "}
+                    <DebouncedInput
+                      initialValue={group.getClassroom()}
+                      onChange={handleRoomChange}
+                      id={group.getId()}
+                    />
+                  </p>
+                  <button onClick={() => handleDeleteGroup(group.getId())}>
+                    <FontAwesomeIcon icon={faXmark} className="text-red-500" />
+                  </button>
+                </div>
               </div>
               <div className="w-full space-y-2 border-b-2 border-b-gray-800 p-3">
                 <h5 className="text-xl font-medium">Profesores y lectores</h5>
@@ -123,9 +140,12 @@ const ManageGroups = () => {
                   ))}
                 </div>
                 <div className="flex w-full justify-end">
-                  <button className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white">
+                  <Link
+                    className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
+                    to={`/admin/manageTheses/groups/editProfessors/${group.getId()}`}
+                  >
                     Editar
-                  </button>
+                  </Link>
                 </div>
               </div>
               <div className="w-full space-y-2 p-3">
@@ -136,9 +156,12 @@ const ManageGroups = () => {
                   ))}
                 </div>
                 <div className="flex w-full justify-end">
-                  <button className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white">
+                  <Link
+                    className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
+                    to={`/admin/manageTheses/groups/editStudents/${group.getId()}`}
+                  >
                     Editar
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -147,6 +170,15 @@ const ManageGroups = () => {
           <p>No hay grupos registrados</p>
         )}
       </div>
+      <DialogAlert
+        title="Función no disponible"
+        message="Esta función aún no ha sido implementada"
+        show={showDialog}
+        type="error"
+        handleConfirm={() => {
+          setShowDialog(false);
+        }}
+      />
     </main>
   );
 };
