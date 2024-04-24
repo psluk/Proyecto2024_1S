@@ -1,6 +1,6 @@
 import Group from "../models/Group";
 import database from "./DatabaseProvider";
-import Student from "../models/Student";
+import Student, { StudentInterface } from "../models/Student";
 import Professor from "../models/Professor";
 
 interface GroupRow {
@@ -362,5 +362,71 @@ GROUP BY
     } catch (error: any) {
       return { success: false, error: error.message };
     }
+  }
+
+  /**
+   * Deletes a group from the database.
+   * @param id The ID of the group to delete.
+   * @returns Whether the deletion was successful.
+   */
+  deleteGroup(id: number): { success: boolean; error?: any } {
+    const deleteProfessorsQuery = database.prepare(`
+      DELETE FROM GroupProfessors
+      WHERE groupId = ?;
+    `);
+
+    const deleteStudentsQuery = database.prepare(`
+      DELETE FROM GroupStudents
+      WHERE groupId = ?;
+    `);
+
+    const deleteQuery = database.prepare(`
+      DELETE FROM Groups
+      WHERE groupId = ?;
+    `);
+
+    try {
+      database.transaction(() => {
+        deleteProfessorsQuery.run(id);
+        deleteStudentsQuery.run(id);
+        deleteQuery.run(id);
+      })();
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  getStudentsWithoutGroup(): Student[] {
+    const query = `
+    SELECT 
+    studentId,
+    name,
+    phoneNumber,
+    email,
+    universityId,
+    isEnabled
+FROM
+    Students
+WHERE
+    studentId NOT IN (
+        SELECT DISTINCT studentId
+        FROM GroupStudents
+    );
+`;
+
+    const rows = database.prepare(query).all() as StudentInterface[];
+
+    return rows.map(
+      (row) =>
+        new Student(
+          row.studentId,
+          row.name,
+          row.phoneNum,
+          row.email,
+          row.universityId,
+          row.isEnabled,
+        ),
+    );
   }
 }

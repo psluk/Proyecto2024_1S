@@ -16,7 +16,9 @@ import EditProfessor from "./pages/admin/EditProfessor";
 import ManageWorkloads from "./pages/admin/ManageWorkloads";
 import PFGHome from "./pages/admin/pfg/Home";
 import ManageGroups from "./pages/admin/pfg/ManageGroups";
-import ManageStudents from "./pages/admin/pfg/ManageStudents";
+import EditGroupProfessors from "./pages/admin/pfg/EditGroupProfessors";
+import EditGroupStudents from "./pages/admin/pfg/EditGroupStudents";
+
 function App(): JSX.Element {
   return (
     <SessionContextProvider>
@@ -41,8 +43,12 @@ function App(): JSX.Element {
           <Route path="/admin/manageTheses" element={<PFGHome />} />
           <Route path="/admin/manageTheses/groups" element={<ManageGroups />} />
           <Route
-            path="/admin/manageTheses/students"
-            element={<ManageStudents />}
+            path="/admin/manageTheses/groups/editProfessors/:id"
+            element={<EditGroupProfessors />}
+          />
+          <Route
+            path="/admin/manageTheses/groups/editStudents/:id"
+            element={<EditGroupStudents />}
           />
           <Route path="*" element={<NotFound />} />
         </Routes>
