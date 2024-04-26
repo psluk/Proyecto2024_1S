@@ -31,6 +31,7 @@ export default class Student {
         this.isEnabled = isEnabled;
     }
 
+    
     static reinstantiate(student: StudentInterface | null): Student | null {
         if (!student) {
             return null;

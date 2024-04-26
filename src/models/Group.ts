@@ -10,6 +10,7 @@ export interface GroupInterface {
   moderator: ProfessorInterface | null;
 }
 
+
 export default class Group {
   private groupId: number | null;
   private groupNumber: number | null;

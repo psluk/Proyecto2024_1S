@@ -71,5 +71,22 @@ export default class GroupController {
   public updateGroup(group: Group): { success: boolean; error?: any } {
     return this.groupDao.updateGroup(group);
   }
-}
 
+  /**
+   * Deletes a group from the database.
+   * Throws an error if the group could not be deleted.
+   * @param id The id of the group to delete.
+   */
+  public deleteGroup(id: number): { success: boolean; error?: any } {
+    return this.groupDao.deleteGroup(id);
+  }
+
+  /**
+   * Gets all students without a group.
+   * @returns An array of students without a group.
+   */
+  public getStudentsWithoutGroup(): Student[] {
+    return this.groupDao.getStudentsWithoutGroup();
+  }
+  
+}
