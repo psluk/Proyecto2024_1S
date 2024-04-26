@@ -5,8 +5,7 @@ import Course from "../models/Course";
 import { stringSimilarity } from "string-similarity-js";
 import Workload from "../models/Workload";
 import CourseSchedule from "../models/CourseSchedule";
-
-const projectCourses = ["CM4300", "CM5300", "CM5331"];
+import { ignoredCourses, projectCourses } from "../constants/Courses";
 
 export default class ProfessorController {
   private professorDao: ProfessorDao;
@@ -314,10 +313,10 @@ export default class ProfessorController {
         professor: w.professor,
         workload: w.workload.filter(
           (professorWorkload) =>
-            !projectCourses.includes(professorWorkload.getCode() || ""),
+            !ignoredCourses.includes(professorWorkload.getCode() || ""),
         ),
       })),
-      courseSchedule.filter((c) => !projectCourses.includes(c.getCode())),
+      courseSchedule.filter((c) => !ignoredCourses.includes(c.getCode())),
     );
 
     return result;

@@ -6,7 +6,8 @@
     "src/preload/**/*",
     "src/controllers/**/*",
     "src/database/**/*",
-    "src/utils/**/*"
+    "src/utils/**/*",
+    "src/constants/**/*"
 , "src/renderer/src/utils/NameFormatter.tsx"  ],
   "compilerOptions": {
     "composite": true,

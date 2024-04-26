@@ -9,6 +9,7 @@
     "src/models/*.ts",
     "src/database/*.ts",
     "src/utils/*.ts",
+    "src/constants/*.ts"
   ],
   "compilerOptions": {
     "composite": true,

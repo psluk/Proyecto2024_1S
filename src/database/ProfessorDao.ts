@@ -3,6 +3,7 @@ import Professor from "../models/Professor";
 import Course from "../models/Course";
 import Workload from "../models/Workload";
 import CourseSchedule from "../models/CourseSchedule";
+import { projectCourses } from "../constants/Courses";
 
 interface ProfessorRow {
   id: number;
@@ -308,6 +309,7 @@ export default class ProfessorDao {
     courseSchedule: CourseSchedule[],
     shouldClearList: boolean = false,
   ): void {
+    console.log(workload);
     database.transaction(() => {
       // Clear tables if requested
       if (shouldClearList) {
@@ -339,7 +341,8 @@ export default class ProfessorDao {
             students INTEGER,
             workload REAL,
             professorName TEXT,
-            groupNumber INTEGER
+            groupNumber INTEGER,
+            suggestedStudents INTEGER
           );`,
         )
         .run();
@@ -361,9 +364,9 @@ export default class ProfessorDao {
 
       const insertWorkloadQuery = database.prepare(`
         INSERT INTO rawWorkload (
-          type, loadType, code, name, hours, students, workload, professorName, groupNumber
+          type, loadType, code, name, hours, students, workload, professorName, groupNumber, suggestedStudents
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
       `);
 
       const insertCourseSchedulesQuery = database.prepare(`
@@ -382,10 +385,17 @@ export default class ProfessorDao {
             workloadEntry.getCode(),
             workloadEntry.getName(),
             workloadEntry.getHours(),
-            workloadEntry.getStudents(),
-            workloadEntry.getWorkload(),
+            projectCourses.includes(workloadEntry.getCode() || "")
+              ? 0
+              : workloadEntry.getStudents(),
+            projectCourses.includes(workloadEntry.getCode() || "")
+              ? 0
+              : workloadEntry.getWorkload(),
             w.professor,
             workloadEntry.getGroupNumber(),
+            projectCourses.includes(workloadEntry.getCode() || "")
+              ? workloadEntry.getStudents()
+              : null,
           );
         });
       });
@@ -409,15 +419,16 @@ export default class ProfessorDao {
       database
         .prepare(
           `
-          INSERT INTO Activities (activityTypeId, name, hours, students, load, workloadTypeId, professorId, groupNumber)
+          INSERT INTO Activities (activityTypeId, name, hours, students, load, workloadTypeId, professorId, groupNumber, suggestedStudents)
           SELECT AT.activityTypeId,
             COALESCE(C.name, rWL.name),
-            C.hours,
+            COALESCE(C.hours, rWL.hours),
             rWL.students,
             rWL.workload,
             WT.workloadTypeId,
             P.professorId,
-            rWL.groupNumber
+            rWL.groupNumber,
+            rWL.suggestedStudents
           FROM rawWorkload rWL
           JOIN ActivityTypes AT
             ON AT.name = rWL.type
