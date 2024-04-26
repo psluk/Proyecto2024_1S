@@ -406,6 +406,10 @@ drop table ActivityCourses;
 alter table ActivityCourses_dg_tmp
     rename to ActivityCourses;
 
-
 alter table Activities
     add groupNumber integer;
+
+-- Add suggestedStudents to Activities
+
+alter table Activities
+    add suggestedStudents integer;
