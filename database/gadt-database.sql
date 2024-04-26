@@ -295,3 +295,117 @@ INSERT INTO UserTypes (typeName) VALUES
 	 ('Administrator'),
 	 ('Professor'),
 	 ('Student');
+
+
+-- NEW COMMANDS (2024-04-26)
+
+-- Add workload types
+
+CREATE TABLE WorkloadTypes (
+	workloadTypeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	name TEXT
+);
+
+-- Add hardcoded data
+
+INSERT INTO ActivityTypes(name, hasStudents)
+VALUES ('course', 1), ('research', 0), ('special', 0), ('administrative', 0);
+
+INSERT INTO WorkloadTypes(name)
+VALUES ('normal'), ('extended'), ('double'), ('overload'), ('adHonorem');
+
+-- Add group number to ActivityCourses
+ALTER TABLE ActivityCourses
+    ADD groupNumber INTEGER;
+
+-- Add experience factors for Theoretical-Practical courses
+INSERT INTO ExperienceFactors (courseExperienceId, courseTypeId, factor)
+SELECT courseExperienceId, (
+    SELECT CT2.courseTypeId
+    FROM CourseTypes CT2
+    WHERE CT2.name = 'Theoretical-Practical'
+    ), (factor + 1.5)/2 as 'factor'
+FROM ExperienceFactors EF
+         JOIN main.CourseTypes CT on CT.courseTypeId = EF.courseTypeId
+WHERE CT.name = 'Theoretical';
+
+-- Add workloadTypeId to Activities
+create table Activities_dg_tmp
+(
+    activityId     INTEGER
+        primary key autoincrement,
+    activityTypeId INTEGER
+        references ActivityTypes,
+    name           TEXT,
+    hours          INTEGER,
+    students       INTEGER,
+    load           REAL,
+    workloadTypeId integer
+        references WorkloadTypes
+);
+
+insert into Activities_dg_tmp(activityId, activityTypeId, name, hours, students, load)
+select activityId, activityTypeId, name, hours, students, load
+from Activities;
+
+drop table Activities;
+
+alter table Activities_dg_tmp
+    rename to Activities;
+
+-- Remove ProfessorActivities table
+
+drop table ProfessorActivities;
+
+create table Activities_dg_tmp
+(
+    activityId     INTEGER
+        primary key autoincrement,
+    activityTypeId INTEGER
+        references ActivityTypes,
+    name           TEXT,
+    hours          INTEGER,
+    students       INTEGER,
+    load           REAL,
+    workloadTypeId integer
+        references WorkloadTypes,
+    professorId    integer
+        references Professors
+);
+
+insert into Activities_dg_tmp(activityId, activityTypeId, name, hours, students, load, workloadTypeId)
+select activityId, activityTypeId, name, hours, students, load, workloadTypeId
+from Activities;
+
+drop table Activities;
+
+alter table Activities_dg_tmp
+    rename to Activities;
+
+-- Move groupNumber to Activities
+
+create table ActivityCourses_dg_tmp
+(
+    activityId         INTEGER
+        primary key
+        references Activities,
+    courseId           INTEGER
+        references Courses,
+    studentFactorId    INTEGER
+        references StudentFactors,
+    courseExperienceId INTEGER
+        references CourseExperiences
+);
+
+insert into ActivityCourses_dg_tmp(activityId, courseId, studentFactorId, courseExperienceId)
+select activityId, courseId, studentFactorId, courseExperienceId
+from ActivityCourses;
+
+drop table ActivityCourses;
+
+alter table ActivityCourses_dg_tmp
+    rename to ActivityCourses;
+
+
+alter table Activities
+    add groupNumber integer;

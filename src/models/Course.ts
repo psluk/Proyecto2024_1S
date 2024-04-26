@@ -75,6 +75,4 @@ export default class Course {
     }
     return this.hours;
   }
-
-
 }
