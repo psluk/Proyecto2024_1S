@@ -38,6 +38,8 @@ export default class MainController {
     this.getGroupById = this.getGroupById.bind(this);
     this.getGroups = this.getGroups.bind(this);
     this.updateGroup = this.updateGroup.bind(this);
+    this.deleteGroup = this.deleteGroup.bind(this);
+    this.getStudentsWithoutGroup = this.getStudentsWithoutGroup.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -401,4 +403,24 @@ export default class MainController {
       ),
     );
   }
+
+  /**
+   * Deletes a group from the database.
+   * Throws an error if the group could not be deleted.
+   * @param id The id of the group to delete.
+   */
+  public deleteGroup(id: number): void {
+    this.groupController.deleteGroup(id);
+  }
+
+  /**
+   * Gets a list of students that are not in any group.
+   * @returns A list of students that are not in any group.
+   */
+  public getStudentsWithoutGroup(): StudentInterface[] {
+    return this.groupController
+      .getStudentsWithoutGroup()
+      .map((student) => student.asObject());
+  }
+  
 }
