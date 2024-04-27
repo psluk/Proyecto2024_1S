@@ -9,10 +9,13 @@ import EditUser from "./pages/admin/EditUser";
 import UploadFiles from "./pages/admin/UploadFiles";
 import TitleBar from "./components/TitleBar";
 import ManageProfessors from "./pages/admin/ManageProfessors";
+import ManageStudents from "./pages/admin/ManageStudents";
 import NotFound from "./pages/NotFound";
 import { SessionContextProvider } from "./context/SessionContext";
 import AddProfessor from "./pages/admin/AddProfessor";
+import AddStudent from "./pages/admin/AddStudent";
 import EditProfessor from "./pages/admin/EditProfessor";
+import EditStudent from "./pages/admin/EditStudent";
 import ManageWorkloads from "./pages/admin/ManageWorkloads";
 import PFGHome from "./pages/admin/pfg/Home";
 import ManageGroups from "./pages/admin/pfg/ManageGroups";
@@ -26,8 +29,10 @@ function App(): JSX.Element {
           <Route path="/register" element={<Register />} />
           <Route path="/student/home" element={<StudentHome />} />
           <Route path="/professor/home" element={<ProfessorerHome />} />
-          <Route path="/admin/addProfessor" element={<AddProfessor />} />
+          <Route path="/admin/AddProfessor" element={<AddProfessor />} />
+          <Route path="/admin/AddStudent" element={<AddStudent />} />
           <Route path="/admin/editProfessor/:id" element={<EditProfessor />} />
+          <Route path="/admin/editStudent/:id" element={<EditStudent />} />
           <Route path="/admin/home" element={<AdminHome />} />
           <Route path="/admin/manageUsers" element={<ManageUsers />} />
           <Route path="/admin/editUser/:id" element={<EditUser />} />
@@ -36,9 +41,14 @@ function App(): JSX.Element {
             path="/admin/manageProfessors"
             element={<ManageProfessors />}
           />
+          <Route path="/admin/manageStudents" element={<ManageStudents />} />
           <Route path="/admin/manageWorkloads" element={<ManageWorkloads />} />
           <Route path="/admin/manageTheses" element={<PFGHome />} />
           <Route path="/admin/manageTheses/groups" element={<ManageGroups />} />
+          <Route
+            path="/admin/manageTheses/students"
+            element={<ManageStudents />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
