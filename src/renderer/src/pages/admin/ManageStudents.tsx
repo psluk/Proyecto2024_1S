@@ -80,7 +80,7 @@ export default function ManageStudents(): JSX.Element {
           />
         </div>
         <button
-          className="h-8 rounded-md bg-teal-500 px-4 font-semibold text-white shadow-sm"
+          className="h-8 rounded-md bg-teal-500 px-4 font-semibold text-white shadow-sm hover:bg-teal-600"
           type="button"
           onClick={() => navigate("/admin/addStudent")}
         >
@@ -136,13 +136,13 @@ export default function ManageStudents(): JSX.Element {
                     <td className="space-x-3">
                       <Link
                         to={`/admin/editStudent/${student.getId()}`}
-                        className="text-sm font-semibold text-teal-800"
+                        className="text-sm font-semibold text-teal-800 hover:text-teal-600"
                         title="Editar"
                       >
                         <FontAwesomeIcon icon={faPen} />
                       </Link>
                       <button
-                        className="text-sm font-semibold text-red-600"
+                        className="text-sm font-semibold text-red-600 hover:text-red-800"
                         onClick={() => deleteStudent(student.getId())}
                         title="Eliminar"
                         type="button"

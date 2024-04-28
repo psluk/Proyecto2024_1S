@@ -52,7 +52,7 @@ export default class StudentController {
    * @param isEnabled The enabled value of the student.
    * @returns The student that was updated.
    */
-  public updateProfessor(
+  public updateStudent(
     id: number,
     name: string,
     phoneNumber: string,
