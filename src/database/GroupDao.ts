@@ -46,7 +46,10 @@ export default class GroupDao {
       database.transaction(() => {
         // Insert the group into Groups table
         insertQuery.run(group.getGroupNumber(), group.getClassroom());
-        const id = database.prepare(`SELECT last_insert_rowid();`).get();
+        const lastId = database
+          .prepare(`SELECT last_insert_rowid();`)
+          .get() as { "last_insert_rowid()": number };
+        const id = lastId["last_insert_rowid()"];
 
         // Insert all associated professors
         group.getProfessors().forEach((professor) => {
@@ -101,7 +104,10 @@ export default class GroupDao {
       list.forEach((group) => {
         try {
           insertQuery.run(group.getGroupNumber(), group.getClassroom());
-          const id = database.prepare(`SELECT last_insert_rowid();`).get();
+          const lastId = database
+            .prepare(`SELECT last_insert_rowid();`)
+            .get() as { "last_insert_rowid()": number };
+          const id = lastId["last_insert_rowid()"];
           group.getProfessors().forEach((professor) => {
             insertProfessorsQuery.run(
               id,
@@ -429,5 +435,4 @@ WHERE
         ),
     );
   }
-  
 }

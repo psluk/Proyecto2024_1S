@@ -5,7 +5,8 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import DialogAlert from "@renderer/components/DialogAlert";
-import Student from "src/models/Student";
+import Student from "../../../../../models/Student";
+import Professor from "../../../../../models/Professor";
 const ManageGroups = () => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [showDialog, setShowDialog] = useState(false);
@@ -35,9 +36,6 @@ const ManageGroups = () => {
   const handleDeleteGroup = (id: number) => {
     window.mainController.deleteGroup(id);
     fetchGroups();
-    if (groups.length === 0) {
-      console.log("No hay grupos registrados");
-    }
   };
 
   const handleRoomChange = (value: string | null, id: number | null) => {
@@ -84,6 +82,59 @@ const ManageGroups = () => {
     fetchGroups();
   };
 
+  const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
+
+  const generateRandomGroups = () => {
+    let students = window.mainController
+      .getStudentsWithoutGroup()
+      .map((student) => Student.reinstantiate(student) as Student);
+    let professors = window.mainController
+      .getProfessors()
+      .map((professor) => Professor.reinstantiate(professor) as Professor);
+
+    // Shuffle arrays
+    students = shuffleArray(students);
+    professors = shuffleArray(professors);
+
+    const professorsPerGroup = 3;
+    // Determine the maximum number of groups based on the available professors
+    const amountOfGroups = Math.floor(professors.length / professorsPerGroup);
+
+    const groups:Group[] = [];
+
+    // Create groups and assign professors
+    for (let i = 0; i < amountOfGroups; i++) {
+      // Extract professors for this group
+      const groupProfessors = professors.splice(0, professorsPerGroup);
+      groups.push(
+        new Group(
+          i + 1,
+          i + 1,
+          "Sin asignar",
+          [],
+          groupProfessors,
+          groupProfessors[0], // Setting the first professor as the moderator
+        ),
+      );
+    }
+
+    // Distribute students among the groups
+    students.forEach((student, index) => {
+      const groupIndex = index % amountOfGroups;
+      groups[groupIndex].addStudent(student);
+    });
+
+    // Save groups to the database
+    window.mainController.addGroups(groups.map((group) => group.asObject()));
+    fetchGroups();
+  };
+
   useEffect(() => {
     fetchGroups();
   }, []);
@@ -101,7 +152,10 @@ const ManageGroups = () => {
           Añadir grupo
         </button>
         {!groups.length && (
-          <button className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white" onClick={()=>setShowDialog(true)}>
+          <button
+            className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
+            onClick={() => generateRandomGroups()}
+          >
             Generar aleatoriamente
           </button>
         )}
