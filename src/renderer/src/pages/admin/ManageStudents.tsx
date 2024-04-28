@@ -132,7 +132,7 @@ export default function ManageStudents(): JSX.Element {
                     <td>{student.getPhoneNum()}</td>
                     <td>{student.getEmail()}</td>
                     <td>{student.getUniversityId()}</td>
-                    <td>{"student.getIsEnabled()"}</td>
+                    <td>{student.getIsEnabled() ? "Sí" : "No"}</td>
                     <td className="space-x-3">
                       <Link
                         to={`/admin/editStudent/${student.getId()}`}

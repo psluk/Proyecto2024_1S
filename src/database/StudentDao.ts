@@ -4,10 +4,10 @@ import Student from "../models/Student";
 interface StudentRow {
   id: number;
   name: string;
-  phone: string;
+  phoneNumber: string;
   email: string;
-  carnet: string;
-  enabled: boolean;
+  universityId: string;
+  isEnabled: boolean;
 }
 
 export default class StudentDao {
@@ -105,10 +105,10 @@ export default class StudentDao {
     return new Student(
       row.id,
       row.name,
-      row.phone,
+      row.phoneNumber,
       row.email,
-      row.carnet,
-      row.enabled,
+      row.universityId,
+      row.isEnabled,
     );
   }
 
@@ -126,10 +126,10 @@ export default class StudentDao {
         new Student(
           row.id,
           row.name,
-          row.phone,
+          row.phoneNumber,
           row.email,
-          row.carnet,
-          row.enabled,
+          row.universityId,
+          row.isEnabled,
         ),
     );
   }
