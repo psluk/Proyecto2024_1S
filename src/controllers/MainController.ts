@@ -292,22 +292,22 @@ export default class MainController {
    * Throws an error if the student could not be added.
    * @param id The ID of the student to update.
    * @param name The name of the student.
-   * @param phone The phone of the student.
+   * @param phoneNumber The phone number of the student.
    * @param email The email of the student.
-   * @param carnet The identification of the student.
-   * @param enabled The enabled value of the student.
+   * @param universityId The email of the student.
+   * @param isEnabled The email of the student.
    * @returns The student that was updated.
    */
   public updateStudent(
     id: number,
     name: string,
-    phone: string,
+    phoneNumber: string,
     email: string,
-    carnet: string,
-    enabled: boolean,
+    universityId: string,
+    isEnabled: boolean,
   ): StudentInterface {
     return this.studentController
-      .updateStudent(id, name, phone, email, carnet, enabled)
+      .updateStudent(id, name, phoneNumber, email, universityId, isEnabled)
       .asObject();
   }
 

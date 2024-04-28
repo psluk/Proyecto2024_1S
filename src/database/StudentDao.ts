@@ -135,10 +135,10 @@ export default class StudentDao {
   }
 
   /**
-   * Updates a professor in the database.
-   * Throws an error if the professor could not be updated.
-   * @param professor The professor to update.
-   * @returns The updated professor.
+   * Updates a student in the database.
+   * Throws an error if the student could not be updated.
+   * @param student The student to update.
+   * @returns The updated student.
    */
   updateStudent(student: Student): Student {
     const isEnabledValue: number = student.getIsEnabled() ? 1 : 0;

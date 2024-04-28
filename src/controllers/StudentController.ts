@@ -46,21 +46,28 @@ export default class StudentController {
    * Throws an error if the student could not be added.
    * @param id The ID of the student to update.
    * @param name The name of the student.
-   * @param phone The phone of the student.
+   * @param phoneNumber The phone of the student.
    * @param email The email of the student.
-   * @param carnet The identification of the student.
-   * @param enabled The enabled value of the student.
+   * @param universityId The identification of the student.
+   * @param isEnabled The enabled value of the student.
    * @returns The student that was updated.
    */
-  public updateStudent(
+  public updateProfessor(
     id: number,
     name: string,
-    phone: string,
+    phoneNumber: string,
     email: string,
-    carnet: string,
-    enabled: boolean,
+    universityId: string,
+    isEnabled: boolean,
   ): Student {
-    const student = new Student(null, name, phone, email, carnet, enabled);
+    const student = new Student(
+      id,
+      name,
+      phoneNumber,
+      email,
+      universityId,
+      isEnabled,
+    );
     return this.studentDao.updateStudent(student);
   }
 
