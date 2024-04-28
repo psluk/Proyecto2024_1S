@@ -403,6 +403,47 @@ GROUP BY
     }
   }
 
+  deleteGroups(): { success: boolean; error?: any } {
+
+    const deleteProfessorsQuery = database.prepare(`
+      DELETE FROM GroupProfessors
+    `);
+
+    const deleteStudentsQuery = database.prepare(`
+      DELETE FROM GroupStudents
+    `);
+
+    const deleteQuery = database.prepare(`
+      DELETE FROM Groups;
+    `);
+    
+    const resetProfessorsQuery = database.prepare(`
+      UPDATE sqlite_sequence SET seq = 0 WHERE name = 'GroupProfessors';
+    `);
+
+    const resetStudentsQuery = database.prepare(`
+      UPDATE sqlite_sequence SET seq = 0 WHERE name = 'GroupStudents';
+    `);
+
+    const resetGroupsQuery = database.prepare(`
+      UPDATE sqlite_sequence SET seq = 0 WHERE name = 'Groups';
+    `);
+
+    try {
+      database.transaction(() => {
+        deleteProfessorsQuery.run();
+        deleteStudentsQuery.run();
+        deleteQuery.run();
+        resetProfessorsQuery.run();
+        resetStudentsQuery.run();
+        resetGroupsQuery.run();
+      })();
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
   getStudentsWithoutGroup(): Student[] {
     const query = `
     SELECT 

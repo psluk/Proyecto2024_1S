@@ -81,6 +81,10 @@ export default class GroupController {
     return this.groupDao.deleteGroup(id);
   }
 
+  public deleteGroups(): { success: boolean; error?: any } {
+    return this.groupDao.deleteGroups();
+  
+  }
   /**
    * Gets all students without a group.
    * @returns An array of students without a group.

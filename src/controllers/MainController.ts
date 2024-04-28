@@ -39,6 +39,7 @@ export default class MainController {
     this.getGroups = this.getGroups.bind(this);
     this.updateGroup = this.updateGroup.bind(this);
     this.deleteGroup = this.deleteGroup.bind(this);
+    this.deleteGroups = this.deleteGroups.bind(this);
     this.getStudentsWithoutGroup = this.getStudentsWithoutGroup.bind(this);
   }
 
@@ -413,6 +414,9 @@ export default class MainController {
     this.groupController.deleteGroup(id);
   }
 
+  public deleteGroups():{ success: boolean; error?: any } {
+    return this.groupController.deleteGroups();
+  }
   /**
    * Gets a list of students that are not in any group.
    * @returns A list of students that are not in any group.
