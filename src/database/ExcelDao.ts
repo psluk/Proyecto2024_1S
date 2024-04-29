@@ -274,6 +274,8 @@ export default class ExcelDao {
         if (courseRegex.test(courseCode)) {
           // There is a course workload in the row
           const courseNameCell = row.getCell("C");
+          const groupNumber = parseInt(toNormalCase(courseNameCell.value?.toString().trim() || "", true).split("G").at(-1) || "0");
+
           workload.push(
             new Workload(
               "course",
@@ -287,7 +289,7 @@ export default class ExcelDao {
               parseInt(row.getCell("D").value?.toString() || "0") || null,
               parseInt(row.getCell("E").value?.toString() || "0") || null,
               parseFloat(row.getCell("F").value?.toString() || "0"),
-              parseInt(toNormalCase(courseNameCell.value?.toString().trim() || "", true).split("G").at(-1) || "0")
+              isNaN(groupNumber) ? 1 : groupNumber,
             )
           );
         }

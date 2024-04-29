@@ -302,6 +302,7 @@ export default class ProfessorController {
 
         professor.experienceFactor = closestExperienceFactor;
         professor.studentFactor = matchingStudentFactor.factor;
+        professor.name = workloadEntry.professor;
       });
       courseScheduleEntry = CourseSchedule.reinstantiate(
         courseAsObject,
