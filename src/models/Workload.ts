@@ -27,7 +27,7 @@ export default class Workload {
     hours: number | null,
     students: number | null,
     workload: number,
-    groupNumber: number | null
+    groupNumber: number | null,
   ) {
     this.type = type;
     this.loadType = loadType;
@@ -39,7 +39,7 @@ export default class Workload {
     this.groupNumber = groupNumber;
   }
 
-  static reinstantiate(workload: Workload | null): Workload | null {
+  static reinstantiate(workload: WorkloadInterface | null): Workload | null {
     if (!workload) {
       return null;
     }
@@ -51,7 +51,7 @@ export default class Workload {
       workload.hours,
       workload.students,
       workload.workload,
-      workload.groupNumber
+      workload.groupNumber,
     );
   }
 
@@ -64,7 +64,7 @@ export default class Workload {
       hours: this.hours,
       students: this.students,
       workload: this.workload,
-      groupNumber: this.groupNumber
+      groupNumber: this.groupNumber,
     };
   }
 

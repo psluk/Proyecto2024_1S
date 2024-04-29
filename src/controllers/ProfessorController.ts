@@ -5,7 +5,11 @@ import Course from "../models/Course";
 import { stringSimilarity } from "string-similarity-js";
 import Workload from "../models/Workload";
 import CourseSchedule from "../models/CourseSchedule";
-import { ignoredCourses, projectCourses } from "../constants/Courses";
+import {
+  ignoredCourses,
+  projectCourseHours,
+  projectCourses,
+} from "../constants/Courses";
 
 export default class ProfessorController {
   private professorDao: ProfessorDao;
@@ -101,7 +105,9 @@ export default class ProfessorController {
   }> {
     //const coursesGuide = this.excelDao.getHourGuide(fileBuffer);
     const courseHours = this.excelDao.getCourseHours(fileBuffer);
-    const courseSchedule = this.excelDao.getCourseSchedule(fileBuffer);
+    const courseSchedule = this.excelDao
+      .getCourseSchedule(fileBuffer)
+      .filter((c) => !projectCourses.includes(c.getCode()));
     const workload = await this.excelDao.getProfessorWorkload(fileBuffer);
 
     // Combine professors with their courses and workloads
@@ -302,21 +308,72 @@ export default class ProfessorController {
       ) as CourseSchedule;
     });
 
-    console.log(courseHours);
+    console.log([
+      ...courseHours.filter(
+        (course) => !projectCourses.includes(course.getCode()!),
+      ),
+      ...projectCourseHours.map((course) => Course.reinstantiate(course)!),
+    ]);
     console.log(courseSchedule);
     console.log(workload);
 
-    const result = this.professorDao.addCourseHours(courseHours, true);
+    const result = this.professorDao.addCourseHours(
+      [
+        ...courseHours.filter(
+          (course) => !projectCourses.includes(course.getCode()!),
+        ),
+        ...projectCourseHours.map((course) => Course.reinstantiate(course)!),
+      ],
+      true,
+    );
+
+    const projectCourseSchedule = projectCourseHours.map(
+      (course) =>
+        CourseSchedule.reinstantiate({
+          code: course.code,
+          name: course.name!,
+          professors: workload
+            .filter(
+              (w) =>
+                w.workload.filter(
+                  (professorWorkload) =>
+                    professorWorkload.getType() === "course" &&
+                    professorWorkload.getCode() === course.code,
+                ).length > 0,
+            )
+            .map((w) => ({
+              name: w.professor,
+              groupNumber: null,
+              experienceFactor: null,
+              studentFactor: null,
+              students: 0,
+            })),
+        })!,
+    );
 
     this.professorDao.addWorkloadData(
       workload.map((w) => ({
         professor: w.professor,
-        workload: w.workload.filter(
-          (professorWorkload) =>
-            !ignoredCourses.includes(professorWorkload.getCode() || ""),
-        ),
+        workload: w.workload
+          .filter(
+            (professorWorkload) =>
+              !ignoredCourses.includes(professorWorkload.getCode() || ""),
+          )
+          .map((professorWorkload) => {
+            if (projectCourses.includes(professorWorkload.getCode() || "")) {
+              // Replace group number with null for project courses
+              return Workload.reinstantiate({
+                ...professorWorkload.asObject(),
+                groupNumber: null,
+              })!;
+            }
+            return professorWorkload;
+          }),
       })),
-      courseSchedule.filter((c) => !ignoredCourses.includes(c.getCode())),
+      [
+        ...courseSchedule.filter((c) => !projectCourses.includes(c.getCode())),
+        ...projectCourseSchedule,
+      ],
     );
 
     return result;

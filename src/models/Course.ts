@@ -27,7 +27,7 @@ export default class Course {
     this.hours = hours;
   }
 
-  static reinstantiate(course: Course | null): Course | null {
+  static reinstantiate(course: CourseInterface | null): Course | null {
     if (!course) {
       return null;
     }
@@ -35,7 +35,7 @@ export default class Course {
       course.id,
       course.type,
       course.code,
-      course.name,
+      course.name!,
       course.hours,
     );
   }
@@ -70,7 +70,7 @@ export default class Course {
   }
 
   public getHours(): number {
-    if (!this.hours) {
+    if (this.hours === null || this.hours === undefined) {
       throw new Error("Course hours is null");
     }
     return this.hours;

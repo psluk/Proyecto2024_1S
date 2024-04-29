@@ -309,7 +309,6 @@ export default class ProfessorDao {
     courseSchedule: CourseSchedule[],
     shouldClearList: boolean = false,
   ): void {
-    console.log(workload);
     database.transaction(() => {
       // Clear tables if requested
       if (shouldClearList) {
@@ -464,11 +463,27 @@ export default class ProfessorDao {
             JOIN ExperienceFactors EF
               ON EF.factor = rCW.experienceFactor
             JOIN CourseTypes CT
-              ON SF.courseTypeId = CT.courseTypeId
-                AND EF.courseTypeId = CT.courseTypeId
+              ON (SF.courseTypeId = CT.courseTypeId OR SF.courseTypeId IS NULL)
+                AND (EF.courseTypeId = CT.courseTypeId OR EF.courseTypeId IS NULL)
                 AND CT.courseTypeId = C.courseTypeId
             JOIN CourseExperiences CE
-              ON EF.courseExperienceId = CE.courseExperienceId;`,
+              ON EF.courseExperienceId = CE.courseExperienceId
+          WHERE rCW.groupNumber IS NOT NULL
+          UNION
+          SELECT A.activityId, C.courseId, NULL, NULL
+          FROM Activities A
+            JOIN ActivityTypes AT
+              ON A.activityTypeId = AT.activityTypeId
+                AND AT.name = 'course'
+            JOIN Courses C
+              ON C.name = A.name
+            JOIN Professors P
+              ON A.professorId = P.professorId
+            JOIN rawCourseSchedules rCW
+              ON rCW.code = C.code
+                AND rCW.professorName = P.name
+                AND rCW.groupNumber IS NULL
+                AND A.groupNumber IS NULL;`,
         )
         .run();
 
