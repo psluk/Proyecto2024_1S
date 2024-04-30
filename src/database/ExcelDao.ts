@@ -6,7 +6,7 @@ import Course from "../models/Course";
 import CourseSchedule, {
   CourseScheduleProfessorInterface,
 } from "../models/CourseSchedule";
-import Workload from "../models/Workload";
+import ImportedWorkload from "../models/ImportedWorkload";
 
 export default class ExcelDao {
   /**
@@ -187,7 +187,7 @@ export default class ExcelDao {
    */
   async getProfessorWorkload(
     fileBuffer: ArrayBuffer,
-  ): Promise<{ professor: string; workload: Workload[] }[]> {
+  ): Promise<{ professor: string; workload: ImportedWorkload[] }[]> {
     const getCourseLoadType = (
       cellColor: number | string,
     ): "normal" | "extended" | "double" | "overload" | "adHonorem" => {
@@ -225,7 +225,7 @@ export default class ExcelDao {
     await workbook.xlsx.load(fileBuffer);
 
     const sheet = workbook.getWorksheet("cargasProf");
-    let workload: Workload[] = [];
+    let workload: ImportedWorkload[] = [];
     if (!sheet) {
       throw new Error("No sheet named 'cargasProf' found in the Excel file");
     }
@@ -233,7 +233,7 @@ export default class ExcelDao {
     let jumpingToNextProfessor = true;
     let jumpingToWorkload = false;
     const courseRegex = /^[a-zA-Z]{2}\d{4}$/;
-    const result: { professor: string; workload: Workload[] }[] = [];
+    const result: { professor: string; workload: ImportedWorkload[] }[] = [];
 
     sheet.eachRow((row, rowNumber) => {
       if (rowNumber > 1) {
@@ -277,7 +277,7 @@ export default class ExcelDao {
           const groupNumber = parseInt(toNormalCase(courseNameCell.value?.toString().trim() || "", true).split("G").at(-1) || "0");
 
           workload.push(
-            new Workload(
+            new ImportedWorkload(
               "course",
               getCourseLoadType(
                 (courseNameCell as any).style.fill?.fgColor?.tint ||
@@ -299,7 +299,7 @@ export default class ExcelDao {
         if (researchWorkload) {
           // There is a research workload in the row
           workload.push(
-            new Workload(
+            new ImportedWorkload(
               "research",
               "normal",
               null,
@@ -316,7 +316,7 @@ export default class ExcelDao {
         if (specialWorkload) {
           // There is a special workload in the row
           workload.push(
-            new Workload(
+            new ImportedWorkload(
               "special",
               "normal",
               null,
@@ -334,7 +334,7 @@ export default class ExcelDao {
         if (administrativeWorkload) {
           // There is an administrative workload in the row
           workload.push(
-            new Workload(
+            new ImportedWorkload(
               "administrative",
               "normal",
               null,

@@ -1,9 +1,10 @@
 import database from "./DatabaseProvider";
 import Professor from "../models/Professor";
 import Course from "../models/Course";
-import Workload from "../models/Workload";
+import ImportedWorkload from "../models/ImportedWorkload";
 import CourseSchedule from "../models/CourseSchedule";
 import { projectCourses } from "../constants/Courses";
+import Workload, { WorkloadInterface } from "../models/Workload";
 
 interface ProfessorRow {
   id: number;
@@ -305,7 +306,7 @@ export default class ProfessorDao {
    * @param shouldClearList Whether to clear the list of workload data before adding new ones.
    */
   addWorkloadData(
-    workload: { professor: string; workload: Workload[] }[],
+    workload: { professor: string; workload: ImportedWorkload[] }[],
     courseSchedule: CourseSchedule[],
     shouldClearList: boolean = false,
   ): void {
@@ -491,5 +492,60 @@ export default class ProfessorDao {
       database.prepare("DROP TABLE rawWorkload;").run();
       database.prepare("DROP TABLE rawCourseSchedules;").run();
     })();
+  }
+
+  /**
+   * Gets a professor's workload by professor ID.
+   * @param professorId The ID of the professor.
+   * @returns A list of workload objects for the professor.
+   */
+  getWorkloadByProfessorId(professorId: number): Workload[] {
+    return (database.prepare(`SELECT
+                                     A.activityId               AS 'activityId',
+                                     AT.name                    AS 'activityType',
+                                     WT.name                    AS 'workloadType',
+                                     C.code                     AS 'code',
+                                     COALESCE(C.name, A.name)   AS 'name',
+                                     COALESCE(C.hours, A.hours) AS 'hours',
+                                     A.students                 AS 'students',
+                                     A.suggestedStudents        AS 'suggestedStudents',
+                                     A.groupNumber              AS 'groupNumber',
+                                     A.load                     AS 'workload',
+                                     CASE
+                                       WHEN SF.factor IS NOT NULL AND EF.factor IS NOT NULL THEN
+                                         (EF.factor * C.hours + SF.factor) /
+                                         (SELECT COUNT(P2.professorId)
+                                          FROM Professors P2
+                                                 JOIN Activities A2
+                                                      ON P2.professorId = A2.professorId
+                                                 JOIN ActivityCourses AC2
+                                                      ON A2.activityId = AC2.activityId
+                                                 JOIN Courses C2
+                                                      ON AC2.courseId = C2.courseId
+
+                                          WHERE C2.code = C.code
+                                            AND A2.groupNumber = A.groupNumber)
+                                       ELSE A.students * A.hours
+                                       END                      AS 'suggestedWorkload'
+                              FROM Activities A
+                                     JOIN Professors P
+                                          ON A.professorId = P.professorId
+                                     LEFT JOIN ActivityCourses AC
+                                               ON A.activityId = AC.activityId
+                                     LEFT JOIN Courses C
+                                               ON AC.courseId = C.courseId
+                                     JOIN WorkloadTypes WT
+                                          ON A.workloadTypeId = WT.workloadTypeId
+                                     JOIN ActivityTypes AT
+                                          ON A.activityTypeId = AT.activityTypeId
+                                     LEFT JOIN StudentFactors SF
+                                               ON AC.studentFactorId = SF.studentFactorId
+                                     LEFT JOIN CourseExperiences CE
+                                               ON AC.courseExperienceId = CE.courseExperienceId
+                                     LEFT JOIN ExperienceFactors EF
+                                               ON CE.courseExperienceId = EF.courseExperienceId
+                                                 AND EF.courseTypeId = C.courseTypeId
+                              WHERE P.professorId = ?
+                              ORDER BY AT.name;`).all(professorId) as WorkloadInterface[]).map((workload) => Workload.reinstantiate(workload)!);
   }
 }

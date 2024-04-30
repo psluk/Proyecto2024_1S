@@ -6,6 +6,7 @@ import Group, { GroupInterface } from "../models/Group";
 import Student, { StudentInterface } from "../models/Student";
 
 import GroupController from "./GroupController";
+import Workload from "../models/Workload";
 
 export default class MainController {
   private static instance: MainController;
@@ -31,6 +32,7 @@ export default class MainController {
     this.importProfessors = this.importProfessors.bind(this);
     this.getProfessorById = this.getProfessorById.bind(this);
     this.getProfessors = this.getProfessors.bind(this);
+    this.getWorkloadByProfessorId = this.getWorkloadByProfessorId.bind(this);
     this.updateProfessor = this.updateProfessor.bind(this);
     this.deleteProfessor = this.deleteProfessor.bind(this);
     this.addGroup = this.addGroup.bind(this);
@@ -204,6 +206,15 @@ export default class MainController {
     return this.professorController
       .getProfessors()
       .map((professor) => professor.asObject());
+  }
+
+  /**
+   * Gets a professor's workload by professor ID.
+   * @param professorId The ID of the professor.
+   * @returns A list of workload objects for the professor.
+   */
+  public getWorkloadByProfessorId(professorId: number) : Workload[] {
+    return this.professorController.getWorkloadByProfessorId(professorId);
   }
 
   /**
@@ -426,5 +437,5 @@ export default class MainController {
       .getStudentsWithoutGroup()
       .map((student) => student.asObject());
   }
-  
+
 }

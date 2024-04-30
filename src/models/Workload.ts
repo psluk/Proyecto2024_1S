@@ -1,42 +1,54 @@
 export interface WorkloadInterface {
-  type: "course" | "research" | "special" | "administrative";
-  loadType: "normal" | "extended" | "double" | "overload" | "adHonorem";
+  id: number | null;
+  activityType: "course" | "research" | "special" | "administrative";
+  workloadType: "normal" | "extended" | "double" | "overload" | "adHonorem";
   code: string | null;
   name: string;
   hours: number | null;
   students: number | null;
-  workload: number;
+  suggestedStudents: number | null;
   groupNumber: number | null;
+  workload: number;
+  calculatedWorkload: number | null;
 }
 
 export default class Workload {
-  private type: "course" | "research" | "special" | "administrative";
-  private loadType: "normal" | "extended" | "double" | "overload" | "adHonorem";
+  private id: number | null;
+  private activityType: "course" | "research" | "special" | "administrative";
+  private workloadType: "normal" | "extended" | "double" | "overload" | "adHonorem";
   private code: string | null;
   private name: string;
   private hours: number | null;
   private students: number | null;
-  private workload: number;
+  private suggestedStudents: number | null;
   private groupNumber: number | null;
+  private workload: number;
+  private calculatedWorkload: number | null;
 
   constructor(
-    type: "course" | "research" | "special" | "administrative",
-    loadType: "normal" | "extended" | "double" | "overload" | "adHonorem",
+    id: number | null,
+    activityType: "course" | "research" | "special" | "administrative",
+    workloadType: "normal" | "extended" | "double" | "overload" | "adHonorem",
     code: string | null,
     name: string,
     hours: number | null,
     students: number | null,
-    workload: number,
+    suggestedStudents: number | null,
     groupNumber: number | null,
+    workload: number,
+    calculatedWorkload: number | null
   ) {
-    this.type = type;
-    this.loadType = loadType;
+    this.id = id;
+    this.activityType = activityType;
+    this.workloadType = workloadType;
     this.code = code;
     this.name = name;
     this.hours = hours;
     this.students = students;
-    this.workload = workload;
+    this.suggestedStudents = suggestedStudents;
     this.groupNumber = groupNumber;
+    this.workload = workload;
+    this.calculatedWorkload = calculatedWorkload;
   }
 
   static reinstantiate(workload: WorkloadInterface | null): Workload | null {
@@ -44,41 +56,51 @@ export default class Workload {
       return null;
     }
     return new Workload(
-      workload.type,
-      workload.loadType,
+      workload.id,
+      workload.activityType,
+      workload.workloadType,
       workload.code,
       workload.name,
       workload.hours,
       workload.students,
-      workload.workload,
+      workload.suggestedStudents,
       workload.groupNumber,
+      workload.workload,
+      workload.calculatedWorkload
     );
   }
 
   public asObject(): WorkloadInterface {
     return {
-      type: this.type,
-      loadType: this.loadType,
+      id: this.id,
+      activityType: this.activityType,
+      workloadType: this.workloadType,
       code: this.code,
       name: this.name,
       hours: this.hours,
       students: this.students,
-      workload: this.workload,
+      suggestedStudents: this.suggestedStudents,
       groupNumber: this.groupNumber,
+      workload: this.workload,
+      calculatedWorkload: this.calculatedWorkload,
     };
   }
 
-  public getType(): "course" | "research" | "special" | "administrative" {
-    return this.type;
+  public getId(): number | null {
+    return this.id;
   }
 
-  public getLoadType():
+  public getType(): "course" | "research" | "special" | "administrative" {
+    return this.activityType;
+  }
+
+  public getWorkloadType():
     | "normal"
     | "extended"
     | "double"
     | "overload"
     | "adHonorem" {
-    return this.loadType;
+    return this.workloadType;
   }
 
   public getCode(): string | null {
@@ -97,11 +119,19 @@ export default class Workload {
     return this.students;
   }
 
-  public getWorkload(): number {
-    return this.workload;
+  public getSuggestedStudents(): number | null {
+    return this.suggestedStudents;
   }
 
   public getGroupNumber(): number | null {
     return this.groupNumber;
+  }
+
+  public getWorkload(): number {
+    return this.workload;
+  }
+
+  public getcalculatedWorkload(): number | null {
+    return this.calculatedWorkload;
   }
 }

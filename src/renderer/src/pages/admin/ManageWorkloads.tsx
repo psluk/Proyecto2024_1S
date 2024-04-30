@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import Professor from "../../../../models/Professor";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faMagnifyingGlass,
-} from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 import WorkloadInfo from "@renderer/components/WorkloadInfo";
 
@@ -54,11 +52,13 @@ export default function ManageWorkloads() {
           />
         </div>
         <div className="mb-4 w-full">
-          <WorkloadInfo name="Bruno Chine Polito"></WorkloadInfo>
-          <WorkloadInfo name="Teodolito Guillen Giron"></WorkloadInfo>
-          <WorkloadInfo name="Jeimmy Gonzalez Masis"></WorkloadInfo>
-          <WorkloadInfo name="Ricardo Esquivel Isern"></WorkloadInfo>
-          <WorkloadInfo name="Adrián Quesada Martínez"></WorkloadInfo>
+          {professors.map((professor) => (
+            <WorkloadInfo
+              key={professor.getId()}
+              name={professor.getName()}
+              id={professor.getId()}
+            />
+          ))}
         </div>
       </div>
     </main>

@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faPlus } from "@fortawesome/free-solid-svg-icons";
+import Workload, { WorkloadInterface } from "../../../models/Workload";
+import { projectCourses } from "../../../constants/Courses";
 
 export default function WorkloadInfo(props): JSX.Element {
   const [showTables, setShowTables] = useState(false);
+  const [workload, setWorkload] = useState<Workload[]>([]);
 
   const toggleTables = () => {
     setShowTables(!showTables);
@@ -13,6 +16,19 @@ export default function WorkloadInfo(props): JSX.Element {
   const handleAddItem = () => {
     console.log("Labor agregada");
   };
+
+  useEffect(() => {
+    if (showTables) {
+      const loadedWorkload = window.mainController
+        .getWorkloadByProfessorId(props.id as number)
+        .map(
+          (workload) =>
+            Workload.reinstantiate(workload as unknown as WorkloadInterface)!,
+        );
+      console.log(loadedWorkload);
+      setWorkload(loadedWorkload);
+    }
+  }, [showTables]);
 
   return (
     <div className="mb-5 overflow-hidden rounded-md shadow-md">
@@ -45,50 +61,42 @@ export default function WorkloadInfo(props): JSX.Element {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-gray-300">
-                  <td className="px-2">METODOS NUMERICOS PARA INGENIERIA G1</td>
-                  <td className="px-2">4</td>
-                  <td className="px-2">24</td>
-                  <td className="relative space-x-3 px-2">10.25
-                    <Link
-                      to={`/admin/editProfessor/${"id"}`}
-                      className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
-                      title="Editar"
+                {workload
+                  .filter(
+                    (activity) =>
+                      activity.getType() === "course" &&
+                      !projectCourses.includes(activity.getCode()!),
+                  )
+                  .map((activity) => (
+                    <tr
+                      className="border-b border-gray-300"
+                      key={activity.getId()}
                     >
-                      <FontAwesomeIcon icon={faPen} />
-                    </Link>
-                  </td>
-                </tr>
-                <tr className="border-b border-gray-300">
-                  <td className="px-2">MODELACION Y SIMULACION G1</td>
-                  <td className="px-2">4</td>
-                  <td className="px-2">26</td>
-                  <td className="relative space-x-3 px-2">
-                    11.75
-                    <Link
-                      to={`/admin/editProfessor/${"id"}`}
-                      className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
-                      title="Editar"
-                    >
-                      <FontAwesomeIcon icon={faPen} />
-                    </Link>
-                  </td>
-                </tr>
-                <tr className="border-b border-gray-300">
-                  <td className="px-2">TRANSFERENCIA DE CALOR Y MASA G1</td>
-                  <td className="px-2">4</td>
-                  <td className="px-2">16</td>
-                  <td className="relative space-x-3 px-2">
-                    10
-                    <Link
-                      to={`/admin/editProfessor/${"id"}`}
-                      className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
-                      title="Editar"
-                    >
-                      <FontAwesomeIcon icon={faPen} />
-                    </Link>
-                  </td>
-                </tr>
+                      <td className="px-2">
+                        <span className="text-sm font-bold">
+                          {activity.getCode()}:{" "}
+                        </span>
+                        {activity.getName()}{" "}
+                        {activity.getGroupNumber() !== null && (
+                          <span className="text-xs">
+                            (grupo {activity.getGroupNumber()})
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-2">{activity.getHours()}</td>
+                      <td className="px-2">{activity.getStudents()}</td>
+                      <td className="relative space-x-3 px-2">
+                        {activity.getWorkload().toLocaleString(["es-CR", "es"])}
+                        <Link
+                          to={`/admin/editProfessor/${"id"}`}
+                          className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
+                          title="Editar"
+                        >
+                          <FontAwesomeIcon icon={faPen} />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
                 <tr>
                   <td colSpan={4} className="p-0">
                     <div
@@ -125,51 +133,52 @@ export default function WorkloadInfo(props): JSX.Element {
                 </tr>
               </thead>
               <tbody>
-              <tr className="border-b border-gray-300">
-                  <td className="px-2">PRÁCTICA DIRIGIDA G1</td>
-                  <td className="px-2">2</td>
-                  <td className="px-2"></td>
-                  <td className="relative space-x-3 px-2">
-                    0
-                    <Link
-                      to={`/admin/editProfessor/${"id"}`}
-                      className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
-                      title="Editar"
+                {workload
+                  .filter(
+                    (activity) =>
+                      activity.getType() === "course" &&
+                      projectCourses.includes(activity.getCode()!),
+                  )
+                  .map((activity) => (
+                    <tr
+                      className="border-b border-gray-300"
+                      key={activity.getId()}
                     >
-                      <FontAwesomeIcon icon={faPen} />
-                    </Link>
-                  </td>
-                </tr>
-                <tr className="border-b border-gray-300">
-                  <td className="px-2">PROYECTO FINAL DE GRADUACION G1</td>
-                  <td className="px-2">2</td>
-                  <td className="px-2">2</td>
-                  <td className="relative space-x-3 px-2">
-                    4
-                    <Link
-                      to={`/admin/editProfessor/${"id"}`}
-                      className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
-                      title="Editar"
-                    >
-                      <FontAwesomeIcon icon={faPen} />
-                    </Link>
-                  </td>
-                </tr>
-                <tr className="border-b border-gray-300">
-                  <td className="px-2">PROY. DE GRADUACIÓN (lecturas)</td>
-                  <td className="px-2">1</td>
-                  <td className="px-2"></td>
-                  <td className="relative space-x-3 px-2">
-                    0
-                    <Link
-                      to={`/admin/editProfessor/${"id"}`}
-                      className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
-                      title="Editar"
-                    >
-                      <FontAwesomeIcon icon={faPen} />
-                    </Link>
-                  </td>
-                </tr>
+                      <td className="px-2">
+                        <span className="text-sm font-bold">
+                          {activity.getCode()}:{" "}
+                        </span>
+                        {activity.getName()}{" "}
+                        {activity.getGroupNumber() !== null && (
+                          <span className="text-xs">
+                            (grupo {activity.getGroupNumber()})
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-2">{activity.getHours()}</td>
+                      <td className="px-2">
+                        {activity.getStudents()}{" "}
+                        {activity.getSuggestedStudents() !== null && (
+                          <span
+                            className="float-end my-auto cursor-help underline decoration-dashed underline-offset-4"
+                            title="Cantidad de estudiantes que se deben asignar de acuerdo con el archivo de Excel"
+                          >
+                            (de {activity.getSuggestedStudents()})
+                          </span>
+                        )}
+                      </td>
+                      <td className="relative space-x-3 px-2">
+                        {activity.getWorkload().toLocaleString(["es-CR", "es"])}
+                        <Link
+                          to={`/admin/editProfessor/${"id"}`}
+                          className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
+                          title="Editar"
+                        >
+                          <FontAwesomeIcon icon={faPen} />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
                 <tr>
                   <td colSpan={4} className="p-0">
                     <div
@@ -200,20 +209,26 @@ export default function WorkloadInfo(props): JSX.Element {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-gray-300">
-                  <td>Proyecto 9</td>
-                  <td className="space-x-3">
-                    10
-
-                  </td>
-                </tr>
-                <tr className="border-b border-gray-300">
-                  <td>Proyecto 5</td>
-                  <td className="space-x-3">
-                    4
-
-                  </td>
-                </tr>
+                {workload
+                  .filter((activity) => activity.getType() === "research")
+                  .map((activity) => (
+                    <tr
+                      className="border-b border-gray-300"
+                      key={activity.getId()}
+                    >
+                      <td className="px-2">{activity.getName()}</td>
+                      <td className="relative space-x-3 px-2">
+                        {activity.getWorkload().toLocaleString(["es-CR", "es"])}
+                        <Link
+                          to={`/admin/editProfessor/${"id"}`}
+                          className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
+                          title="Editar"
+                        >
+                          <FontAwesomeIcon icon={faPen} />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
                 <tr>
                   <td colSpan={4} className="p-0">
                     <div
@@ -244,6 +259,26 @@ export default function WorkloadInfo(props): JSX.Element {
                 </tr>
               </thead>
               <tbody>
+                {workload
+                  .filter((activity) => activity.getType() === "special")
+                  .map((activity) => (
+                    <tr
+                      className="border-b border-gray-300"
+                      key={activity.getId()}
+                    >
+                      <td className="px-2">{activity.getName()}</td>
+                      <td className="relative space-x-3 px-2">
+                        {activity.getWorkload().toLocaleString(["es-CR", "es"])}
+                        <Link
+                          to={`/admin/editProfessor/${"id"}`}
+                          className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
+                          title="Editar"
+                        >
+                          <FontAwesomeIcon icon={faPen} />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
                 <tr>
                   <td colSpan={4} className="p-0">
                     <div
@@ -274,12 +309,26 @@ export default function WorkloadInfo(props): JSX.Element {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-gray-300">
-                  <td>Miembro U.I.P</td>
-                  <td className="space-x-3">
-                    4
-                  </td>
-                </tr>
+                {workload
+                  .filter((activity) => activity.getType() === "administrative")
+                  .map((activity) => (
+                    <tr
+                      className="border-b border-gray-300"
+                      key={activity.getId()}
+                    >
+                      <td className="px-2">{activity.getName()}</td>
+                      <td className="relative space-x-3 px-2">
+                        {activity.getWorkload().toLocaleString(["es-CR", "es"])}
+                        <Link
+                          to={`/admin/editProfessor/${"id"}`}
+                          className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
+                          title="Editar"
+                        >
+                          <FontAwesomeIcon icon={faPen} />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
                 <tr>
                   <td colSpan={4} className="p-0">
                     <div

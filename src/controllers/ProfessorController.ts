@@ -3,13 +3,14 @@ import ExcelDao from "../database/ExcelDao";
 import Professor from "../models/Professor";
 import Course from "../models/Course";
 import { stringSimilarity } from "string-similarity-js";
-import Workload from "../models/Workload";
+import ImportedWorkload from "../models/ImportedWorkload";
 import CourseSchedule from "../models/CourseSchedule";
 import {
   ignoredCourses,
   projectCourseHours,
   projectCourses,
 } from "../constants/Courses";
+import Workload from "../models/Workload";
 
 export default class ProfessorController {
   private professorDao: ProfessorDao;
@@ -119,7 +120,7 @@ export default class ProfessorController {
       const courseAsObject = courseScheduleEntry.asObject();
       courseAsObject.professors.forEach((professor) => {
         let workloadEntry:
-          | { professor: string; workload: Workload[] }
+          | { professor: string; workload: ImportedWorkload[] }
           | undefined = workload.find(
           (entry) => entry.professor === professor.name,
         );
@@ -150,7 +151,7 @@ export default class ProfessorController {
               "Match found: " +
                 professor.name +
                 " → " +
-                (workloadEntry as { professor: string; workload: Workload[] })
+                (workloadEntry as { professor: string; workload: ImportedWorkload[] })
                   .professor,
             );
           } else {
@@ -164,7 +165,7 @@ export default class ProfessorController {
                   (
                     workloadEntry as {
                       professor: string;
-                      workload: Workload[];
+                      workload: ImportedWorkload[];
                     }
                   ).professor,
               );
@@ -363,7 +364,7 @@ export default class ProfessorController {
           .map((professorWorkload) => {
             if (projectCourses.includes(professorWorkload.getCode() || "")) {
               // Replace group number with null for project courses
-              return Workload.reinstantiate({
+              return ImportedWorkload.reinstantiate({
                 ...professorWorkload.asObject(),
                 groupNumber: null,
               })!;
@@ -378,5 +379,14 @@ export default class ProfessorController {
     );
 
     return result;
+  }
+
+  /**
+   * Gets a professor's workload by professor ID.
+   * @param professorId The ID of the professor.
+   * @returns A list of workload objects for the professor.
+   */
+  public getWorkloadByProfessorId(professorId: number): Workload[] {
+    return this.professorDao.getWorkloadByProfessorId(professorId);
   }
 }
