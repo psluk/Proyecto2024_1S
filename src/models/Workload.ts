@@ -90,7 +90,7 @@ export default class Workload {
     return this.id;
   }
 
-  public getType(): "course" | "research" | "special" | "administrative" {
+  public getActivityType(): "course" | "research" | "special" | "administrative" {
     return this.activityType;
   }
 

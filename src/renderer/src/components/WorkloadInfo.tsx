@@ -64,7 +64,7 @@ export default function WorkloadInfo(props): JSX.Element {
                 {workload
                   .filter(
                     (activity) =>
-                      activity.getType() === "course" &&
+                      activity.getActivityType() === "course" &&
                       !projectCourses.includes(activity.getCode()!),
                   )
                   .map((activity) => (
@@ -136,7 +136,7 @@ export default function WorkloadInfo(props): JSX.Element {
                 {workload
                   .filter(
                     (activity) =>
-                      activity.getType() === "course" &&
+                      activity.getActivityType() === "course" &&
                       projectCourses.includes(activity.getCode()!),
                   )
                   .map((activity) => (
@@ -210,7 +210,7 @@ export default function WorkloadInfo(props): JSX.Element {
               </thead>
               <tbody>
                 {workload
-                  .filter((activity) => activity.getType() === "research")
+                  .filter((activity) => activity.getActivityType() === "research")
                   .map((activity) => (
                     <tr
                       className="border-b border-gray-300"
@@ -260,7 +260,7 @@ export default function WorkloadInfo(props): JSX.Element {
               </thead>
               <tbody>
                 {workload
-                  .filter((activity) => activity.getType() === "special")
+                  .filter((activity) => activity.getActivityType() === "special")
                   .map((activity) => (
                     <tr
                       className="border-b border-gray-300"
@@ -310,7 +310,7 @@ export default function WorkloadInfo(props): JSX.Element {
               </thead>
               <tbody>
                 {workload
-                  .filter((activity) => activity.getType() === "administrative")
+                  .filter((activity) => activity.getActivityType() === "administrative")
                   .map((activity) => (
                     <tr
                       className="border-b border-gray-300"
