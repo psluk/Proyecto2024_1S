@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -8,6 +8,7 @@ import { projectCourses } from "../../../constants/Courses";
 export default function WorkloadInfo(props): JSX.Element {
   const [showTables, setShowTables] = useState(false);
   const [workload, setWorkload] = useState<Workload[]>([]);
+  const navigate = useNavigate();
 
   const toggleTables = () => {
     setShowTables(!showTables);
@@ -101,7 +102,14 @@ export default function WorkloadInfo(props): JSX.Element {
                   <td colSpan={4} className="p-0">
                     <div
                       className="flex w-full cursor-pointer items-center justify-center hover:bg-gray-100"
-                      onClick={handleAddItem}
+                      onClick={() =>
+                        navigate("/admin/addCourse", {
+                          state: {
+                            id: props.id,
+                            name: props.name,
+                          },
+                        })
+                      }
                     >
                       <FontAwesomeIcon
                         icon={faPlus}
@@ -183,7 +191,14 @@ export default function WorkloadInfo(props): JSX.Element {
                   <td colSpan={4} className="p-0">
                     <div
                       className="flex w-full cursor-pointer items-center justify-center hover:bg-gray-100"
-                      onClick={handleAddItem}
+                      onClick={() =>
+                        navigate("/admin/addTFGActivity", {
+                          state: {
+                            id: props.id,
+                            name: props.name,
+                          },
+                        })
+                      }
                     >
                       <FontAwesomeIcon
                         icon={faPlus}
@@ -210,7 +225,9 @@ export default function WorkloadInfo(props): JSX.Element {
               </thead>
               <tbody>
                 {workload
-                  .filter((activity) => activity.getActivityType() === "research")
+                  .filter(
+                    (activity) => activity.getActivityType() === "research",
+                  )
                   .map((activity) => (
                     <tr
                       className="border-b border-gray-300"
@@ -260,7 +277,9 @@ export default function WorkloadInfo(props): JSX.Element {
               </thead>
               <tbody>
                 {workload
-                  .filter((activity) => activity.getActivityType() === "special")
+                  .filter(
+                    (activity) => activity.getActivityType() === "special",
+                  )
                   .map((activity) => (
                     <tr
                       className="border-b border-gray-300"
@@ -310,7 +329,10 @@ export default function WorkloadInfo(props): JSX.Element {
               </thead>
               <tbody>
                 {workload
-                  .filter((activity) => activity.getActivityType() === "administrative")
+                  .filter(
+                    (activity) =>
+                      activity.getActivityType() === "administrative",
+                  )
                   .map((activity) => (
                     <tr
                       className="border-b border-gray-300"

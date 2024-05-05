@@ -151,8 +151,12 @@ export default class ProfessorController {
               "Match found: " +
                 professor.name +
                 " → " +
-                (workloadEntry as { professor: string; workload: ImportedWorkload[] })
-                  .professor,
+                (
+                  workloadEntry as {
+                    professor: string;
+                    workload: ImportedWorkload[];
+                  }
+                ).professor,
             );
           } else {
             // TODO: Add an error to the user
@@ -388,5 +392,46 @@ export default class ProfessorController {
    */
   public getWorkloadByProfessorId(professorId: number): Workload[] {
     return this.professorDao.getWorkloadByProfessorId(professorId);
+  }
+
+  /**
+   * Gets all courses from the database.
+   * @returns An array of all professors.
+   */
+  public getCourses(): Course[] {
+    return this.professorDao.getCourses();
+  }
+
+  /**
+   * Adds a new course to the workload of a professor.
+   * @param course id of the course to be added
+   * @param students quantity of students the course has
+   * @param experienceFactor experience factor the professor has with that specific course
+   * @param group group number for the course
+   * @param loadType defines the type of load the course is for that professor
+   * @param id id of the professor the course is added to
+   */
+  public addCourseToWorkload(
+    courseId: number,
+    courseName: string,
+    courseHours: number,
+    courseType: string,
+    students: number,
+    experienceFactor: number,
+    group: number,
+    loadType: number,
+    id: number,
+  ): void {
+    return this.professorDao.addCourseToWorkload(
+      courseId,
+      courseName,
+      courseHours,
+      courseType,
+      students,
+      experienceFactor,
+      group,
+      loadType,
+      id,
+    );
   }
 }

@@ -7,6 +7,7 @@ import Student, { StudentInterface } from "../models/Student";
 
 import GroupController from "./GroupController";
 import Workload from "../models/Workload";
+import { CourseInterface } from "src/models/Course";
 
 export default class MainController {
   private static instance: MainController;
@@ -43,6 +44,8 @@ export default class MainController {
     this.deleteGroup = this.deleteGroup.bind(this);
     this.deleteGroups = this.deleteGroups.bind(this);
     this.getStudentsWithoutGroup = this.getStudentsWithoutGroup.bind(this);
+    this.getCourses = this.getCourses.bind(this);
+    this.addCourseToWorkload = this.addCourseToWorkload.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -213,7 +216,7 @@ export default class MainController {
    * @param professorId The ID of the professor.
    * @returns A list of workload objects for the professor.
    */
-  public getWorkloadByProfessorId(professorId: number) : Workload[] {
+  public getWorkloadByProfessorId(professorId: number): Workload[] {
     return this.professorController.getWorkloadByProfessorId(professorId);
   }
 
@@ -425,7 +428,7 @@ export default class MainController {
     this.groupController.deleteGroup(id);
   }
 
-  public deleteGroups():{ success: boolean; error?: any } {
+  public deleteGroups(): { success: boolean; error?: any } {
     return this.groupController.deleteGroups();
   }
   /**
@@ -438,4 +441,51 @@ export default class MainController {
       .map((student) => student.asObject());
   }
 
+  /**
+   * COURSE CONTROLLER METHODS
+   */
+
+  /**
+   * Gets all professors from the database.
+   * @returns An array of all professors.
+   */
+  public getCourses(): CourseInterface[] {
+    return this.professorController
+      .getCourses()
+      .map((course) => course.asObject());
+  }
+
+  /**
+   * Adds a new course to the workload of a professor.
+   * @param course id of the course to be added
+   * @param students quantity of students the course has
+   * @param experienceFactor experience factor the professor has with that specific course
+   * @param group group number for the course
+   * @param loadType defines the type of load the course is for that professor
+   * @param id id of the professor the course is added to
+   */
+  public addCourseToWorkload(
+    courseId: number,
+    courseName: string,
+    courseHours: number,
+    courseType: string,
+    students: number,
+    experienceFactor: number,
+    group: number,
+    loadType: number,
+    id: number,
+  ): void {
+    console.log("Main controller");
+    return this.professorController.addCourseToWorkload(
+      courseId,
+      courseName,
+      courseHours,
+      courseType,
+      students,
+      experienceFactor,
+      group,
+      loadType,
+      id,
+    );
+  }
 }
