@@ -3,7 +3,7 @@ import DialogAlert from "@renderer/components/DialogAlert";
 import { useState, useEffect } from "react";
 import Course from "../../../../models/Course";
 
-export default function AddCourseActivity() {
+export default function AddTFGActivity() {
   const navigate = useNavigate();
   const location = useLocation();
   const { id, name } = location.state;
@@ -14,9 +14,10 @@ export default function AddCourseActivity() {
   const [courses, setCourses] = useState<Course[]>([]);
 
   useEffect(() => {
-    const loadedCourses = window.mainController.getCourses()
-      .filter(course => course.code !== 'CM5300' && course.code !== 'CM5331')
-      .map(course => Course.reinstantiate(course) as Course);
+    const loadedCourses = window.mainController
+      .getCourses()
+      .filter((course) => course.code === "CM5300" || course.code === "CM5331")
+      .map((course) => Course.reinstantiate(course) as Course);
     setCourses(loadedCourses);
   }, []);
 
@@ -38,43 +39,46 @@ export default function AddCourseActivity() {
       (form.elements.namedItem("students") as HTMLInputElement).value,
     );
 
-    const experienceFactor = parseInt(
-      (form.elements.namedItem("experienceFactor") as HTMLSelectElement).value,
-    );
-
-    const group = parseInt(
-      (form.elements.namedItem("group") as HTMLSelectElement).value,
-    );
-
     const loadType = parseInt(
       (form.elements.namedItem("loadType") as HTMLSelectElement).value,
     );
 
+    console.log(
+      "Data: ",
+      selectedCourse.id,
+      selectedCourse.name,
+      selectedCourse.hours,
+      selectedCourse.type,
+      students,
+      loadType,
+      id,
+    );
+
     try {
-      window.mainController.addCourseToWorkload(
+      window.mainController.addTFGActivityToWorkload(
         selectedCourse.id,
         selectedCourse.name,
         selectedCourse.hours,
         selectedCourse.type,
         students,
-        experienceFactor,
-        group,
         loadType,
         id,
       );
       setTitle("Éxito");
       setTypeDialog("success");
-      setMessage("Curso agregado a la carga con éxito");
+      setMessage("Labor TFG agregada a la carga con éxito");
     } catch {
       setTitle("Error");
       setTypeDialog("error");
-      setMessage("Error al agregar curso a la carga");
+      setMessage("Error al agregar labor TFG a la carga");
     }
   };
 
   return (
     <main className="gap-10">
-      <h1 className="text-3xl font-bold">Agregar curso al profesor: {name}</h1>
+      <h1 className="text-3xl font-bold">
+        Agregar labor TFG al profesor: {name}
+      </h1>
       <form
         className="flex w-full max-w-2xl flex-col gap-4"
         onSubmit={handleSubmit}
@@ -84,7 +88,7 @@ export default function AddCourseActivity() {
             htmlFor="course"
             className="text-white-900 block text-sm font-medium leading-6"
           >
-            Curso
+            Labor
           </label>
           <select
             id="course"
@@ -100,20 +104,6 @@ export default function AddCourseActivity() {
         </div>
         <div className="flex w-full flex-col gap-3">
           <label
-            htmlFor="group"
-            className="text-white-900 block text-sm font-medium leading-6"
-          >
-            Número de grupo
-          </label>
-          <input
-            type="number"
-            id="group"
-            className="flex rounded-md border-0 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
-            required
-          />
-        </div>
-        <div className="flex w-full flex-col gap-3">
-          <label
             htmlFor="students"
             className="text-white-900 block text-sm font-medium leading-6"
           >
@@ -125,25 +115,6 @@ export default function AddCourseActivity() {
             className="flex rounded-md border-0 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
             required
           />
-        </div>
-        <div className="flex w-full flex-col gap-3">
-          <label
-            htmlFor="experienceFactor"
-            className="text-white-900 block text-sm font-medium leading-6"
-          >
-            Factor de experiencia
-          </label>
-          <select
-            id="experienceFactor"
-            className="flex rounded-md border-0 text-black shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600"
-            required
-          >
-            <option value={1}>Nuevo</option>
-            <option value={2}>Existente</option>
-            <option value={3}>Enseñado antes</option>
-            <option value={4}>Paralelo 1</option>
-            <option value={5}>Paralelo 2</option>
-          </select>
         </div>
         <div className="flex w-full flex-col gap-3">
           <label

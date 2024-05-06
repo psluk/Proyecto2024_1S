@@ -103,7 +103,7 @@ export default function WorkloadInfo(props): JSX.Element {
                     <div
                       className="flex w-full cursor-pointer items-center justify-center hover:bg-gray-100"
                       onClick={() =>
-                        navigate("/admin/addCourse", {
+                        navigate("/admin/addCourseActivity", {
                           state: {
                             id: props.id,
                             name: props.name,

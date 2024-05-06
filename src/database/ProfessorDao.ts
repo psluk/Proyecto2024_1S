@@ -574,8 +574,10 @@ export default class ProfessorDao {
   }
 
   /**
-   * Adds a new course to the workload of a professor into the database.
-   * @param course course to be added
+   * Adds a new course to the workload of a professor.
+   * @param courseId id of the course to be added
+   * @param courseName name of the course to be added
+   * @param courseHours quantity of hours of the course
    * @param students quantity of students the course has
    * @param experienceFactor experience factor the professor has with that specific course
    * @param group group number for the course
@@ -588,8 +590,8 @@ export default class ProfessorDao {
     courseHours: number,
     courseType: string,
     students: number,
-    experienceFactor: number,
-    group: number,
+    experienceFactor: number | null,
+    group: number | null,
     loadType: number,
     id: number,
   ): void {
@@ -601,39 +603,45 @@ export default class ProfessorDao {
       1,
       ?, --name
       ?, --hours
-      ?,  -- Valor para students
-      ?, --valor de load
-      ?,  -- Valor para workloadTypeId
-      ?,  -- Valor para professorId
-      ?  -- Valor para groupNumber;
+      ?,  -- students
+      ?, --temporary value for load
+      ?,  -- workloadTypeId
+      ?,  -- professorId
+      ?  -- groupNumber;
       `;
     const result = database
       .prepare(query)
-      .run(courseName, courseHours, students, 0, loadType, id, group);
+      .run(
+        courseName,
+        courseHours,
+        students,
+        courseHours * students,
+        loadType,
+        id,
+        group,
+      );
     if (result.changes === 0) {
       throw new Error(`Failed to add ${courseName} to professor ${id}`);
     }
 
+    console.log("Query 2:");
+
     const query2 = `
     INSERT INTO ActivityCourses (activityId, courseId, studentFactorId, courseExperienceId)
-    SELECT
-    ?, -- Valor para activityId
-    ?, -- Valor para courseId
-    (
-        SELECT studentFactorId
-        FROM StudentFactors SF
-        WHERE SF.courseTypeId = (
-                SELECT courseTypeId
-                FROM CourseTypes CT
-                WHERE CT.name = ? -- Valor para el tipo de curso
-            )
-            AND minStudents <= ? -- Valor para students
-            AND minHours <= ? -- Valor para hours
-        ORDER BY SF.minStudents DESC, SF.minHours DESC
-        LIMIT 1
-    ),
-    ?;
-      `;
+    SELECT ?, ?, (
+      SELECT studentFactorId
+      FROM StudentFactors SF
+      WHERE SF.courseTypeId = (
+        SELECT courseTypeId
+        FROM CourseTypes CT
+        WHERE CT.name = ?
+      )
+    AND minStudents <= ?
+    AND minHours <= ?
+    ORDER BY SF.minStudents DESC, SF.minHours DESC
+    LIMIT 1
+    ), ?;
+    `;
     const result2 = database
       .prepare(query2)
       .run(
@@ -642,50 +650,49 @@ export default class ProfessorDao {
         courseType,
         students,
         courseHours,
-        experienceFactor,
+        experienceFactor !== null ? experienceFactor : null,
       );
     if (result2.changes === 0) {
       throw new Error(`Failed to add ${courseName} to professor ${id}`);
     }
-
-    const query3 = `
-    UPDATE Activities
-SET load = (
-    (
+    if (experienceFactor) {
+      const query3 = `
+      UPDATE Activities
+      SET load = (
+      (
         SELECT factor
         FROM ExperienceFactors
         WHERE courseExperienceId = ? AND courseTypeId = (
-                SELECT courseTypeId
-                FROM CourseTypes CT
-                WHERE CT.name = ? -- Valor para el tipo de curso
-            )
-    )
-    * ?
-    + (
+          SELECT courseTypeId
+          FROM CourseTypes CT
+          WHERE CT.name = ?
+          )
+      )
+      * ?
+      + (
         SELECT factor
         FROM StudentFactors
         WHERE studentFactorId = (
             SELECT studentFactorId
             FROM ActivityCourses
             WHERE activityId = ?
+            )
         )
-    )
-)
-WHERE activityId = ?;
-
-
+      )
+      WHERE activityId = ?;
       `;
-    const result3 = database
-      .prepare(query3)
-      .run(
-        experienceFactor,
-        courseType,
-        courseHours,
-        result.lastInsertRowid,
-        result.lastInsertRowid,
-      );
-    if (result3.changes === 0) {
-      throw new Error(`Failed to add ${courseName} to professor ${id}`);
+      const result3 = database
+        .prepare(query3)
+        .run(
+          experienceFactor,
+          courseType,
+          courseHours,
+          result.lastInsertRowid,
+          result.lastInsertRowid,
+        );
+      if (result3.changes === 0) {
+        throw new Error(`Failed to add ${courseName} to professor ${id}`);
+      }
     }
   }
 }

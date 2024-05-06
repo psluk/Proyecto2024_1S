@@ -404,7 +404,9 @@ export default class ProfessorController {
 
   /**
    * Adds a new course to the workload of a professor.
-   * @param course id of the course to be added
+   * @param courseId id of the course to be added
+   * @param courseName name of the course to be added
+   * @param courseHours quantity of hours of the course
    * @param students quantity of students the course has
    * @param experienceFactor experience factor the professor has with that specific course
    * @param group group number for the course
@@ -430,6 +432,37 @@ export default class ProfessorController {
       students,
       experienceFactor,
       group,
+      loadType,
+      id,
+    );
+  }
+
+  /**
+   * Adds a new TFG activity to the workload of a professor.
+   * @param courseId id of the course to be added
+   * @param courseName name of the course to be added
+   * @param courseHours quantity of hours of the course
+   * @param students quantity of students the course has
+   * @param loadType defines the type of load the course is for that professor
+   * @param id id of the professor the course is added to
+   */
+  public addTFGActivityToWorkload(
+    courseId: number,
+    courseName: string,
+    courseHours: number,
+    courseType: string,
+    students: number,
+    loadType: number,
+    id: number,
+  ): void {
+    return this.professorDao.addCourseToWorkload(
+      courseId,
+      courseName,
+      courseHours,
+      courseType,
+      students,
+      null,
+      null,
       loadType,
       id,
     );

@@ -46,6 +46,7 @@ export default class MainController {
     this.getStudentsWithoutGroup = this.getStudentsWithoutGroup.bind(this);
     this.getCourses = this.getCourses.bind(this);
     this.addCourseToWorkload = this.addCourseToWorkload.bind(this);
+    this.addTFGActivityToWorkload = this.addTFGActivityToWorkload.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -457,7 +458,9 @@ export default class MainController {
 
   /**
    * Adds a new course to the workload of a professor.
-   * @param course id of the course to be added
+   * @param courseId id of the course to be added
+   * @param courseName name of the course to be added
+   * @param courseHours quantity of hours of the course
    * @param students quantity of students the course has
    * @param experienceFactor experience factor the professor has with that specific course
    * @param group group number for the course
@@ -484,6 +487,36 @@ export default class MainController {
       students,
       experienceFactor,
       group,
+      loadType,
+      id,
+    );
+  }
+
+  /**
+   * Adds a new TFG activity to the workload of a professor.
+   * @param courseId id of the course to be added
+   * @param courseName name of the course to be added
+   * @param courseHours quantity of hours of the course
+   * @param students quantity of students the course has
+   * @param loadType defines the type of load the course is for that professor
+   * @param id id of the professor the course is added to
+   */
+  public addTFGActivityToWorkload(
+    courseId: number,
+    courseName: string,
+    courseHours: number,
+    courseType: string,
+    students: number,
+    loadType: number,
+    id: number,
+  ): void {
+    console.log("Main controller");
+    return this.professorController.addTFGActivityToWorkload(
+      courseId,
+      courseName,
+      courseHours,
+      courseType,
+      students,
       loadType,
       id,
     );
