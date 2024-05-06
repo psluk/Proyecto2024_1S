@@ -31,6 +31,12 @@ export interface StudentFactor {
   factor: number;
 }
 
+export interface OtherActivity {
+  activityTypeId: number;
+  name: string;
+  load: number;
+}
+
 export default class ProfessorDao {
   /**
    * Adds a professor to the database.
@@ -556,8 +562,8 @@ export default class ProfessorDao {
   }
 
   /**
-   * Gets a list of all professors from the database.
-   * @returns A list of all professors in the database.
+   * Gets a list of all courses from the database.
+   * @returns A list of all courses in the database.
    */
   getCourses(): Course[] {
     const query = `
@@ -571,6 +577,22 @@ export default class ProfessorDao {
     });
 
     return courses;
+  }
+
+  /**
+   * Gets a list of all other activities from the database.
+   * @returns A list of all other activities in the database.
+   */
+  getOtherActivities(): OtherActivity[] {
+    const query = `
+      SELECT DISTINCT(a.name), a.activityTypeId , load
+      FROM Activities a
+      WHERE a.activityTypeId BETWEEN 2 AND 4
+      `;
+    const otherActivitiesList = database
+      .prepare(query)
+      .all() as OtherActivity[];
+    return otherActivitiesList;
   }
 
   /**
@@ -595,8 +617,6 @@ export default class ProfessorDao {
     loadType: number,
     id: number,
   ): void {
-    console.log("Insertando a base");
-
     const query = `
     INSERT INTO Activities (activityTypeId, name, hours, students, load, workloadTypeId, professorId, groupNumber)
     SELECT
@@ -623,8 +643,6 @@ export default class ProfessorDao {
     if (result.changes === 0) {
       throw new Error(`Failed to add ${courseName} to professor ${id}`);
     }
-
-    console.log("Query 2:");
 
     const query2 = `
     INSERT INTO ActivityCourses (activityId, courseId, studentFactorId, courseExperienceId)
@@ -693,6 +711,38 @@ export default class ProfessorDao {
       if (result3.changes === 0) {
         throw new Error(`Failed to add ${courseName} to professor ${id}`);
       }
+    }
+  }
+
+  /**
+   * Adds a new TFG activity to the workload of a professor.
+   * @param activityName name of the activity to be added
+   * @param activityTypeId activity type id
+   * @param activityLoad the load the activity has
+   * @param loadType defines the type of load the activity is for that professor
+   * @param id id of the professor the activity is added to
+   */
+  public addOtherActivityToWorkload(
+    activityName: string,
+    activityTypeId: number,
+    activityLoad: number,
+    loadType: number,
+    id: number,
+  ): void {
+    const query = `
+    INSERT INTO Activities (activityTypeId, name, load, workloadTypeId, professorId)
+    SELECT
+      ?, --activityTypeId
+      ?, --name
+      ?, --load
+      ?,  -- workloadTypeId
+      ?;  -- professorId
+      `;
+    const result = database
+      .prepare(query)
+      .run(activityTypeId, activityName, activityLoad, loadType, id);
+    if (result.changes === 0) {
+      throw new Error(`Failed to add ${activityName} to professor ${id}`);
     }
   }
 }

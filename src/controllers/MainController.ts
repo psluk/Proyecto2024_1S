@@ -8,6 +8,7 @@ import Student, { StudentInterface } from "../models/Student";
 import GroupController from "./GroupController";
 import Workload from "../models/Workload";
 import { CourseInterface } from "src/models/Course";
+import { OtherActivity } from "src/database/ProfessorDao";
 
 export default class MainController {
   private static instance: MainController;
@@ -47,6 +48,9 @@ export default class MainController {
     this.getCourses = this.getCourses.bind(this);
     this.addCourseToWorkload = this.addCourseToWorkload.bind(this);
     this.addTFGActivityToWorkload = this.addTFGActivityToWorkload.bind(this);
+    this.getOtherActivities = this.getOtherActivities.bind(this);
+    this.addOtherActivityToWorkload =
+      this.addOtherActivityToWorkload.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -457,6 +461,14 @@ export default class MainController {
   }
 
   /**
+   * Gets a list of all other activities from the database.
+   * @returns A list of all other activities in the database.
+   */
+  getOtherActivities(): OtherActivity[] {
+    return this.professorController.getOtherActivities();
+  }
+
+  /**
    * Adds a new course to the workload of a professor.
    * @param courseId id of the course to be added
    * @param courseName name of the course to be added
@@ -478,7 +490,6 @@ export default class MainController {
     loadType: number,
     id: number,
   ): void {
-    console.log("Main controller");
     return this.professorController.addCourseToWorkload(
       courseId,
       courseName,
@@ -510,13 +521,36 @@ export default class MainController {
     loadType: number,
     id: number,
   ): void {
-    console.log("Main controller");
     return this.professorController.addTFGActivityToWorkload(
       courseId,
       courseName,
       courseHours,
       courseType,
       students,
+      loadType,
+      id,
+    );
+  }
+
+  /**
+   * Adds a new TFG activity to the workload of a professor.
+   * @param activityName name of the activity to be added
+   * @param activityTypeId activity type id
+   * @param activityLoad the load the activity has
+   * @param loadType defines the type of load the activity is for that professor
+   * @param id id of the professor the activity is added to
+   */
+  public addOtherActivityToWorkload(
+    activityName: string,
+    activityTypeId: number,
+    activityLoad: number,
+    loadType: number,
+    id: number,
+  ): void {
+    return this.professorController.addOtherActivityToWorkload(
+      activityName,
+      activityTypeId,
+      activityLoad,
       loadType,
       id,
     );

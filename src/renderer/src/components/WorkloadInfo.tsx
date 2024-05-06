@@ -14,10 +14,6 @@ export default function WorkloadInfo(props): JSX.Element {
     setShowTables(!showTables);
   };
 
-  const handleAddItem = () => {
-    console.log("Labor agregada");
-  };
-
   useEffect(() => {
     if (showTables) {
       const loadedWorkload = window.mainController
@@ -26,7 +22,6 @@ export default function WorkloadInfo(props): JSX.Element {
           (workload) =>
             Workload.reinstantiate(workload as unknown as WorkloadInterface)!,
         );
-      console.log(loadedWorkload);
       setWorkload(loadedWorkload);
     }
   }, [showTables]);
@@ -250,7 +245,15 @@ export default function WorkloadInfo(props): JSX.Element {
                   <td colSpan={4} className="p-0">
                     <div
                       className="flex w-full cursor-pointer items-center justify-center hover:bg-gray-100"
-                      onClick={handleAddItem}
+                      onClick={() =>
+                        navigate("/admin/addOtherActivity", {
+                          state: {
+                            id: props.id,
+                            name: props.name,
+                            pageActivityType: 2,
+                          },
+                        })
+                      }
                     >
                       <FontAwesomeIcon
                         icon={faPlus}
@@ -302,7 +305,15 @@ export default function WorkloadInfo(props): JSX.Element {
                   <td colSpan={4} className="p-0">
                     <div
                       className="flex h-auto w-full cursor-pointer items-center justify-center hover:bg-gray-100"
-                      onClick={handleAddItem}
+                      onClick={() =>
+                        navigate("/admin/addOtherActivity", {
+                          state: {
+                            id: props.id,
+                            name: props.name,
+                            pageActivityType: 3,
+                          },
+                        })
+                      }
                     >
                       <FontAwesomeIcon
                         icon={faPlus}
@@ -355,7 +366,15 @@ export default function WorkloadInfo(props): JSX.Element {
                   <td colSpan={4} className="p-0">
                     <div
                       className="flex w-full cursor-pointer items-center justify-center hover:bg-gray-100"
-                      onClick={handleAddItem}
+                      onClick={() =>
+                        navigate("/admin/addOtherActivity", {
+                          state: {
+                            id: props.id,
+                            name: props.name,
+                            pageActivityType: 4,
+                          },
+                        })
+                      }
                     >
                       <FontAwesomeIcon
                         icon={faPlus}

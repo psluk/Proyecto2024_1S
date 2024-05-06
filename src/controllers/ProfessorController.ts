@@ -1,4 +1,7 @@
-import ProfessorDao, { StudentFactor } from "../database/ProfessorDao";
+import ProfessorDao, {
+  OtherActivity,
+  StudentFactor,
+} from "../database/ProfessorDao";
 import ExcelDao from "../database/ExcelDao";
 import Professor from "../models/Professor";
 import Course from "../models/Course";
@@ -403,6 +406,14 @@ export default class ProfessorController {
   }
 
   /**
+   * Gets all courses from the database.
+   * @returns An array of all professors.
+   */
+  public getOtherActivities(): OtherActivity[] {
+    return this.professorDao.getOtherActivities();
+  }
+
+  /**
    * Adds a new course to the workload of a professor.
    * @param courseId id of the course to be added
    * @param courseName name of the course to be added
@@ -463,6 +474,30 @@ export default class ProfessorController {
       students,
       null,
       null,
+      loadType,
+      id,
+    );
+  }
+
+  /**
+   * Adds a new TFG activity to the workload of a professor.
+   * @param activityName name of the activity to be added
+   * @param activityTypeId activity type id
+   * @param activityLoad the load the activity has
+   * @param loadType defines the type of load the activity is for that professor
+   * @param id id of the professor the activity is added to
+   */
+  public addOtherActivityToWorkload(
+    activityName: string,
+    activityTypeId: number,
+    activityLoad: number,
+    loadType: number,
+    id: number,
+  ): void {
+    return this.professorDao.addOtherActivityToWorkload(
+      activityName,
+      activityTypeId,
+      activityLoad,
       loadType,
       id,
     );

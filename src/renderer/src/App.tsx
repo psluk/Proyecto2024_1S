@@ -20,6 +20,7 @@ import EditGroupProfessors from "./pages/admin/pfg/EditGroupProfessors";
 import EditGroupStudents from "./pages/admin/pfg/EditGroupStudents";
 import AddCourseActivity from "./pages/admin/AddCourseActivity";
 import AddTFGActivity from "./pages/admin/AddTFGActivity";
+import AddOtherActivity from "./pages/admin/AddOtherActivity";
 
 function App(): JSX.Element {
   return (
@@ -42,8 +43,15 @@ function App(): JSX.Element {
             element={<ManageProfessors />}
           />
           <Route path="/admin/manageWorkloads" element={<ManageWorkloads />} />
-          <Route path="/admin/addCourseActivity" element={<AddCourseActivity />} />
+          <Route
+            path="/admin/addCourseActivity"
+            element={<AddCourseActivity />}
+          />
           <Route path="/admin/addTFGActivity" element={<AddTFGActivity />} />
+          <Route
+            path="/admin/addOtherActivity"
+            element={<AddOtherActivity />}
+          />
           <Route path="/admin/manageTheses" element={<PFGHome />} />
           <Route path="/admin/manageTheses/groups" element={<ManageGroups />} />
           <Route
