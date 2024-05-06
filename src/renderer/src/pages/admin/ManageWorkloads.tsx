@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import Professor from "../../../../models/Professor";
-import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
@@ -10,7 +9,6 @@ export default function ManageWorkloads() {
   const [professors, setProfessors] = useState<Professor[]>([]);
   const [search, setSearch] = useState<string>("");
   const [filteredProfessors, setFilteredProfessors] = useState<Professor[]>([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const loadedProfessors = window.mainController
@@ -46,13 +44,12 @@ export default function ManageWorkloads() {
             type="text"
             placeholder="Buscar profesor"
             className="h-8 flex-1 rounded-md border-none pl-4 pr-10 focus:outline-none focus:ring-0"
-            onChange={(e) => {
-              setSearch(e.target.value);
-            }}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <div className="mb-4 w-full">
-          {professors.map((professor) => (
+          {filteredProfessors.map((professor) => (
             <WorkloadInfo
               key={professor.getId()}
               name={professor.getName()}
