@@ -68,7 +68,19 @@ export default function WorkloadInfo(props): JSX.Element {
                       className="border-b border-gray-300"
                       key={activity.getId()}
                     >
-                      <td className="px-2">
+                      <td
+                        className={`px-2 ${
+                          activity.getWorkloadType() === "extended"
+                            ? "bg-orange-200"
+                            : activity.getWorkloadType() === "double"
+                              ? "bg-blue-200"
+                              : activity.getWorkloadType() === "overload"
+                                ? "bg-yellow-300"
+                                : activity.getWorkloadType() === "adHonorem"
+                                  ? "bg-gray-200"
+                                  : ""
+                        }`}
+                      >
                         <span className="text-sm font-bold">
                           {activity.getCode()}:{" "}
                         </span>
@@ -147,7 +159,19 @@ export default function WorkloadInfo(props): JSX.Element {
                       className="border-b border-gray-300"
                       key={activity.getId()}
                     >
-                      <td className="px-2">
+                      <td
+                        className={`px-2 ${
+                          activity.getWorkloadType() === "extended"
+                            ? "bg-orange-200"
+                            : activity.getWorkloadType() === "double"
+                              ? "bg-blue-200"
+                              : activity.getWorkloadType() === "overload"
+                                ? "bg-yellow-300"
+                                : activity.getWorkloadType() === "adHonorem"
+                                  ? "bg-gray-200"
+                                  : ""
+                        }`}
+                      >
                         <span className="text-sm font-bold">
                           {activity.getCode()}:{" "}
                         </span>
@@ -228,7 +252,21 @@ export default function WorkloadInfo(props): JSX.Element {
                       className="border-b border-gray-300"
                       key={activity.getId()}
                     >
-                      <td className="px-2">{activity.getName()}</td>
+                      <td
+                        className={`px-2 ${
+                          activity.getWorkloadType() === "extended"
+                            ? "bg-orange-200"
+                            : activity.getWorkloadType() === "double"
+                              ? "bg-blue-200"
+                              : activity.getWorkloadType() === "overload"
+                                ? "bg-yellow-300"
+                                : activity.getWorkloadType() === "adHonorem"
+                                  ? "bg-gray-200"
+                                  : ""
+                        }`}
+                      >
+                        {activity.getName()}
+                      </td>
                       <td className="relative space-x-3 px-2">
                         {activity.getWorkload().toLocaleString(["es-CR", "es"])}
                         <Link
@@ -288,7 +326,21 @@ export default function WorkloadInfo(props): JSX.Element {
                       className="border-b border-gray-300"
                       key={activity.getId()}
                     >
-                      <td className="px-2">{activity.getName()}</td>
+                      <td
+                        className={`px-2 ${
+                          activity.getWorkloadType() === "extended"
+                            ? "bg-orange-200"
+                            : activity.getWorkloadType() === "double"
+                              ? "bg-blue-200"
+                              : activity.getWorkloadType() === "overload"
+                                ? "bg-yellow-300"
+                                : activity.getWorkloadType() === "adHonorem"
+                                  ? "bg-gray-200"
+                                  : ""
+                        }`}
+                      >
+                        {activity.getName()}
+                      </td>
                       <td className="relative space-x-3 px-2">
                         {activity.getWorkload().toLocaleString(["es-CR", "es"])}
                         <Link
@@ -349,7 +401,21 @@ export default function WorkloadInfo(props): JSX.Element {
                       className="border-b border-gray-300"
                       key={activity.getId()}
                     >
-                      <td className="px-2">{activity.getName()}</td>
+                      <td
+                        className={`px-2 ${
+                          activity.getWorkloadType() === "extended"
+                            ? "bg-orange-200"
+                            : activity.getWorkloadType() === "double"
+                              ? "bg-blue-200"
+                              : activity.getWorkloadType() === "overload"
+                                ? "bg-yellow-300"
+                                : activity.getWorkloadType() === "adHonorem"
+                                  ? "bg-gray-200"
+                                  : ""
+                        }`}
+                      >
+                        {activity.getName()}
+                      </td>
                       <td className="relative space-x-3 px-2">
                         {activity.getWorkload().toLocaleString(["es-CR", "es"])}
                         <Link
