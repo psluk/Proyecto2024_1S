@@ -51,6 +51,9 @@ export default class MainController {
     this.getOtherActivities = this.getOtherActivities.bind(this);
     this.addOtherActivityToWorkload =
       this.addOtherActivityToWorkload.bind(this);
+    this.updateWorkload = this.updateWorkload.bind(this);
+    this.getCalculatedWorkload = this.getCalculatedWorkload.bind(this);
+    this.deleteActivity = this.deleteActivity.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -554,5 +557,82 @@ export default class MainController {
       loadType,
       id,
     );
+  }
+
+  /**
+   * Updates the workload of a professor.
+   * @param activityId ID of the activity to be updated
+   * @param name Name of the activity
+   * @param hours Hours of the activity
+   * @param students Number of students
+   * @param load Workload of the activity
+   * @param workloadType Type of workload
+   * @param professorId ID of the professor
+   * @param groupNumber Group number
+   * @param suggestedStudents Suggested number of students
+   * @param courseCode Code of the course
+   * @param experienceFactor Experience factor
+   */
+  public updateWorkload(
+    activityId: number,
+    name: string,
+    hours: number | null,
+    students: number | null,
+    load: number,
+    workloadType: string,
+    professorId: number,
+    groupNumber: number | null,
+    suggestedStudents: number | null,
+    courseCode: string | null,
+    experienceFactor: string | null,
+  ): void {
+    return this.professorController.updateWorkload(
+      activityId,
+      name,
+      hours,
+      students,
+      load,
+      workloadType,
+      professorId,
+      groupNumber,
+      suggestedStudents,
+      courseCode,
+      experienceFactor,
+    );
+  }
+
+  /**
+   * Gets the calculated workload for a course activity, given its parameters..
+   * @param courseCode Code of the course
+   * @param students Number of students
+   * @param hours Number of hours
+   * @param experienceFactor Experience factor
+   * @param groupNumber Group number
+   * @param professorId ID of the professor
+   */
+  public getCalculatedWorkload(
+    courseCode: string,
+    students: number,
+    hours: number,
+    experienceFactor: string,
+    groupNumber: number | null,
+    professorId: number,
+  ): number {
+    return this.professorController.getCalculatedWorkload(
+      courseCode,
+      students,
+      hours,
+      experienceFactor,
+      groupNumber,
+      professorId,
+    );
+  }
+
+  /**
+   * Deletes an activity from the workload of a professor.
+   * @param activityId ID of the activity to be deleted
+   */
+  public deleteActivity(activityId: number): void {
+    return this.professorController.deleteActivity(activityId);
   }
 }

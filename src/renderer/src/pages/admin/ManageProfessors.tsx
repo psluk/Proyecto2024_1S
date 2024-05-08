@@ -164,7 +164,7 @@ export default function ManageProfessors(): JSX.Element {
 
       <DialogConfirm
         title="Eliminar profesor"
-        message="¿Estás seguro de que deseas eliminar al profesor?"
+        message="¿Está seguro de que desea eliminar al profesor?"
         handleConfirm={handleConfirm}
         handleCancel={() => {
           setShowDialog(false);

@@ -10,12 +10,18 @@ export interface WorkloadInterface {
   groupNumber: number | null;
   workload: number;
   calculatedWorkload: number | null;
+  experienceFactor: string | null;
 }
 
 export default class Workload {
   private id: number | null;
   private activityType: "course" | "research" | "special" | "administrative";
-  private workloadType: "normal" | "extended" | "double" | "overload" | "adHonorem";
+  private workloadType:
+    | "normal"
+    | "extended"
+    | "double"
+    | "overload"
+    | "adHonorem";
   private code: string | null;
   private name: string;
   private hours: number | null;
@@ -24,6 +30,7 @@ export default class Workload {
   private groupNumber: number | null;
   private workload: number;
   private calculatedWorkload: number | null;
+  private experienceFactor: string | null;
 
   constructor(
     id: number | null,
@@ -36,7 +43,8 @@ export default class Workload {
     suggestedStudents: number | null,
     groupNumber: number | null,
     workload: number,
-    calculatedWorkload: number | null
+    calculatedWorkload: number | null,
+    experienceFactor: string | null,
   ) {
     this.id = id;
     this.activityType = activityType;
@@ -49,6 +57,7 @@ export default class Workload {
     this.groupNumber = groupNumber;
     this.workload = workload;
     this.calculatedWorkload = calculatedWorkload;
+    this.experienceFactor = experienceFactor;
   }
 
   static reinstantiate(workload: WorkloadInterface | null): Workload | null {
@@ -66,7 +75,8 @@ export default class Workload {
       workload.suggestedStudents,
       workload.groupNumber,
       workload.workload,
-      workload.calculatedWorkload
+      workload.calculatedWorkload,
+      workload.experienceFactor,
     );
   }
 
@@ -83,6 +93,7 @@ export default class Workload {
       groupNumber: this.groupNumber,
       workload: this.workload,
       calculatedWorkload: this.calculatedWorkload,
+      experienceFactor: this.experienceFactor,
     };
   }
 
@@ -90,7 +101,11 @@ export default class Workload {
     return this.id;
   }
 
-  public getActivityType(): "course" | "research" | "special" | "administrative" {
+  public getActivityType():
+    | "course"
+    | "research"
+    | "special"
+    | "administrative" {
     return this.activityType;
   }
 
@@ -131,7 +146,11 @@ export default class Workload {
     return this.workload;
   }
 
-  public getcalculatedWorkload(): number | null {
+  public getCalculatedWorkload(): number | null {
     return this.calculatedWorkload;
+  }
+
+  public getExperienceFactor(): string | null {
+    return this.experienceFactor;
   }
 }

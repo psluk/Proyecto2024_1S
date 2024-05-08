@@ -1,18 +1,57 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPen, faPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowRotateLeft,
+  faCheck,
+  faPen,
+  faPlus,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import Workload, { WorkloadInterface } from "../../../models/Workload";
-import { projectCourses } from "../../../constants/Courses";
+import { projectCourses as ProjectCourses } from "../../../constants/Courses";
+import Course from "../../../models/Course";
+import {
+  experienceFactors,
+  WorkloadTypes,
+  WorkloadValue,
+} from "../constants/WorkloadParameters";
+import DialogConfirm from "./DialogConfirm";
 
 export default function WorkloadInfo(props): JSX.Element {
   const [showTables, setShowTables] = useState(false);
   const [workload, setWorkload] = useState<Workload[]>([]);
   const navigate = useNavigate();
+  const [idCurrentlyEditing, setIdCurrentlyEditing] = useState<number | null>(
+    null,
+  );
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [projectCourses, setProjectCourses] = useState<Course[]>([]);
+  const [activityBeingEdited, setActivityBeingEdited] =
+    useState<WorkloadInterface | null>(null);
+  const [showDialogConfirm, setShowDialogConfirm] = useState<boolean>(false);
+  const [handleConfirm, setHandleConfirm] = useState<() => void>(() => {});
+  let selectedId: number | null = null;
+  const [confirmationTitle, setConfirmationTitle] = useState<string>("");
+  const [confirmationMessage, setConfirmationMessage] = useState<string>("");
 
-  const toggleTables = () => {
+  const toggleTables = (): void => {
     setShowTables(!showTables);
   };
+
+  useEffect(() => {
+    const loadedCourses = window.mainController.getCourses();
+    setCourses(
+      loadedCourses
+        .filter((course) => !ProjectCourses.includes(course.code))
+        .map((course) => Course.reinstantiate(course) as Course),
+    );
+    setProjectCourses(
+      loadedCourses
+        .filter((course) => ProjectCourses.includes(course.code))
+        .map((course) => Course.reinstantiate(course) as Course),
+    );
+  }, []);
 
   useEffect(() => {
     if (showTables) {
@@ -22,9 +61,130 @@ export default function WorkloadInfo(props): JSX.Element {
           (workload) =>
             Workload.reinstantiate(workload as unknown as WorkloadInterface)!,
         );
+      console.log(loadedWorkload);
       setWorkload(loadedWorkload);
     }
   }, [showTables]);
+
+  useEffect(() => {
+    if (idCurrentlyEditing !== null) {
+      setActivityBeingEdited(
+        workload.find((w) => w.getId() === idCurrentlyEditing)!.asObject()!,
+      );
+    } else {
+      setActivityBeingEdited(null);
+    }
+  }, [idCurrentlyEditing]);
+
+  const updateCourse = (code: string): void => {
+    const newCourse = courses.find((course) => course.getCode() === code)!;
+    setActivityBeingEdited({
+      ...activityBeingEdited!,
+      code,
+      name: newCourse.getName(),
+      hours: newCourse.getHours(),
+    });
+  };
+
+  const editSelectedId = (): void => {
+    setIdCurrentlyEditing(selectedId);
+    setShowDialogConfirm(false);
+  };
+
+  const editActivity = (id: number): void => {
+    if (idCurrentlyEditing !== null) {
+      setConfirmationTitle("Deshacer cambios");
+      setConfirmationMessage(
+        "Para editar otra actividad, se desharán los cambios realizados en la actividad actual. ¿Desea continuar?",
+      );
+      selectedId = id;
+      setHandleConfirm(() => editSelectedId);
+      setShowDialogConfirm(true);
+    } else {
+      setIdCurrentlyEditing(id);
+    }
+  };
+
+  const deleteSelectedId = (): void => {
+    if (selectedId !== null) {
+      window.mainController.deleteActivity(selectedId);
+      setWorkload(workload.filter((w) => w.getId() !== selectedId));
+    }
+    setShowDialogConfirm(false);
+  };
+
+  const deleteActivity = (id: number): void => {
+    setConfirmationTitle("Eliminar actividad");
+    setConfirmationMessage(
+      "¿Está seguro que desea eliminar la actividad seleccionada?",
+    );
+    selectedId = id;
+    setHandleConfirm(() => deleteSelectedId);
+    setShowDialogConfirm(true);
+  };
+
+  const saveChanges = (): void => {
+    if (activityBeingEdited !== null) {
+      const updatedWorkload = workload.map((w) => {
+        if (w.getId() === idCurrentlyEditing) {
+          return Workload.reinstantiate(activityBeingEdited)!;
+        }
+        return w;
+      });
+      setWorkload(updatedWorkload);
+      setIdCurrentlyEditing(null);
+      window.mainController.updateWorkload(
+        activityBeingEdited.id!,
+        activityBeingEdited.name,
+        activityBeingEdited.hours,
+        activityBeingEdited.students,
+        activityBeingEdited.workload,
+        activityBeingEdited.workloadType,
+        props.id,
+        activityBeingEdited.groupNumber,
+        activityBeingEdited.suggestedStudents,
+        activityBeingEdited.code,
+        activityBeingEdited.experienceFactor,
+      );
+    }
+  };
+
+  useEffect(() => {
+    // Recalculate the workload when the activity being edited changes
+    // Only if it is a course activity
+    if (
+      activityBeingEdited?.code &&
+      activityBeingEdited?.students !== null &&
+      activityBeingEdited?.groupNumber !== null &&
+      activityBeingEdited?.experienceFactor &&
+      activityBeingEdited?.hours !== null
+    ) {
+      const course = courses.find(
+        (course) => course.getCode() === activityBeingEdited.code,
+      );
+      if (course) {
+        try {
+          const newWorkload = window.mainController.getCalculatedWorkload(
+            activityBeingEdited.code,
+            activityBeingEdited.students,
+            activityBeingEdited.hours,
+            activityBeingEdited.experienceFactor,
+            activityBeingEdited.groupNumber,
+            props.id,
+          );
+          setActivityBeingEdited({
+            ...activityBeingEdited,
+            workload: newWorkload,
+          });
+        } catch (error) {}
+      }
+    }
+  }, [
+    activityBeingEdited?.code,
+    activityBeingEdited?.students,
+    activityBeingEdited?.groupNumber,
+    activityBeingEdited?.experienceFactor,
+  ]);
 
   return (
     <div className="mb-5 overflow-hidden rounded-md shadow-md">
@@ -38,7 +198,7 @@ export default function WorkloadInfo(props): JSX.Element {
       </div>
       {showTables && (
         <div>
-          <div className="">
+          <div className="workloadContent">
             <table className="w-full table-fixed rounded-md bg-slate-50">
               <thead>
                 <tr className="bg-sky-600 text-white">
@@ -61,47 +221,223 @@ export default function WorkloadInfo(props): JSX.Element {
                   .filter(
                     (activity) =>
                       activity.getActivityType() === "course" &&
-                      !projectCourses.includes(activity.getCode()!),
+                      !ProjectCourses.includes(activity.getCode()!),
                   )
                   .map((activity) => (
                     <tr
-                      className="border-b border-gray-300"
+                      className={`border-b border-gray-300 ${
+                        activity.getWorkloadType() === "extended"
+                          ? "bg-orange-200"
+                          : activity.getWorkloadType() === "double"
+                            ? "bg-blue-200"
+                            : activity.getWorkloadType() === "overload"
+                              ? "bg-yellow-300"
+                              : activity.getWorkloadType() === "adHonorem"
+                                ? "bg-gray-200"
+                                : ""
+                      } ${
+                        activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null
+                          ? "editingWorkloadRow"
+                          : ""
+                      }`}
                       key={activity.getId()}
                     >
-                      <td
-                        className={`px-2 ${
-                          activity.getWorkloadType() === "extended"
-                            ? "bg-orange-200"
-                            : activity.getWorkloadType() === "double"
-                              ? "bg-blue-200"
-                              : activity.getWorkloadType() === "overload"
-                                ? "bg-yellow-300"
-                                : activity.getWorkloadType() === "adHonorem"
-                                  ? "bg-gray-200"
-                                  : ""
-                        }`}
-                      >
-                        <span className="text-sm font-bold">
-                          {activity.getCode()}:{" "}
-                        </span>
-                        {activity.getName()}{" "}
-                        {activity.getGroupNumber() !== null && (
-                          <span className="text-xs">
-                            (grupo {activity.getGroupNumber()})
-                          </span>
+                      <td className="px-2">
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <select
+                              value={activityBeingEdited.code!}
+                              className="w-full"
+                              onChange={(e) => updateCourse(e.target.value)}
+                            >
+                              {courses.map((course) => (
+                                <option
+                                  key={course.getId()}
+                                  value={course.getCode()!}
+                                >
+                                  {course.getCode()}: {course.getName()}
+                                </option>
+                              ))}
+                            </select>
+                            <div className="flex items-center gap-1">
+                              {activityBeingEdited.experienceFactor ? (
+                                <select
+                                  value={activityBeingEdited.experienceFactor}
+                                  onChange={(e) =>
+                                    setActivityBeingEdited({
+                                      ...activityBeingEdited,
+                                      experienceFactor: e.target.value,
+                                    })
+                                  }
+                                >
+                                  {experienceFactors.map((factor) => (
+                                    <option
+                                      key={factor.value}
+                                      value={factor.value}
+                                    >
+                                      {factor.label}
+                                    </option>
+                                  ))}
+                                </select>
+                              ) : (
+                                <></>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <label
+                                htmlFor="newGroupNumber"
+                                className="text-xs font-bold"
+                              >
+                                Grupo:
+                              </label>
+                              <input
+                                type="number"
+                                min="1"
+                                step="1"
+                                name="newGroupNumber"
+                                value={activityBeingEdited.groupNumber!}
+                                className="w-10"
+                                onChange={(e) => {
+                                  setActivityBeingEdited({
+                                    ...activityBeingEdited,
+                                    groupNumber: parseInt(e.target.value),
+                                  });
+                                }}
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="text-sm font-bold">
+                              {activity.getCode()}:{" "}
+                            </span>
+                            {activity.getName()}{" "}
+                            {activity.getGroupNumber() !== null && (
+                              <span className="text-xs">
+                                (grupo {activity.getGroupNumber()})
+                              </span>
+                            )}
+                          </>
                         )}
                       </td>
-                      <td className="px-2">{activity.getHours()}</td>
-                      <td className="px-2">{activity.getStudents()}</td>
-                      <td className="relative space-x-3 px-2">
-                        {activity.getWorkload().toLocaleString(["es-CR", "es"])}
-                        <Link
-                          to={`/admin/editProfessor/${"id"}`}
-                          className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
-                          title="Editar"
-                        >
-                          <FontAwesomeIcon icon={faPen} />
-                        </Link>
+                      <td className="px-2">
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={activityBeingEdited.hours!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  hours: parseInt(e.target.value),
+                                })
+                              }
+                              disabled
+                            />
+                          </div>
+                        ) : (
+                          activity.getHours()
+                        )}
+                      </td>
+                      <td className="px-2">
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={activityBeingEdited.students!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  students: parseInt(e.target.value),
+                                })
+                              }
+                            />
+                          </div>
+                        ) : (
+                          activity.getStudents()
+                        )}
+                      </td>
+                      <td className="relative space-x-3 pe-16 ps-2">
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={activityBeingEdited.workload!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  workload: parseFloat(e.target.value),
+                                })
+                              }
+                            />
+                            <select
+                              value={activityBeingEdited.workloadType!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  workloadType: e.target.value as WorkloadValue,
+                                })
+                              }
+                            >
+                              {WorkloadTypes.map((type) => (
+                                <option key={type.value} value={type.value}>
+                                  {type.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : (
+                          activity.getWorkload().toLocaleString(["es-CR", "es"])
+                        )}
+                        <div className="options absolute right-5 top-1/2 flex -translate-y-1/2 transform items-center gap-2 text-sm font-semibold">
+                          {activity.getId() === idCurrentlyEditing &&
+                          activityBeingEdited !== null ? (
+                            <>
+                              <FontAwesomeIcon
+                                icon={faCheck}
+                                className="cursor-pointer text-teal-600"
+                                title="Guardar"
+                                onClick={() => saveChanges()}
+                              />
+                              <FontAwesomeIcon
+                                icon={faArrowRotateLeft}
+                                className="cursor-pointer text-blue-600"
+                                title="Cancelar"
+                                onClick={() => {
+                                  setIdCurrentlyEditing(null);
+                                }}
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <FontAwesomeIcon
+                                icon={faPen}
+                                className="cursor-pointer text-blue-600"
+                                title="Editar"
+                                onClick={() => editActivity(activity.getId()!)}
+                              />
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                className="cursor-pointer text-red-600"
+                                title="Eliminar"
+                                onClick={() =>
+                                  deleteActivity(activity.getId()!)
+                                }
+                              />
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -130,7 +466,7 @@ export default function WorkloadInfo(props): JSX.Element {
                 </tr>
               </tbody>
             </table>
-            <table className="w-full table-fixed rounded-md bg-slate-50 [&>tbody>tr>td]:px-2 [&>tbody>tr>td]:py-1 [&>thead>tr>th]:px-2 [&>thead>tr>th]:py-1">
+            <table className="w-full table-fixed rounded-md bg-slate-50 [&>tbody>tr:last-child>td:last-child]:pe-0 [&>tbody>tr>td:last-child]:pe-16 [&>tbody>tr>td]:px-2 [&>tbody>tr>td]:py-1 [&>thead>tr>th]:px-2 [&>thead>tr>th]:py-1">
               <thead>
                 <tr className="bg-red-600 text-white">
                   <th className="w-1/2">
@@ -152,57 +488,190 @@ export default function WorkloadInfo(props): JSX.Element {
                   .filter(
                     (activity) =>
                       activity.getActivityType() === "course" &&
-                      projectCourses.includes(activity.getCode()!),
+                      ProjectCourses.includes(activity.getCode()!),
                   )
                   .map((activity) => (
                     <tr
-                      className="border-b border-gray-300"
+                      className={`border-b border-gray-300 ${
+                        activity.getWorkloadType() === "extended"
+                          ? "bg-orange-200"
+                          : activity.getWorkloadType() === "double"
+                            ? "bg-blue-200"
+                            : activity.getWorkloadType() === "overload"
+                              ? "bg-yellow-300"
+                              : activity.getWorkloadType() === "adHonorem"
+                                ? "bg-gray-200"
+                                : ""
+                      } ${
+                        activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null
+                          ? "editingWorkloadRow"
+                          : ""
+                      }`}
                       key={activity.getId()}
                     >
-                      <td
-                        className={`px-2 ${
-                          activity.getWorkloadType() === "extended"
-                            ? "bg-orange-200"
-                            : activity.getWorkloadType() === "double"
-                              ? "bg-blue-200"
-                              : activity.getWorkloadType() === "overload"
-                                ? "bg-yellow-300"
-                                : activity.getWorkloadType() === "adHonorem"
-                                  ? "bg-gray-200"
-                                  : ""
-                        }`}
-                      >
-                        <span className="text-sm font-bold">
-                          {activity.getCode()}:{" "}
-                        </span>
-                        {activity.getName()}{" "}
-                        {activity.getGroupNumber() !== null && (
-                          <span className="text-xs">
-                            (grupo {activity.getGroupNumber()})
-                          </span>
+                      <td className="px-2">
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <select
+                              value={activityBeingEdited.code!}
+                              className="w-full"
+                              onChange={(e) => updateCourse(e.target.value)}
+                            >
+                              {projectCourses.map((course) => (
+                                <option
+                                  key={course.getId()}
+                                  value={course.getCode()!}
+                                >
+                                  {course.getCode()}: {course.getName()}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="text-sm font-bold">
+                              {activity.getCode()}:{" "}
+                            </span>
+                            {activity.getName()}
+                          </>
                         )}
                       </td>
-                      <td className="px-2">{activity.getHours()}</td>
                       <td className="px-2">
-                        {activity.getStudents()}{" "}
-                        {activity.getSuggestedStudents() !== null && (
-                          <span
-                            className="float-end my-auto cursor-help underline decoration-dashed underline-offset-4"
-                            title="Cantidad de estudiantes que se deben asignar de acuerdo con el archivo de Excel"
-                          >
-                            (de {activity.getSuggestedStudents()})
-                          </span>
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={activityBeingEdited.hours!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  hours: parseInt(e.target.value),
+                                })
+                              }
+                            />
+                          </div>
+                        ) : (
+                          activity.getHours()
+                        )}
+                      </td>
+                      <td className="px-2">
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={activityBeingEdited.students!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  students: parseInt(e.target.value),
+                                })
+                              }
+                              disabled
+                            />
+                            {activity.getSuggestedStudents() !== null && (
+                              <span
+                                className="my-auto cursor-help whitespace-nowrap underline decoration-dashed underline-offset-4"
+                                title="Cantidad de estudiantes que se deben asignar de acuerdo con el archivo de Excel"
+                              >
+                                (de {activity.getSuggestedStudents()})
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <>
+                            {activity.getStudents()}{" "}
+                            {activity.getSuggestedStudents() !== null && (
+                              <span
+                                className="float-end my-auto cursor-help underline decoration-dashed underline-offset-4"
+                                title="Cantidad de estudiantes que se deben asignar de acuerdo con el archivo de Excel"
+                              >
+                                (de {activity.getSuggestedStudents()})
+                              </span>
+                            )}
+                          </>
                         )}
                       </td>
                       <td className="relative space-x-3 px-2">
-                        {activity.getWorkload().toLocaleString(["es-CR", "es"])}
-                        <Link
-                          to={`/admin/editProfessor/${"id"}`}
-                          className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
-                          title="Editar"
-                        >
-                          <FontAwesomeIcon icon={faPen} />
-                        </Link>
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={activityBeingEdited.workload!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  workload: parseFloat(e.target.value),
+                                })
+                              }
+                            />
+                            <select
+                              value={activityBeingEdited.workloadType!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  workloadType: e.target.value as WorkloadValue,
+                                })
+                              }
+                            >
+                              {WorkloadTypes.map((type) => (
+                                <option key={type.value} value={type.value}>
+                                  {type.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : (
+                          activity.getWorkload().toLocaleString(["es-CR", "es"])
+                        )}
+                        <div className="options absolute right-5 top-1/2 flex -translate-y-1/2 transform items-center gap-2 text-sm font-semibold">
+                          {activity.getId() === idCurrentlyEditing &&
+                          activityBeingEdited !== null ? (
+                            <>
+                              <FontAwesomeIcon
+                                icon={faCheck}
+                                className="cursor-pointer text-teal-600"
+                                title="Guardar"
+                                onClick={() => saveChanges()}
+                              />
+                              <FontAwesomeIcon
+                                icon={faArrowRotateLeft}
+                                className="cursor-pointer text-blue-600"
+                                title="Cancelar"
+                                onClick={() => {
+                                  setIdCurrentlyEditing(null);
+                                }}
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <FontAwesomeIcon
+                                icon={faPen}
+                                className="cursor-pointer text-blue-600"
+                                title="Editar"
+                                onClick={() => editActivity(activity.getId()!)}
+                              />
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                className="cursor-pointer text-red-600"
+                                title="Eliminar"
+                                onClick={() =>
+                                  deleteActivity(activity.getId()!)
+                                }
+                              />
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -231,7 +700,7 @@ export default function WorkloadInfo(props): JSX.Element {
                 </tr>
               </tbody>
             </table>
-            <table className="w-full table-auto rounded-md bg-slate-50 [&>tbody>tr>td]:px-2 [&>tbody>tr>td]:py-1 [&>thead>tr>th]:px-2 [&>thead>tr>th]:py-1">
+            <table className="w-full table-auto rounded-md bg-slate-50 [&>tbody>tr:last-child>td:last-child]:pe-0 [&>tbody>tr>td:last-child]:pe-16 [&>tbody>tr>td]:px-2 [&>tbody>tr>td]:py-1 [&>thead>tr>th]:px-2 [&>thead>tr>th]:py-1">
               <thead>
                 <tr className="bg-yellow-600 text-white">
                   <th className="w-3/8">
@@ -249,33 +718,116 @@ export default function WorkloadInfo(props): JSX.Element {
                   )
                   .map((activity) => (
                     <tr
-                      className="border-b border-gray-300"
+                      className={`border-b border-gray-300 ${
+                        activity.getWorkloadType() === "extended"
+                          ? "bg-orange-200"
+                          : activity.getWorkloadType() === "double"
+                            ? "bg-blue-200"
+                            : activity.getWorkloadType() === "overload"
+                              ? "bg-yellow-300"
+                              : activity.getWorkloadType() === "adHonorem"
+                                ? "bg-gray-200"
+                                : ""
+                      } ${
+                        activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null
+                          ? "editingWorkloadRow"
+                          : ""
+                      }`}
                       key={activity.getId()}
                     >
-                      <td
-                        className={`px-2 ${
-                          activity.getWorkloadType() === "extended"
-                            ? "bg-orange-200"
-                            : activity.getWorkloadType() === "double"
-                              ? "bg-blue-200"
-                              : activity.getWorkloadType() === "overload"
-                                ? "bg-yellow-300"
-                                : activity.getWorkloadType() === "adHonorem"
-                                  ? "bg-gray-200"
-                                  : ""
-                        }`}
-                      >
-                        {activity.getName()}
+                      <td className="px-2">
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <input
+                              type="text"
+                              value={activityBeingEdited.name!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  name: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                        ) : (
+                          activity.getName()
+                        )}
                       </td>
                       <td className="relative space-x-3 px-2">
-                        {activity.getWorkload().toLocaleString(["es-CR", "es"])}
-                        <Link
-                          to={`/admin/editProfessor/${"id"}`}
-                          className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
-                          title="Editar"
-                        >
-                          <FontAwesomeIcon icon={faPen} />
-                        </Link>
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={activityBeingEdited.workload!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  workload: parseFloat(e.target.value),
+                                })
+                              }
+                            />
+                            <select
+                              value={activityBeingEdited.workloadType!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  workloadType: e.target.value as WorkloadValue,
+                                })
+                              }
+                            >
+                              {WorkloadTypes.map((type) => (
+                                <option key={type.value} value={type.value}>
+                                  {type.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : (
+                          activity.getWorkload().toLocaleString(["es-CR", "es"])
+                        )}
+                        <div className="options absolute right-5 top-1/2 flex -translate-y-1/2 transform items-center gap-2 text-sm font-semibold">
+                          {activity.getId() === idCurrentlyEditing &&
+                          activityBeingEdited !== null ? (
+                            <>
+                              <FontAwesomeIcon
+                                icon={faCheck}
+                                className="cursor-pointer text-teal-600"
+                                title="Guardar"
+                                onClick={() => saveChanges()}
+                              />
+                              <FontAwesomeIcon
+                                icon={faArrowRotateLeft}
+                                className="cursor-pointer text-blue-600"
+                                title="Cancelar"
+                                onClick={() => {
+                                  setIdCurrentlyEditing(null);
+                                }}
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <FontAwesomeIcon
+                                icon={faPen}
+                                className="cursor-pointer text-blue-600"
+                                title="Editar"
+                                onClick={() => editActivity(activity.getId()!)}
+                              />
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                className="cursor-pointer text-red-600"
+                                title="Eliminar"
+                                onClick={() =>
+                                  deleteActivity(activity.getId()!)
+                                }
+                              />
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -305,12 +857,12 @@ export default function WorkloadInfo(props): JSX.Element {
                 </tr>
               </tbody>
             </table>
-            <table className="w-full table-auto rounded-md bg-slate-50 [&>tbody>tr>td]:px-2 [&>tbody>tr>td]:py-1 [&>thead>tr>th]:px-2 [&>thead>tr>th]:py-1">
+            <table className="w-full table-auto rounded-md bg-slate-50 [&>tbody>tr:last-child>td:last-child]:pe-0 [&>tbody>tr>td:last-child]:pe-16 [&>tbody>tr>td]:px-2 [&>tbody>tr>td]:py-1 [&>thead>tr>th]:px-2 [&>thead>tr>th]:py-1">
               <thead>
                 <tr className="bg-cyan-600 text-white">
                   <th className="w-3/8">
                     <p className="flex items-center justify-start gap-3">
-                      Labores Especiales
+                      Labores especiales
                     </p>
                   </th>
                   <th className="w-45 w-1/4 bg-blue-800 text-start">Carga</th>
@@ -323,33 +875,116 @@ export default function WorkloadInfo(props): JSX.Element {
                   )
                   .map((activity) => (
                     <tr
-                      className="border-b border-gray-300"
+                      className={`border-b border-gray-300 ${
+                        activity.getWorkloadType() === "extended"
+                          ? "bg-orange-200"
+                          : activity.getWorkloadType() === "double"
+                            ? "bg-blue-200"
+                            : activity.getWorkloadType() === "overload"
+                              ? "bg-yellow-300"
+                              : activity.getWorkloadType() === "adHonorem"
+                                ? "bg-gray-200"
+                                : ""
+                      } ${
+                        activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null
+                          ? "editingWorkloadRow"
+                          : ""
+                      }`}
                       key={activity.getId()}
                     >
-                      <td
-                        className={`px-2 ${
-                          activity.getWorkloadType() === "extended"
-                            ? "bg-orange-200"
-                            : activity.getWorkloadType() === "double"
-                              ? "bg-blue-200"
-                              : activity.getWorkloadType() === "overload"
-                                ? "bg-yellow-300"
-                                : activity.getWorkloadType() === "adHonorem"
-                                  ? "bg-gray-200"
-                                  : ""
-                        }`}
-                      >
-                        {activity.getName()}
+                      <td className="px-2">
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <input
+                              type="text"
+                              value={activityBeingEdited.name!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  name: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                        ) : (
+                          activity.getName()
+                        )}
                       </td>
                       <td className="relative space-x-3 px-2">
-                        {activity.getWorkload().toLocaleString(["es-CR", "es"])}
-                        <Link
-                          to={`/admin/editProfessor/${"id"}`}
-                          className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
-                          title="Editar"
-                        >
-                          <FontAwesomeIcon icon={faPen} />
-                        </Link>
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={activityBeingEdited.workload!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  workload: parseFloat(e.target.value),
+                                })
+                              }
+                            />
+                            <select
+                              value={activityBeingEdited.workloadType!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  workloadType: e.target.value as WorkloadValue,
+                                })
+                              }
+                            >
+                              {WorkloadTypes.map((type) => (
+                                <option key={type.value} value={type.value}>
+                                  {type.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : (
+                          activity.getWorkload().toLocaleString(["es-CR", "es"])
+                        )}
+                        <div className="options absolute right-5 top-1/2 flex -translate-y-1/2 transform items-center gap-2 text-sm font-semibold">
+                          {activity.getId() === idCurrentlyEditing &&
+                          activityBeingEdited !== null ? (
+                            <>
+                              <FontAwesomeIcon
+                                icon={faCheck}
+                                className="cursor-pointer text-teal-600"
+                                title="Guardar"
+                                onClick={() => saveChanges()}
+                              />
+                              <FontAwesomeIcon
+                                icon={faArrowRotateLeft}
+                                className="cursor-pointer text-blue-600"
+                                title="Cancelar"
+                                onClick={() => {
+                                  setIdCurrentlyEditing(null);
+                                }}
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <FontAwesomeIcon
+                                icon={faPen}
+                                className="cursor-pointer text-blue-600"
+                                title="Editar"
+                                onClick={() => editActivity(activity.getId()!)}
+                              />
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                className="cursor-pointer text-red-600"
+                                title="Eliminar"
+                                onClick={() =>
+                                  deleteActivity(activity.getId()!)
+                                }
+                              />
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -379,12 +1014,12 @@ export default function WorkloadInfo(props): JSX.Element {
                 </tr>
               </tbody>
             </table>
-            <table className="w-full table-auto rounded-md bg-slate-50 [&>tbody>tr>td]:px-2 [&>tbody>tr>td]:py-1 [&>thead>tr>th]:px-2 [&>thead>tr>th]:py-1">
+            <table className="w-full table-auto rounded-md bg-slate-50 [&>tbody>tr:last-child>td:last-child]:pe-0 [&>tbody>tr>td:last-child]:pe-16 [&>tbody>tr>td]:px-2 [&>tbody>tr>td]:py-1 [&>thead>tr>th]:px-2 [&>thead>tr>th]:py-1">
               <thead>
                 <tr className="bg-purple-600 text-white">
                   <th className="w-3/8">
                     <p className="flex items-center justify-start gap-3">
-                      Labores Académicas-Administrativas
+                      Labores académicas-administrativas
                     </p>
                   </th>
                   <th className="w-45 w-1/4 bg-blue-800 text-start">Carga</th>
@@ -398,33 +1033,116 @@ export default function WorkloadInfo(props): JSX.Element {
                   )
                   .map((activity) => (
                     <tr
-                      className="border-b border-gray-300"
+                      className={`border-b border-gray-300 ${
+                        activity.getWorkloadType() === "extended"
+                          ? "bg-orange-200"
+                          : activity.getWorkloadType() === "double"
+                            ? "bg-blue-200"
+                            : activity.getWorkloadType() === "overload"
+                              ? "bg-yellow-300"
+                              : activity.getWorkloadType() === "adHonorem"
+                                ? "bg-gray-200"
+                                : ""
+                      } ${
+                        activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null
+                          ? "editingWorkloadRow"
+                          : ""
+                      }`}
                       key={activity.getId()}
                     >
-                      <td
-                        className={`px-2 ${
-                          activity.getWorkloadType() === "extended"
-                            ? "bg-orange-200"
-                            : activity.getWorkloadType() === "double"
-                              ? "bg-blue-200"
-                              : activity.getWorkloadType() === "overload"
-                                ? "bg-yellow-300"
-                                : activity.getWorkloadType() === "adHonorem"
-                                  ? "bg-gray-200"
-                                  : ""
-                        }`}
-                      >
-                        {activity.getName()}
+                      <td className="px-2">
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <input
+                              type="text"
+                              value={activityBeingEdited.name!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  name: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                        ) : (
+                          activity.getName()
+                        )}
                       </td>
                       <td className="relative space-x-3 px-2">
-                        {activity.getWorkload().toLocaleString(["es-CR", "es"])}
-                        <Link
-                          to={`/admin/editProfessor/${"id"}`}
-                          className="absolute right-5 top-1/2 -translate-y-1/2 transform text-sm font-semibold text-blue-600"
-                          title="Editar"
-                        >
-                          <FontAwesomeIcon icon={faPen} />
-                        </Link>
+                        {activity.getId() === idCurrentlyEditing &&
+                        activityBeingEdited !== null ? (
+                          <div>
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={activityBeingEdited.workload!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  workload: parseFloat(e.target.value),
+                                })
+                              }
+                            />
+                            <select
+                              value={activityBeingEdited.workloadType!}
+                              onChange={(e) =>
+                                setActivityBeingEdited({
+                                  ...activityBeingEdited,
+                                  workloadType: e.target.value as WorkloadValue,
+                                })
+                              }
+                            >
+                              {WorkloadTypes.map((type) => (
+                                <option key={type.value} value={type.value}>
+                                  {type.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ) : (
+                          activity.getWorkload().toLocaleString(["es-CR", "es"])
+                        )}
+                        <div className="options absolute right-5 top-1/2 flex -translate-y-1/2 transform items-center gap-2 text-sm font-semibold">
+                          {activity.getId() === idCurrentlyEditing &&
+                          activityBeingEdited !== null ? (
+                            <>
+                              <FontAwesomeIcon
+                                icon={faCheck}
+                                className="cursor-pointer text-teal-600"
+                                title="Guardar"
+                                onClick={() => saveChanges()}
+                              />
+                              <FontAwesomeIcon
+                                icon={faArrowRotateLeft}
+                                className="cursor-pointer text-blue-600"
+                                title="Cancelar"
+                                onClick={() => {
+                                  setIdCurrentlyEditing(null);
+                                }}
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <FontAwesomeIcon
+                                icon={faPen}
+                                className="cursor-pointer text-blue-600"
+                                title="Editar"
+                                onClick={() => editActivity(activity.getId()!)}
+                              />
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                className="cursor-pointer text-red-600"
+                                title="Eliminar"
+                                onClick={() =>
+                                  deleteActivity(activity.getId()!)
+                                }
+                              />
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -457,6 +1175,15 @@ export default function WorkloadInfo(props): JSX.Element {
           </div>
         </div>
       )}
+      <DialogConfirm
+        title={confirmationTitle}
+        message={confirmationMessage}
+        handleConfirm={handleConfirm}
+        handleCancel={() => {
+          setShowDialogConfirm(false);
+        }}
+        show={showDialogConfirm}
+      />
     </div>
   );
 }

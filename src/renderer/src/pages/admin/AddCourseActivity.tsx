@@ -140,7 +140,7 @@ export default function AddCourseActivity() {
           >
             <option value={1}>Nuevo</option>
             <option value={2}>Existente</option>
-            <option value={3}>Enseñado antes</option>
+            <option value={3}>Impartido antes</option>
             <option value={4}>Paralelo 1</option>
             <option value={5}>Paralelo 2</option>
           </select>
