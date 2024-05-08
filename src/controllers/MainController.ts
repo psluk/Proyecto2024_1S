@@ -1,4 +1,5 @@
 import ProfessorController from "./ProfessorController";
+import StudentController from "./StudentController";
 import UserController from "./UserController";
 import Professor, { ProfessorInterface } from "../models/Professor";
 import { UserInterface } from "../models/User";
@@ -14,11 +15,13 @@ export default class MainController {
   private static instance: MainController;
   private userController: UserController;
   private professorController: ProfessorController;
+  private studentController: StudentController;
   private groupController: GroupController;
 
   private constructor() {
     this.userController = new UserController();
     this.professorController = new ProfessorController();
+    this.studentController = new StudentController();
     this.groupController = new GroupController();
 
     // Bind methods
@@ -30,6 +33,7 @@ export default class MainController {
     this.getUsersByType = this.getUsersByType.bind(this);
     this.updateUser = this.updateUser.bind(this);
     this.deleteUser = this.deleteUser.bind(this);
+
     this.addProfessor = this.addProfessor.bind(this);
     this.importProfessors = this.importProfessors.bind(this);
     this.getProfessorById = this.getProfessorById.bind(this);
@@ -37,6 +41,14 @@ export default class MainController {
     this.getWorkloadByProfessorId = this.getWorkloadByProfessorId.bind(this);
     this.updateProfessor = this.updateProfessor.bind(this);
     this.deleteProfessor = this.deleteProfessor.bind(this);
+
+    this.addStudent = this.addStudent.bind(this);
+    this.importStudents = this.importStudents.bind(this);
+    this.getStudentById = this.getStudentById.bind(this);
+    this.getStudents = this.getStudents.bind(this);
+    this.updateStudent = this.updateStudent.bind(this);
+    this.deleteStudent = this.deleteStudent.bind(this);
+
     this.addGroup = this.addGroup.bind(this);
     this.addGroups = this.addGroups.bind(this);
     this.getGroupById = this.getGroupById.bind(this);
@@ -255,6 +267,100 @@ export default class MainController {
    */
   public deleteProfessor(id: number) {
     this.professorController.deleteProfessor(id);
+  }
+
+  /**
+   * STUDENT CONTROLLER METHODS
+   */
+
+  /**
+   * Adds a student to the database.
+   * Throws an error if the student could not be added.
+   * @param name The name of the student.
+   * @param phone The phone of the student.
+   * @param email The email of the student.
+   * @param carnet The identification of the student.
+   * @param enabled The enabled value of the student.
+   * @returns The student that was added.
+   */
+  public addStudent(
+    name: string,
+    phone: string,
+    email: string,
+    carnet: string,
+    enabled: boolean,
+  ): StudentInterface {
+    return this.studentController
+      .addStudent(name, phone, email, carnet, enabled)
+      .asObject();
+  }
+
+  /**
+   * Imports a list of students from an Excel file.
+   * @param fileBuffer The Excel file's array buffer.
+   * @returns An object containing two arrays: one for the students added successfully, and another for errors.
+   */
+  public importStudents(fileBuffer: ArrayBuffer): {
+    successfulInserts: StudentInterface[];
+    errors: StudentInterface[];
+  } {
+    const { successfulInserts, errors } =
+      this.studentController.importStudents(fileBuffer);
+    return {
+      successfulInserts: successfulInserts.map((student) => student.asObject()),
+      errors: errors.map((student) => student.asObject()),
+    };
+  }
+
+  /**
+   * Gets a student from the database.
+   * @param id The id of the student to get.
+   * @returns The student with the given id.
+   */
+  public getStudentById(id: number): StudentInterface | null {
+    return this.studentController.getStudentById(id)?.asObject() || null;
+  }
+
+  /**
+   * Gets all students from the database.
+   * @returns An array of all students.
+   */
+  public getStudents(): StudentInterface[] {
+    return this.studentController
+      .getStudents()
+      .map((student) => student.asObject());
+  }
+
+  /**
+   * Updates a student in the database.
+   * Throws an error if the student could not be added.
+   * @param id The ID of the student to update.
+   * @param name The name of the student.
+   * @param phoneNumber The phone number of the student.
+   * @param email The email of the student.
+   * @param universityId The email of the student.
+   * @param isEnabled The email of the student.
+   * @returns The student that was updated.
+   */
+  public updateStudent(
+    id: number,
+    name: string,
+    phoneNumber: string,
+    email: string,
+    universityId: string,
+    isEnabled: boolean,
+  ): StudentInterface {
+    return this.studentController
+      .updateStudent(id, name, phoneNumber, email, universityId, isEnabled)
+      .asObject();
+  }
+
+  /**
+   * Deletes a student from the database.
+   * @param id The id of the student to delete.
+   */
+  public deleteStudent(id: number) {
+    this.studentController.deleteStudent(id);
   }
 
   /**

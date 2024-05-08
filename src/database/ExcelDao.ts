@@ -1,6 +1,7 @@
 import * as XLSX from "xlsx";
 import ExcelJS from "exceljs";
 import Professor from "../models/Professor";
+import Student from "../models/Student";
 import { toNormalCase } from "../utils/NameFormatter";
 import Course from "../models/Course";
 import CourseSchedule, {
@@ -274,7 +275,11 @@ export default class ExcelDao {
         if (courseRegex.test(courseCode)) {
           // There is a course workload in the row
           const courseNameCell = row.getCell("C");
-          const groupNumber = parseInt(toNormalCase(courseNameCell.value?.toString().trim() || "", true).split("G").at(-1) || "0");
+          const groupNumber = parseInt(
+            toNormalCase(courseNameCell.value?.toString().trim() || "", true)
+              .split("G")
+              .at(-1) || "0",
+          );
 
           workload.push(
             new ImportedWorkload(
@@ -290,7 +295,7 @@ export default class ExcelDao {
               parseInt(row.getCell("E").value?.toString() || "0") || null,
               parseFloat(row.getCell("F").value?.toString() || "0"),
               isNaN(groupNumber) ? 1 : groupNumber,
-            )
+            ),
           );
         }
 
@@ -357,6 +362,38 @@ export default class ExcelDao {
       workload = [];
     }
 
+    return result;
+  }
+
+  /**
+   * Gets a list of students from an Excel file.
+   * @param fileBuffer The Excel file's array buffer.
+   * @returns A list of students.
+   */
+  getStudents(fileBuffer: ArrayBuffer): Student[] {
+    const jsonToStudentList = (jsonData: any): Student[] => {
+      let studentList: Student[] = [];
+      jsonData.forEach((student: any) => {
+        let newStudent = new Student(
+          null,
+          student["Nombre completo"],
+          student["Teléfono celular"],
+          student["Correo electrónico"],
+          student["Carnet institucional"],
+          true,
+        );
+        studentList.push(newStudent);
+      });
+      return studentList;
+    };
+
+    const workbook = XLSX.read(fileBuffer);
+    const sheetIndex = workbook.SheetNames.findIndex(
+      (name) => name === "Lista de estidiantes",
+    );
+    const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { range: 4 });
+    const result = jsonToStudentList(jsonData);
     return result;
   }
 }
