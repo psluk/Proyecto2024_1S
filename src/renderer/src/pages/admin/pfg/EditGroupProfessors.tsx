@@ -445,11 +445,11 @@ const EditGroupProfessors = () => {
               </div>
             </div>
           ) : (
-            <p>No hay profesores disponibles</p>
+            <p className="w-full text-center text-xl">No hay profesores disponibles</p>
           )}
         </div>
       ) : (
-        <p>No se encontró el grupo</p>
+        <p className="w-full text-center text-2xl">No se encontró el grupo</p>
       )}
 
       <DialogConfirm

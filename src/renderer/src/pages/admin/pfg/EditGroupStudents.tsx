@@ -232,11 +232,11 @@ const EditGroupStudents = () => {
               </div>
             </div>
           ) : (
-            <p>No hay estudiantes disponibles</p>
+            <p className="w-full text-center text-xl">No hay estudiantes disponibles</p>
           )}
         </div>
       ) : (
-        <p>No se encontró el grupo</p>
+        <p className="w-full text-center text-2xl">No se encontró el grupo</p>
       )}
     </main>
   );
