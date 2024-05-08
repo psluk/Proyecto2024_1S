@@ -3,13 +3,18 @@ import UserCard from "@renderer/components/UserCard";
 import { adminOptions } from "@renderer/constants/AdminOptions";
 import { ShowLogin } from "@renderer/global/ShowLogin";
 import { Link, useLocation } from "react-router-dom";
-
 export default function AdminHome(): JSX.Element {
   const location = useLocation();
   const { pathname } = location;
 
   return (
-    <main className="gap-10">
+    <main className="gap-16">
+      <picture className="flex w-full items-center justify-center gap-6">
+        <img src={"/Logo.png"} alt="Logo" className="max-w-32" />
+        <h2 className="text-3xl font-bold">
+          Gestor de Asignaciones de Defensas de Tesis
+        </h2>
+      </picture>
       <div className="flex w-full flex-col items-center gap-10">
         {ShowLogin && (
           <>
@@ -17,6 +22,7 @@ export default function AdminHome(): JSX.Element {
             <UserCard />
           </>
         )}
+
         <ul className="flex w-full max-w-2xl flex-row flex-wrap">
           {adminOptions
             .filter((option) => option.path !== pathname)
