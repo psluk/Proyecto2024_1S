@@ -22,7 +22,6 @@ const EditGroupProfessors = () => {
   const [professors, setProfessors] = useState<ProfessorsGroup[]>([]);
   const [search, setSearch] = useState<string>("");
   const [showDialog, setShowDialog] = useState(false);
-  const [message, setMessage] = useState("");
   const [filteredProfessors, setFilteredProfessors] = useState<
     ProfessorsGroup[]
   >([]);
@@ -287,7 +286,6 @@ const EditGroupProfessors = () => {
     );
   }, [search, professors]);
 
-  const handleMaintainGroups = () => {};
   return (
     <main>
       {group ? (
