@@ -116,7 +116,7 @@ export default function WorkloadInfo(props): JSX.Element {
   const deleteActivity = (id: number): void => {
     setConfirmationTitle("Eliminar actividad");
     setConfirmationMessage(
-      "¿Está seguro que desea eliminar la actividad seleccionada?",
+      "¿Está seguro de que desea eliminar la actividad seleccionada?",
     );
     selectedId = id;
     setHandleConfirm(() => deleteSelectedId);
