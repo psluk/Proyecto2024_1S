@@ -8,9 +8,16 @@
 
 @font-face {
   font-family: "Inter";
-  font-style: auto;
+  font-style: normal;
   font-weight: auto;
-  src: url("./Inter.ttf") format("truetype");
+  src: url("fonts/Inter.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: auto;
+  src: url("fonts/Inter-Italic.ttf") format("truetype");
 }
 
 html,
