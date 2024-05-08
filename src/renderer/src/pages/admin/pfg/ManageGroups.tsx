@@ -7,10 +7,16 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import DialogAlert from "@renderer/components/DialogAlert";
 import Student from "../../../../../models/Student";
 import Professor from "../../../../../models/Professor";
+
+import RandomGroupsForm from "@renderer/components/RandomGroupsForm";
 const ManageGroups = () => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [showDialog, setShowDialog] = useState(false);
-
+  const [filter, setFilter] = useState({ filter: "professor" });
+  const [amount, setAmount] = useState(3);
+  const [amountStudents, setAmountStudents] = useState(0);
+  const [amountProfessors, setAmountProfessors] = useState(0);
+  const [showAlert, setShowAlert] = useState(false);
   const fetchGroups = () => {
     const groups = window.mainController
       .getGroups()
@@ -91,31 +97,28 @@ const ManageGroups = () => {
   };
 
   const generateRandomGroups = () => {
-    if(groups.length > 0) {
+    if (groups.length > 0) {
       window.mainController.deleteGroups();
     }
-
     let students = window.mainController
       .getStudentsWithoutGroup()
       .map((student) => Student.reinstantiate(student) as Student);
     let professors = window.mainController
       .getProfessors()
       .map((professor) => Professor.reinstantiate(professor) as Professor);
-
     // Shuffle arrays
     students = shuffleArray(students);
     professors = shuffleArray(professors);
-
-    const professorsPerGroup = 3;
+    professors = professors.filter(
+      (professor) => professor.getName() !== "Sin Profesor",
+    );
     // Determine the maximum number of groups based on the available professors
-    const amountOfGroups = Math.floor(professors.length / professorsPerGroup);
-
-    const groupsToAdd:Group[] = [];
-
+    const amountOfGroups = Math.floor(amountProfessors / amount);
+    const groupsToAdd: Group[] = [];
     // Create groups and assign professors
     for (let i = 0; i < amountOfGroups; i++) {
       // Extract professors for this group
-      const groupProfessors = professors.splice(0, professorsPerGroup);
+      const groupProfessors = professors.splice(0, amount);
       groupsToAdd.push(
         new Group(
           i + 1,
@@ -127,20 +130,22 @@ const ManageGroups = () => {
         ),
       );
     }
-
     // Distribute students among the groups
     students.forEach((student, index) => {
       const groupIndex = index % amountOfGroups;
       groupsToAdd[groupIndex].addStudent(student);
     });
-
     // Save groups to the database
-    window.mainController.addGroups(groupsToAdd.map((group) => group.asObject()));
+    window.mainController.addGroups(
+      groupsToAdd.map((group) => group.asObject()),
+    );
     fetchGroups();
+    setShowDialog(false);
   };
 
   useEffect(() => {
     fetchGroups();
+    setAmountProfessors(window.mainController.getProfessors().length);
   }, []);
 
   return (
@@ -155,12 +160,14 @@ const ManageGroups = () => {
         >
           Añadir grupo
         </button>
-          <button
-            className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
-            onClick={() => generateRandomGroups()}
-          >
-            Generar aleatoriamente
-          </button>
+        <button
+          className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
+          onClick={() =>
+            amountProfessors > 3 ? setShowDialog(true) : setShowAlert(true)
+          }
+        >
+          Generar aleatoriamente
+        </button>
       </div>
       <div className="flex max-w-7xl flex-col flex-wrap items-center justify-center gap-10">
         {groups.length ? (
@@ -227,14 +234,27 @@ const ManageGroups = () => {
           <p>No hay grupos registrados</p>
         )}
       </div>
-      <DialogAlert
-        title="Función no disponible"
-        message="Esta función aún no ha sido implementada"
-        show={showDialog}
-        type="error"
-        handleConfirm={() => {
+      <RandomGroupsForm
+        handleCancel={() => {
           setShowDialog(false);
         }}
+        handleConfirm={() => {
+          generateRandomGroups();
+        }}
+        show={showDialog}
+        setFilter={setFilter}
+        setAmount={setAmount}
+        professorAmount={amountProfessors}
+        selectedAmount={amount}
+      />
+      <DialogAlert
+        show={showAlert}
+        title="Error"
+        message="No hay suficientes profesores para generar los grupos."
+        handleConfirm={() => {
+          setShowAlert(false);
+        }}
+        type="error"
       />
     </main>
   );

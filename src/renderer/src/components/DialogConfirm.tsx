@@ -7,6 +7,9 @@ type Props = {
   title: string;
   message: string;
   show: boolean;
+  confirmText?: string;
+  cancelText?: string;
+  setShow?: (show: boolean) => void;
 };
 
 export default function DialogConfirm({
@@ -15,13 +18,16 @@ export default function DialogConfirm({
   title,
   message,
   show,
+  setShow,
+  confirmText = "Confirmar",
+  cancelText = "Cancelar",
 }: Props): JSX.Element {
   return (
     <div
       className={`absolute top-0 left-0 z-0 h-full w-full items-center justify-center bg-gray-600/40 ${show ? "flex" : "hidden"}`}
-      onClick={handleCancel}
+      onClick={setShow ? () => setShow(false) : handleCancel}
     >
-      <div className="relative">
+      <div className="relative max-w-2xl">
         <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/3 transform rounded-full bg-white p-4">
           <FontAwesomeIcon icon={faExclamationTriangle} className="h-8 w-8 " />
         </div>
@@ -35,16 +41,16 @@ export default function DialogConfirm({
           </div>
           <div className="flex gap-4">
             <button
-              className="h-8 rounded-md bg-sky-600 px-4 font-semibold text-white shadow-sm"
+              className="h-8 rounded-md bg-sky-600 px-4 font-semibold text-white shadow-sm z-20"
               onClick={handleConfirm}
             >
-              Confirmar
+              {confirmText}
             </button>
             <button
-              className="h-8 rounded-md bg-red-600 px-4 font-semibold text-white shadow-sm"
+              className="h-8 rounded-md bg-red-600 px-4 font-semibold text-white shadow-sm z-20"
               onClick={handleCancel}
             >
-              Cancelar
+              {cancelText}
             </button>
           </div>
         </div>

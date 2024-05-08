@@ -54,6 +54,7 @@ export default class MainController {
     this.updateWorkload = this.updateWorkload.bind(this);
     this.getCalculatedWorkload = this.getCalculatedWorkload.bind(this);
     this.deleteActivity = this.deleteActivity.bind(this);
+    this.deleteProfessorFromGroups = this.deleteProfessorFromGroups.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -447,6 +448,14 @@ export default class MainController {
     return this.groupController
       .getStudentsWithoutGroup()
       .map((student) => student.asObject());
+  }
+
+  /**
+   * Deletes a professor from all groups.
+   * @param professorId The ID of the professor to delete.
+   */
+  public deleteProfessorFromGroups(professorId: number): void {
+    this.groupController.deleteProfessorFromGroups(professorId);
   }
 
   /**

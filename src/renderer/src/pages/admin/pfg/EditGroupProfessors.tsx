@@ -10,16 +10,26 @@ import {
   faTrash,
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
-
+import DialogConfirm from "@renderer/components/DialogConfirm";
+interface ProfessorsGroup {
+  professor: Professor;
+  groups: Group[] | null;
+}
 
 const EditGroupProfessors = () => {
   const { id } = useParams();
   const [group, setGroup] = useState<Group | null>(null);
-  const [professors, setProfessors] = useState<Professor[]>([]);
+  const [professors, setProfessors] = useState<ProfessorsGroup[]>([]);
   const [search, setSearch] = useState<string>("");
-  const [filteredProfessors, setFilteredProfessors] = useState<Professor[]>([]);
+  const [showDialog, setShowDialog] = useState(false);
+  const [filteredProfessors, setFilteredProfessors] = useState<
+    ProfessorsGroup[]
+  >([]);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const Navigate = useNavigate();
+  const [professorToAdd, setProfessorToAdd] = useState<ProfessorsGroup | null>(
+    null,
+  );
 
   const handleDragStart = (e, index) => {
     setDraggedIndex(index);
@@ -58,20 +68,20 @@ const EditGroupProfessors = () => {
     setDraggedIndex(null);
   };
 
-  const handleSave = () => {
-    if (!group) {
-      return;
-    }
+  const updateGroup = (groupToUpdate: Group) => {
+    if (!groupToUpdate) return;
 
     window.mainController.updateGroup(
-      group.getId(),
-      group.getGroupNumber(),
-      group.getClassroom(),
-      group.getStudents().map((student) => student.asObject()),
-      group.getProfessors().map((professor) => professor.asObject()),
-      group.getModerator()?.asObject() || null,
+      groupToUpdate.getId(),
+      groupToUpdate.getGroupNumber(),
+      groupToUpdate.getClassroom(),
+      groupToUpdate.getStudents().map((student) => student.asObject()),
+      groupToUpdate.getProfessors().map((professor) => professor.asObject()),
+      groupToUpdate.getModerator()?.asObject() || null,
     );
+  };
 
+  const handleSave = () => {
     Navigate("/admin/manageTheses/groups");
   };
 
@@ -80,68 +90,51 @@ const EditGroupProfessors = () => {
       return;
     }
 
-    const professors = Array.from(group.getProfessors());
-    const index = professors.findIndex((p) => p.getId() === professor.getId());
-
-    if (index === -1) {
-      return;
-    }
-
     // Remove the professor from the group's professor list
-    const [removedProfessor] = professors.splice(index, 1);
+    const remainingProfessors = group
+      .getProfessors()
+      .filter((p) => p.getId() !== professor.getId());
 
     // Update the group with the modified professor list
     setGroup((prevGroup) => {
-      if (prevGroup) {
-        return new Group(
-          prevGroup.getId(),
-          prevGroup.getGroupNumber(),
-          prevGroup.getClassroom(),
-          prevGroup.getStudents(),
-          professors,
-          professors[0] || null, // Ensure there's a fallback in case the array is empty
-        );
+      if (!prevGroup) {
+        return null;
       }
-      return prevGroup;
-    });
-
-    // Add the removed professor back to the general professors list
-    setProfessors((prevProfessors) => {
-      // Ensure the professor isn't already in the list
-      if (prevProfessors.some((p) => p.getId() === professor.getId())) {
-        return prevProfessors;
-      }
-      return [removedProfessor, ...prevProfessors];
-    });
-
-    // Add the removed professor back to the filtered professors list
-    setFilteredProfessors((prevFilteredProfessors) => {
-      // Ensure the professor isn't already in the list and matches the current filter criteria, if any
-      if (prevFilteredProfessors.some((p) => p.getId() === professor.getId())) {
-        return prevFilteredProfessors;
-      }
-      // Optionally check if they match the current search/filter criteria
-      if (
-        search &&
-        !removedProfessor.getName().toLowerCase().includes(search.toLowerCase())
-      ) {
-        return prevFilteredProfessors;
-      }
-      return [removedProfessor, ...prevFilteredProfessors];
+      const newModerator =
+        remainingProfessors.length > 0 ? remainingProfessors[0] : null;
+      const updatedGroup = new Group(
+        prevGroup.getId(),
+        prevGroup.getGroupNumber(),
+        prevGroup.getClassroom(),
+        prevGroup.getStudents(),
+        remainingProfessors,
+        newModerator,
+      );
+      updateGroup(updatedGroup);
+      fetchData(updatedGroup);
+      return updatedGroup;
     });
   };
 
-  const handleAdd = (professor: Professor) => {
+  const handleAdd = (professor: ProfessorsGroup) => {
     if (!group) {
       return;
     }
 
-    const professors = Array.from(group.getProfessors());
-    professors.push(professor);
+    if (professor.groups && professor.groups.length > 0) {
+      setProfessorToAdd(professor);
+      setShowDialog(true);
+    } else {
+      addProfessorToGroup(professor.professor);
+    }
+  };
 
+  const addProfessorToGroup = (professor: Professor) => {
+    const professors = Array.from(group!.getProfessors());
+    professors.push(professor);
     setGroup((prevGroup) => {
       if (prevGroup) {
-        return new Group(
+        const newGroup = new Group(
           prevGroup.getId(),
           prevGroup.getGroupNumber(),
           prevGroup.getClassroom(),
@@ -149,6 +142,8 @@ const EditGroupProfessors = () => {
           professors,
           professors[0],
         );
+        updateGroup(newGroup);
+        return newGroup;
       }
       return prevGroup;
     });
@@ -156,32 +151,97 @@ const EditGroupProfessors = () => {
     setProfessors((prevProfessors) => {
       const newProfessors = Array.from(prevProfessors);
       const professorIndex = newProfessors.findIndex(
-        (p) => p.getId() === professor.getId(),
+        (p) => p.professor.getId() === professor.getId(),
       );
-
       if (professorIndex === -1) {
         return prevProfessors;
       }
-
       newProfessors.splice(professorIndex, 1);
-
       return newProfessors;
     });
 
     setFilteredProfessors((prevFilteredProfessors) => {
       const newFilteredProfessors = Array.from(prevFilteredProfessors);
       const professorIndex = newFilteredProfessors.findIndex(
-        (p) => p.getId() === professor.getId(),
+        (p) => p.professor.getId() === professor.getId(),
       );
-
       if (professorIndex === -1) {
         return prevFilteredProfessors;
       }
-
       newFilteredProfessors.splice(professorIndex, 1);
-
       return newFilteredProfessors;
     });
+  };
+
+  const deleteProfessorFromGroups = (professor: Professor) => {
+    window.mainController.deleteProfessorFromGroups(professor.getId());
+  };
+
+  const fetchData = (group) => {
+    const groups = window.mainController
+      .getGroups()
+      .map((group) => Group.reinstantiate(group));
+
+    // Generate ProfessorsGroup objects for all professors in all groups
+    const professorGroupsMap: Map<number, ProfessorsGroup> = new Map();
+
+    groups.forEach((group) => {
+      group!.getProfessors().forEach((professor) => {
+        if (!professorGroupsMap.has(professor.getId())) {
+          professorGroupsMap.set(professor.getId(), {
+            professor,
+            groups: [group!],
+          });
+        } else {
+          professorGroupsMap.get(professor.getId())!.groups!.push(group!);
+        }
+      });
+    });
+
+    const allProfessorsGroups = Array.from(professorGroupsMap.values());
+
+    // Get the unassigned professors
+    const unassignedProfessors = window.mainController
+      .getProfessors()
+      .map((prof) => Professor.reinstantiate(prof))
+      .filter(
+        (professor) =>
+          professor!.getName() !== "Sin Profesor" &&
+          !professorGroupsMap.has(professor!.getId()),
+      );
+
+    // Create ProfessorsGroup objects for unassigned professors
+    const unassignedProfessorsGroups = unassignedProfessors.map(
+      (professor) => ({
+        professor,
+        groups: null,
+      }),
+    ) as ProfessorsGroup[];
+
+    // Combine the unique professors from all groups and unassigned professors
+    const unitedProfessorsGroups = [
+      ...allProfessorsGroups,
+      ...unassignedProfessorsGroups,
+    ];
+
+    // Filter out the professors who are already in the current group
+    const professorsNotInGroup: ProfessorsGroup[] = unitedProfessorsGroups
+      .filter(
+        ({ professor }) =>
+          !group.getProfessors().some((p) => p.getId() === professor.getId()),
+      )
+      .sort((a, b) =>
+        a.professor.getType() === "De planta" &&
+        b.professor.getType() !== "De planta"
+          ? -1
+          : a.professor.getType() !== "De planta" &&
+              b.professor.getType() === "De planta"
+            ? 1
+            : a.professor.getType().localeCompare(b.professor.getType()),
+      );
+
+    setProfessors(professorsNotInGroup); // Set the professors state
+    setFilteredProfessors(professorsNotInGroup); // Set the filtered professors state
   };
 
   useEffect(() => {
@@ -189,53 +249,41 @@ const EditGroupProfessors = () => {
       return;
     }
 
-    const group = Group.reinstantiate(
+    const groupData = Group.reinstantiate(
       window.mainController.getGroupById(parseInt(id)),
     );
 
-    if (!group) {
+    if (!groupData) {
       return;
     }
 
-    group.getProfessors().sort((a, b) => {
-      const aIsModerator = group.getModerator()?.getId() == a.getId();
-
+    groupData.getProfessors().sort((a, b) => {
+      const aIsModerator = groupData.getModerator()?.getId() === a.getId();
       if (aIsModerator) {
         return -1;
       }
-      if (group.getModerator()?.getId() == b.getId()) {
+      if (groupData.getModerator()?.getId() === b.getId()) {
         return 1;
       }
       return 0;
     });
-    setGroup(group);
 
-    // Retrieve and reinstantiate all professors, filtering out nulls
-    const allProfessors = window.mainController
-      .getProfessors()
-      .map((professor) => Professor.reinstantiate(professor))
-      .filter((professor): professor is Professor => professor !== null);
+    setGroup(groupData);
 
-    // Filter out the professors who are already in the group
-    const professorsNotInGroup = allProfessors.filter(
-      (professor) =>
-        !group.getProfessors().some((p) => p.getId() === professor.getId()),
-    );
-
-    setProfessors(professorsNotInGroup); // Set the professors state
-    setFilteredProfessors(professorsNotInGroup); // Set the filtered professors state
+    fetchData(groupData);
   }, [id]);
 
   useEffect(() => {
-    if (search === "") {
-      setFilteredProfessors(professors);
-    } else {
-      setFilteredProfessors(
-        professors.filter((professor) =>
-          professor.getName().toLowerCase().includes(search.toLowerCase()),
-        ),
-      );
-    }
+    setFilteredProfessors(
+      search === ""
+        ? professors
+        : professors.filter((prof) =>
+            prof.professor
+              .getName()
+              .toLowerCase()
+              .includes(search.toLowerCase()),
+          ),
+    );
   }, [search, professors]);
 
   return (
@@ -340,25 +388,45 @@ const EditGroupProfessors = () => {
                 <table className="w-full table-auto rounded-md [&>tbody>tr:nth-child(2n+1)]:bg-slate-50 [&>tbody>tr>td]:px-2 [&>tbody>tr>td]:py-1 [&>thead>tr>th]:px-2 [&>thead>tr>th]:py-1">
                   <thead>
                     <tr className="bg-sky-600 text-white">
-                      <th className="w-3/5 px-2 py-1">
+                      <th className="w-2/5 px-2 py-1">
                         <p className="flex items-center justify-start gap-3">
                           Nombre
                         </p>
                       </th>
-                      <th className="w-1/5 px-2 py-1">
+                      <th className="w-4/12 px-2 py-1">
                         <p className="flex items-center justify-start gap-3">
                           Tipo
                         </p>
+                      </th>
+                      <th className="flex items-center justify-start gap-3">
+                        Grupos
                       </th>
                       <th className="w-1/12 px-2 py-1 text-center">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredProfessors.map((professor) => (
-                      <tr key={professor.getId()}>
-                        <td>{professor.getName()}</td>
+                      <tr key={professor.professor.getId()}>
+                        <td>{professor.professor.getName()}</td>
                         <td>
-                          {getTranslation(professorTypes, professor.getType())}
+                          {getTranslation(
+                            professorTypes,
+                            professor.professor.getType(),
+                          )}
+                        </td>
+                        <td className="">
+                          <p>
+                            {professor.groups?.filter(
+                              (group) => group.getId().toString() !== id,
+                            ).length
+                              ? professor.groups
+                                  ?.filter(
+                                    (group) => group.getId().toString() !== id,
+                                  )
+                                  .map((group) => group.getGroupNumber())
+                                  .join(" - ")
+                              : "No asignado"}
+                          </p>
                         </td>
                         <td className="flex items-center justify-center space-x-3">
                           <button
@@ -377,12 +445,30 @@ const EditGroupProfessors = () => {
               </div>
             </div>
           ) : (
-            <p>No hay profesores disponibles</p>
+            <p className="w-full text-center text-xl">No hay profesores disponibles</p>
           )}
         </div>
       ) : (
-        <p>No se encontró el grupo</p>
+        <p className="w-full text-center text-2xl">No se encontró el grupo</p>
       )}
+
+      <DialogConfirm
+        title="Atención"
+        message="El profesor ya se encuentra asignado en otros grupos. ¿Desea mantenerlo en estos grupos?"
+        setShow={(show) => setShowDialog(show)}
+        handleCancel={() => {
+          setShowDialog(false);
+          deleteProfessorFromGroups(professorToAdd!.professor);
+          addProfessorToGroup(professorToAdd!.professor);
+        }}
+        handleConfirm={() => {
+          setShowDialog(false);
+          addProfessorToGroup(professorToAdd!.professor);
+        }}
+        show={showDialog}
+        confirmText="Mantener"
+        cancelText="Eliminar"
+      />
     </main>
   );
 };

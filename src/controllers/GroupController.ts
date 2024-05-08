@@ -83,7 +83,6 @@ export default class GroupController {
 
   public deleteGroups(): { success: boolean; error?: any } {
     return this.groupDao.deleteGroups();
-  
   }
   /**
    * Gets all students without a group.
@@ -92,5 +91,11 @@ export default class GroupController {
   public getStudentsWithoutGroup(): Student[] {
     return this.groupDao.getStudentsWithoutGroup();
   }
-  
+
+  public deleteProfessorFromGroups(professorId: number): {
+    success: boolean;
+    error?: any;
+  } {
+    return this.groupDao.deleteProfessorFromGroups(professorId);
+  }
 }

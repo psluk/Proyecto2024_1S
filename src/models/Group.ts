@@ -10,7 +10,6 @@ export interface GroupInterface {
   moderator: ProfessorInterface | null;
 }
 
-
 export default class Group {
   private groupId: number | null;
   private groupNumber: number | null;
@@ -43,9 +42,15 @@ export default class Group {
       group.groupId,
       group.groupNumber,
       group.classroom,
-      group.students.map((student) => Student.reinstantiate(student) as Student),
-      group.professors.map((professor) => Professor.reinstantiate(professor) as Professor),
-      group.moderator ? Professor.reinstantiate(group.moderator) as Professor : null,
+      group.students.map(
+        (student) => Student.reinstantiate(student) as Student,
+      ),
+      group.professors.map(
+        (professor) => Professor.reinstantiate(professor) as Professor,
+      ),
+      group.moderator
+        ? (Professor.reinstantiate(group.moderator) as Professor)
+        : null,
     );
   }
 
@@ -74,7 +79,7 @@ export default class Group {
     return this.groupNumber;
   }
 
-  public getClassroom(): string | null{
+  public getClassroom(): string | null {
     return this.classroom;
   }
 
@@ -119,7 +124,8 @@ export default class Group {
   }
 
   public removeProfessor(professor: Professor): void {
-    this.professors = this.professors.filter((p) => p.getId() !== professor.getId());
+    this.professors = this.professors.filter(
+      (p) => p.getId() !== professor.getId(),
+    );
   }
-  
 }

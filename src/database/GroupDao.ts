@@ -403,8 +403,12 @@ GROUP BY
     }
   }
 
+  /**
+   * Deletes all groups from the database.
+   * @returns Whether the deletion was successful.
+   *
+   */
   deleteGroups(): { success: boolean; error?: any } {
-
     const deleteProfessorsQuery = database.prepare(`
       DELETE FROM GroupProfessors
     `);
@@ -416,7 +420,7 @@ GROUP BY
     const deleteQuery = database.prepare(`
       DELETE FROM Groups;
     `);
-    
+
     const resetProfessorsQuery = database.prepare(`
       UPDATE sqlite_sequence SET seq = 0 WHERE name = 'GroupProfessors';
     `);
@@ -444,6 +448,10 @@ GROUP BY
     }
   }
 
+  /**
+   * Retrieves all students that are not in a group.
+   * @returns A list of students that are not in a group.
+   */
   getStudentsWithoutGroup(): Student[] {
     const query = `
     SELECT 
@@ -475,5 +483,29 @@ WHERE
           row.isEnabled,
         ),
     );
+  }
+
+  /**
+   * Deletes a professor from all groups.
+   * @param professorId The ID of the professor to delete.
+   * @returns Whether the deletion was successful.
+   */
+  deleteProfessorFromGroups(professorId: number): {
+    success: boolean;
+    error?: any;
+  } {
+    const deleteQuery = database.prepare(`
+      DELETE FROM GroupProfessors
+      WHERE professorId = ?;
+    `);
+
+    try {
+      database.transaction(() => {
+        deleteQuery.run(professorId);
+      })();
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
   }
 }
