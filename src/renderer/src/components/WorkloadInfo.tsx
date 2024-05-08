@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -187,19 +187,19 @@ export default function WorkloadInfo(props): JSX.Element {
   ]);
 
   return (
-    <div className="mb-5 overflow-hidden rounded-md shadow-md">
-      <div className=" bg-blue-200">
+    <div className="mb-5 overflow-hidden">
+      <div className="flex bg-blue-200">
         <a
-          className="px-2 py-1 font-bold text-blue-500 hover:text-blue-700"
+          className="grow px-2 text-start font-bold text-blue-500 hover:text-blue-700"
           onClick={toggleTables}
         >
           {props.name}
         </a>
       </div>
       {showTables && (
-        <div>
-          <div className="workloadContent">
-            <table className="w-full table-fixed rounded-md bg-slate-50">
+        <div className="flex w-full flex-col-reverse items-center justify-center pb-1 xl:flex-row xl:items-start">
+          <div className="workloadContent w-full overflow-hidden rounded-md shadow-md xl:w-3/4 xl:overflow-visible">
+            <table className="w-full table-fixed bg-slate-50">
               <thead>
                 <tr className="bg-sky-600 text-white">
                   <th className="w-1/2 px-2">
@@ -1172,6 +1172,48 @@ export default function WorkloadInfo(props): JSX.Element {
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div className="flex w-full max-w-md flex-col items-center justify-center p-10 xl:w-1/4">
+            <h2 className="mb-3 text-xl font-bold">Resumen</h2>
+            <div className="w-full overflow-hidden rounded-md shadow-md">
+              <table className="w-full table-auto">
+                <thead>
+                  <tr className="bg-teal-600 font-bold text-white">
+                    <th>Tipo</th>
+                    <th>Horas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {WorkloadTypes.filter(
+                    (workloadType) => workloadType.value !== "adHonorem",
+                  ).map((workloadType) => {
+                    const totalWorkload = workload
+                      .filter((w) => w.getWorkloadType() === workloadType.value)
+                      .reduce((acc, w) => acc + w.getWorkload(), 0);
+                    return (
+                      <tr className={workloadType.color}>
+                        <td className="px-3 font-semibold">
+                          {workloadType.label}
+                        </td>
+                        <td
+                          className={`px-3 text-center ${workloadType.value === "normal" ? (totalWorkload < 36 ? "bg-yellow-200" : totalWorkload < 43 ? "bg-green-400" : totalWorkload < 44 ? "bg-amber-500" : "bg-red-400") : ""}`}
+                        >
+                          {totalWorkload.toLocaleString(["es-CR", "es"])}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  <tr className="bg-teal-600 font-semibold text-white [&>td]:px-3 [&>td]:text-center">
+                    <td>Carga total</td>
+                    <td>
+                      {workload
+                        .reduce((acc, w) => acc + w.getWorkload(), 0)
+                        .toLocaleString(["es-CR", "es"])}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

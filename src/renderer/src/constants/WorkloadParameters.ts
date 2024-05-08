@@ -31,25 +31,31 @@ export type WorkloadValue =
 export const WorkloadTypes: {
   label: string;
   value: WorkloadValue;
+  color: string;
 }[] = [
   {
     label: "Normal",
     value: "normal",
+    color: "bg-white",
   },
   {
     label: "Ampliación",
     value: "extended",
+    color: "bg-orange-200",
   },
   {
     label: "Doble ampliación",
     value: "double",
+    color: "bg-blue-200",
   },
   {
     label: "Recargo",
     value: "overload",
+    color: "bg-yellow-300",
   },
   {
     label: "Ad honorem",
     value: "adHonorem",
+    color: "bg-gray-200",
   },
 ];

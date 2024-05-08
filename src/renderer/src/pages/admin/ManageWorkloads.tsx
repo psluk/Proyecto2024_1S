@@ -34,7 +34,7 @@ export default function ManageWorkloads() {
     <main className="gap-6">
       <h1 className="text-3xl font-bold">Cargas laborales de los profesores</h1>
 
-      <div className="flex w-full max-w-7xl flex-wrap items-center justify-between">
+      <div className="flex w-full flex-wrap items-center justify-between">
         <div className="mb-4 flex w-full max-w-sm items-center rounded-md border border-gray-300 bg-white">
           <FontAwesomeIcon
             icon={faMagnifyingGlass}
