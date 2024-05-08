@@ -53,7 +53,7 @@ const EditGroupProfessors = () => {
     // Update group with new professors list and set the first professor as the moderator
     setGroup((prevGroup) => {
       if (prevGroup) {
-        return new Group(
+       const newGroup = new Group(
           prevGroup.getId(),
           prevGroup.getGroupNumber(),
           prevGroup.getClassroom(),
@@ -61,6 +61,9 @@ const EditGroupProfessors = () => {
           professors,
           professors[0],
         );
+
+        updateGroup(newGroup);
+        return newGroup;
       }
       return prevGroup;
     });
