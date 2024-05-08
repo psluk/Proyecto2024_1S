@@ -9,6 +9,7 @@ type Props = {
   setFilter: (filter: { filter: string }) => void;
   setAmount: (amount: number) => void;
   professorAmount: number;
+  studentAmount: number;
   selectedAmount: number;
 };
 
@@ -19,6 +20,7 @@ export default function RandomGroupsForm({
   setAmount,
   show,
   professorAmount,
+  studentAmount,
   selectedAmount,
 }: Props): JSX.Element {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -39,22 +41,18 @@ export default function RandomGroupsForm({
           <div className="">
             <h2 className="text-2xl font-bold">{"Generación aleatoria"}</h2>
           </div>
-          <div className="">
+          <div className="space-y-1">
             <p>
-              Seleccione la cantidad de profesores por grupo
+              Actualmente hay{" "}
+              <span className="font-bold underline">{studentAmount}</span>{" "}
+              estudiantes
             </p>
             <p>
               Actualmente hay{" "}
               <span className="font-bold underline">{professorAmount}</span>{" "}
               profesores
             </p>
-            <p>
-              Con la cantidad seleccionada se crearan{" "}
-              <span className="font-bold underline">
-                {Math.floor(selectedAmount>0?professorAmount / selectedAmount:0)}
-              </span>{" "}
-              grupos
-            </p>
+            <p>Seleccione la cantidad de profesores por grupo:</p>
           </div>
           <form
             className="flex w-full flex-col items-center justify-center gap-6"
@@ -73,11 +71,20 @@ export default function RandomGroupsForm({
                   min={3}
                   max={professorAmount}
                   value={selectedAmount}
-                  className="max-w-28 rounded-md border border-gray-300"
+                  className="max-w-16 rounded-md border border-gray-300"
                   onChange={(e) => setAmount(parseInt(e.target.value))}
                 />
               </div>
             </div>
+            <p>
+              Con la cantidad seleccionada se crearan{" "}
+              <span className="font-bold underline">
+                {Math.floor(
+                  selectedAmount > 0 ? professorAmount / selectedAmount : 0,
+                )}
+              </span>{" "}
+              grupos
+            </p>
             <div className="flex gap-2">
               <button
                 className="z-20 h-8 rounded-md bg-sky-600 px-4 font-semibold text-white shadow-sm"

@@ -146,6 +146,7 @@ const ManageGroups = () => {
   useEffect(() => {
     fetchGroups();
     setAmountProfessors(window.mainController.getProfessors().length);
+    setAmountStudents(window.mainController.getStudents().length);
   }, []);
 
   return (
@@ -163,7 +164,7 @@ const ManageGroups = () => {
         <button
           className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
           onClick={() =>
-            amountProfessors > 3 ? setShowDialog(true) : setShowAlert(true)
+            amountProfessors > 3 && amountStudents > 0 ? setShowDialog(true) : setShowAlert(true)
           }
         >
           Generar aleatoriamente
@@ -246,11 +247,12 @@ const ManageGroups = () => {
         setAmount={setAmount}
         professorAmount={amountProfessors}
         selectedAmount={amount}
+        studentAmount={amountStudents}
       />
       <DialogAlert
         show={showAlert}
         title="Error"
-        message="No hay suficientes profesores para generar los grupos."
+        message="No hay suficientes profesores y estudiantes para generar los grupos."
         handleConfirm={() => {
           setShowAlert(false);
         }}
