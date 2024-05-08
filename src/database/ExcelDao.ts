@@ -1,5 +1,6 @@
 import * as XLSX from "xlsx";
 import Professor from "../models/Professor";
+import Student from "../models/Student";
 import { toNormalCase } from "../utils/NameFormatter";
 import Course from "../models/Course";
 
@@ -70,10 +71,10 @@ export default class ExcelDao {
   getCourseHours(fileBuffer: ArrayBuffer): Course[] {
     const mapType = (type: string): string => {
       const typeMapping: { [key: string]: string } = {
-        "teórico": "Theoretical",
-        "práctico": "Practical",
+        teórico: "Theoretical",
+        práctico: "Practical",
         "teórico practico": "Theoretical-Practical",
-        "proyecto": "Project",
+        proyecto: "Project",
       };
       return typeMapping[type.toLowerCase()] || type;
     };
@@ -104,6 +105,38 @@ export default class ExcelDao {
     const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
     const result = jsonToCourseList(jsonData);
+    return result;
+  }
+
+  /**
+   * Gets a list of students from an Excel file.
+   * @param fileBuffer The Excel file's array buffer.
+   * @returns A list of students.
+   */
+  getStudents(fileBuffer: ArrayBuffer): Student[] {
+    const jsonToStudentList = (jsonData: any): Student[] => {
+      let studentList: Student[] = [];
+      jsonData.forEach((student: any) => {
+        let newStudent = new Student(
+          null,
+          student["Nombre completo"],
+          student["Teléfono celular"],
+          student["Correo electrónico"],
+          student["Carnet institucional"],
+          true,
+        );
+        studentList.push(newStudent);
+      });
+      return studentList;
+    };
+
+    const workbook = XLSX.read(fileBuffer);
+    const sheetIndex = workbook.SheetNames.findIndex(
+      (name) => name === "Lista de estudiantes",
+    );
+    const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { range: 4 });
+    const result = jsonToStudentList(jsonData);
     return result;
   }
 }

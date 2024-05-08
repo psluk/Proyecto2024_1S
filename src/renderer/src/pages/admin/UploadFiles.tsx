@@ -49,31 +49,43 @@ export default function UploadFiles(): JSX.Element {
     }
   };
 
-  const handleStudentsFile = () => {
+  const handleStudentsFile = async () => {
     if (!studentsFile) {
       return;
     }
 
-    // try {
-    //   const result = window.mainController.importStudents(await studentsFile.arrayBuffer());
-    //   let message = "";
+    try {
+      const result = await window.mainController.importStudents(
+        await studentsFile.arrayBuffer(),
+      );
+      let newMessage = "";
 
-    //   if (result.successfulInserts.length > 0) {
-    //     message += `Se importaron ${result.successfulInserts.length} estudiantes correctamente.\n`;
-    //   }
+      if (result.successfulInserts.length > 0) {
+        setTitle("Importación exitosa");
+        newMessage = `Se importaron ${result.successfulInserts.length} estudiantes correctamente.\n`;
+        setType("success");
+      }
 
-    //   if (result.errors.length > 0) {
-    //     message += `No se pudieron importar ${result.errors.length} estudiantes.\n`;
-    //   }
+      if (result.errors.length > 0) {
+        setTitle("Importación con errores");
+        newMessage = `No se pudieron importar ${result.errors.length} estudiantes.\n`;
+        setType("error");
+      }
 
-    //   if (message === "") {
-    //     message = "No se encontraron estudiantes para importar.";
-    //   }
+      if (newMessage === "") {
+        setTitle("Importación fallida");
+        newMessage = "No se encontraron estudiantes para importar.";
+        setType("error");
+      }
 
-    //   alert(message.trim());
-    // } catch {
-    //   alert("Error al importar estudiantes.");
-    // }
+      setMessage(newMessage.trim()); // Update message state
+      setShowDialog(true); // Show dialog after state has been updated
+    } catch (error) {
+      setTitle("Error");
+      setMessage("Error al importar estudiantes.");
+      setType("error");
+      setShowDialog(true);
+    }
   };
 
   // Add this inside your component

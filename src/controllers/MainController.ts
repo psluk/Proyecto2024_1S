@@ -39,6 +39,7 @@ export default class MainController {
     this.deleteProfessor = this.deleteProfessor.bind(this);
 
     this.addStudent = this.addStudent.bind(this);
+    this.importStudents = this.importStudents.bind(this);
     this.getStudentById = this.getStudentById.bind(this);
     this.getStudents = this.getStudents.bind(this);
     this.updateStudent = this.updateStudent.bind(this);
@@ -266,6 +267,23 @@ export default class MainController {
     return this.studentController
       .addStudent(name, phone, email, carnet, enabled)
       .asObject();
+  }
+
+  /**
+   * Imports a list of students from an Excel file.
+   * @param fileBuffer The Excel file's array buffer.
+   * @returns An object containing two arrays: one for the students added successfully, and another for errors.
+   */
+  public importStudents(fileBuffer: ArrayBuffer): {
+    successfulInserts: StudentInterface[];
+    errors: StudentInterface[];
+  } {
+    const { successfulInserts, errors } =
+      this.studentController.importStudents(fileBuffer);
+    return {
+      successfulInserts: successfulInserts.map((student) => student.asObject()),
+      errors: errors.map((student) => student.asObject()),
+    };
   }
 
   /**

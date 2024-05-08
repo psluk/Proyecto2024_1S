@@ -58,11 +58,8 @@ export default class StudentDao {
 
     const clearQuery = database.prepare(`DELETE FROM Students;`);
 
-    //-------------------------------- OJO --------------------------------
-
-    const insertQuery = database.prepare(
-      `INSERT INTO Students (name) VALUES (?);`,
-    );
+    const insertQuery = database.prepare(`
+    INSERT INTO Students (name, phoneNumber, email, universityId, isEnabled) VALUES (?, ?, ?, ?, ?);`);
 
     database.transaction(() => {
       if (shouldClearList) {
@@ -71,7 +68,13 @@ export default class StudentDao {
 
       list.forEach((student) => {
         try {
-          const result = insertQuery.run(student.getName());
+          const result = insertQuery.run(
+            student.getName(),
+            student.getPhoneNum(),
+            student.getEmail(),
+            student.getUniversityId(),
+            student.getIsEnabled() ? 1 : 0,
+          );
           if (result.changes === 0) {
             throw new Error(`Failed to insert student: ${student.getName()}`, {
               cause: student,

@@ -1,11 +1,14 @@
 import StudentDao from "../database/StudentDao";
+import ExcelDao from "../database/ExcelDao";
 import Student from "../models/Student";
 
 export default class StudentController {
   private studentDao: StudentDao;
+  private excelDao: ExcelDao;
 
   constructor() {
     this.studentDao = new StudentDao();
+    this.excelDao = new ExcelDao();
   }
 
   /**
@@ -27,6 +30,19 @@ export default class StudentController {
   ): Student {
     const student = new Student(null, name, phone, email, carnet, enabled);
     return this.studentDao.addStudent(student);
+  }
+
+  /**
+   * Imports a list of students from an Excel file.
+   * @param fileBuffer The Excel file's array buffer.
+   * @returns An object containing two arrays: one for the students added successfully, and another for errors.
+   */
+  public importStudents(fileBuffer: ArrayBuffer): {
+    successfulInserts: Student[];
+    errors: Student[];
+  } {
+    const students = this.excelDao.getStudents(fileBuffer);
+    return this.studentDao.addStudents(students, true);
   }
 
   public getStudentById(id: number): Student | null {
