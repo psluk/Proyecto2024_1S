@@ -91,7 +91,7 @@ const ManageGroups = () => {
   };
 
   const generateRandomGroups = () => {
-    if(groups.length > 0) {
+    if (groups.length > 0) {
       window.mainController.deleteGroups();
     }
 
@@ -105,12 +105,15 @@ const ManageGroups = () => {
     // Shuffle arrays
     students = shuffleArray(students);
     professors = shuffleArray(professors);
+    professors = professors.filter(
+      (professor) => professor.getName() !== "Sin Profesor",
+    );
 
     const professorsPerGroup = 3;
     // Determine the maximum number of groups based on the available professors
     const amountOfGroups = Math.floor(professors.length / professorsPerGroup);
 
-    const groupsToAdd:Group[] = [];
+    const groupsToAdd: Group[] = [];
 
     // Create groups and assign professors
     for (let i = 0; i < amountOfGroups; i++) {
@@ -135,7 +138,9 @@ const ManageGroups = () => {
     });
 
     // Save groups to the database
-    window.mainController.addGroups(groupsToAdd.map((group) => group.asObject()));
+    window.mainController.addGroups(
+      groupsToAdd.map((group) => group.asObject()),
+    );
     fetchGroups();
   };
 
@@ -155,12 +160,12 @@ const ManageGroups = () => {
         >
           Añadir grupo
         </button>
-          <button
-            className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
-            onClick={() => generateRandomGroups()}
-          >
-            Generar aleatoriamente
-          </button>
+        <button
+          className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
+          onClick={() => generateRandomGroups()}
+        >
+          Generar aleatoriamente
+        </button>
       </div>
       <div className="flex max-w-7xl flex-col flex-wrap items-center justify-center gap-10">
         {groups.length ? (

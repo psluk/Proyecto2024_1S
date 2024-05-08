@@ -43,6 +43,7 @@ export default class MainController {
     this.deleteGroup = this.deleteGroup.bind(this);
     this.deleteGroups = this.deleteGroups.bind(this);
     this.getStudentsWithoutGroup = this.getStudentsWithoutGroup.bind(this);
+    this.deleteProfessorFromGroups = this.deleteProfessorFromGroups.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -213,7 +214,7 @@ export default class MainController {
    * @param professorId The ID of the professor.
    * @returns A list of workload objects for the professor.
    */
-  public getWorkloadByProfessorId(professorId: number) : Workload[] {
+  public getWorkloadByProfessorId(professorId: number): Workload[] {
     return this.professorController.getWorkloadByProfessorId(professorId);
   }
 
@@ -425,7 +426,7 @@ export default class MainController {
     this.groupController.deleteGroup(id);
   }
 
-  public deleteGroups():{ success: boolean; error?: any } {
+  public deleteGroups(): { success: boolean; error?: any } {
     return this.groupController.deleteGroups();
   }
   /**
@@ -438,4 +439,7 @@ export default class MainController {
       .map((student) => student.asObject());
   }
 
+  public deleteProfessorFromGroups(professorId: number): void {
+    this.groupController.deleteProfessorFromGroups(professorId);
+  }
 }
