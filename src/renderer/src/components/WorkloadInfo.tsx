@@ -1185,7 +1185,7 @@ export default function WorkloadInfo(props): JSX.Element {
                 </thead>
                 <tbody>
                   {WorkloadTypes.filter(
-                    (workloadType) => workloadType.value !== "adHonorem",
+                    (workloadType) => workloadType.value !== "overload",
                   ).map((workloadType) => {
                     const totalWorkload = workload
                       .filter((w) => w.getWorkloadType() === workloadType.value)

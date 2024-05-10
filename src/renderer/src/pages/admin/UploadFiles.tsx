@@ -39,8 +39,8 @@ export default function UploadFiles(): JSX.Element {
         setType("error");
       }
 
-      setMessage(newMessage.trim()); // Update message state
-      setShowDialog(true); // Show dialog after state has been updated
+      setMessage(newMessage.trim());
+      setShowDialog(true);
     } catch (error) {
       setTitle("Error");
       setMessage("Error al importar profesores.");
@@ -78,8 +78,8 @@ export default function UploadFiles(): JSX.Element {
         setType("error");
       }
 
-      setMessage(newMessage.trim()); // Update message state
-      setShowDialog(true); // Show dialog after state has been updated
+      setMessage(newMessage.trim());
+      setShowDialog(true);
     } catch (error) {
       setTitle("Error");
       setMessage("Error al importar estudiantes.");
@@ -88,10 +88,10 @@ export default function UploadFiles(): JSX.Element {
     }
   };
 
-  // Add this inside your component
+
   useEffect(() => {
     if (message !== "") {
-      setShowDialog(true); // Only show dialog if message is not empty
+      setShowDialog(true);
     }
   }, [message]);
 
