@@ -25,6 +25,7 @@ export default function WorkloadInfo(props): JSX.Element {
   const [idCurrentlyEditing, setIdCurrentlyEditing] = useState<number | null>(
     null,
   );
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [projectCourses, setProjectCourses] = useState<Course[]>([]);
   const [activityBeingEdited, setActivityBeingEdited] =
@@ -41,6 +42,9 @@ export default function WorkloadInfo(props): JSX.Element {
 
   useEffect(() => {
     const loadedCourses = window.mainController.getCourses();
+    setAllCourses(
+      loadedCourses.map((course) => Course.reinstantiate(course) as Course),
+    );
     setCourses(
       loadedCourses
         .filter((course) => !ProjectCourses.includes(course.code))
@@ -52,6 +56,10 @@ export default function WorkloadInfo(props): JSX.Element {
         .map((course) => Course.reinstantiate(course) as Course),
     );
   }, []);
+
+  useEffect(() => {
+    console.log(projectCourses);
+  }, [projectCourses]);
 
   useEffect(() => {
     if (showTables) {
@@ -77,7 +85,7 @@ export default function WorkloadInfo(props): JSX.Element {
   }, [idCurrentlyEditing]);
 
   const updateCourse = (code: string): void => {
-    const newCourse = courses.find((course) => course.getCode() === code)!;
+    const newCourse = allCourses.find((course) => course.getCode() === code)!;
     setActivityBeingEdited({
       ...activityBeingEdited!,
       code,
@@ -137,7 +145,9 @@ export default function WorkloadInfo(props): JSX.Element {
         activityBeingEdited.id!,
         activityBeingEdited.name,
         activityBeingEdited.hours,
-        activityBeingEdited.students,
+        activityBeingEdited.code
+          ? activityBeingEdited.students || 0
+          : activityBeingEdited.students,
         activityBeingEdited.workload,
         activityBeingEdited.workloadType,
         props.id,
@@ -302,7 +312,9 @@ export default function WorkloadInfo(props): JSX.Element {
                                 onChange={(e) => {
                                   setActivityBeingEdited({
                                     ...activityBeingEdited,
-                                    groupNumber: parseInt(e.target.value),
+                                    groupNumber: isNaN(parseInt(e.target.value))
+                                      ? 0
+                                      : parseInt(e.target.value),
                                   });
                                 }}
                               />
@@ -334,7 +346,9 @@ export default function WorkloadInfo(props): JSX.Element {
                               onChange={(e) =>
                                 setActivityBeingEdited({
                                   ...activityBeingEdited,
-                                  hours: parseInt(e.target.value),
+                                  hours: isNaN(parseInt(e.target.value))
+                                    ? 0
+                                    : parseInt(e.target.value),
                                 })
                               }
                               disabled
@@ -356,7 +370,9 @@ export default function WorkloadInfo(props): JSX.Element {
                               onChange={(e) =>
                                 setActivityBeingEdited({
                                   ...activityBeingEdited,
-                                  students: parseInt(e.target.value),
+                                  students: isNaN(parseInt(e.target.value))
+                                    ? 0
+                                    : parseInt(e.target.value),
                                 })
                               }
                             />
@@ -377,7 +393,9 @@ export default function WorkloadInfo(props): JSX.Element {
                               onChange={(e) =>
                                 setActivityBeingEdited({
                                   ...activityBeingEdited,
-                                  workload: parseFloat(e.target.value),
+                                  workload: isNaN(parseFloat(e.target.value))
+                                    ? 0
+                                    : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -550,7 +568,9 @@ export default function WorkloadInfo(props): JSX.Element {
                               onChange={(e) =>
                                 setActivityBeingEdited({
                                   ...activityBeingEdited,
-                                  hours: parseInt(e.target.value),
+                                  hours: isNaN(parseInt(e.target.value))
+                                    ? 0
+                                    : parseInt(e.target.value),
                                 })
                               }
                             />
@@ -571,7 +591,9 @@ export default function WorkloadInfo(props): JSX.Element {
                               onChange={(e) =>
                                 setActivityBeingEdited({
                                   ...activityBeingEdited,
-                                  students: parseInt(e.target.value),
+                                  students: isNaN(parseInt(e.target.value))
+                                    ? 0
+                                    : parseInt(e.target.value),
                                 })
                               }
                               disabled
@@ -611,7 +633,9 @@ export default function WorkloadInfo(props): JSX.Element {
                               onChange={(e) =>
                                 setActivityBeingEdited({
                                   ...activityBeingEdited,
-                                  workload: parseFloat(e.target.value),
+                                  workload: isNaN(parseFloat(e.target.value))
+                                    ? 0
+                                    : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -767,7 +791,9 @@ export default function WorkloadInfo(props): JSX.Element {
                               onChange={(e) =>
                                 setActivityBeingEdited({
                                   ...activityBeingEdited,
-                                  workload: parseFloat(e.target.value),
+                                  workload: isNaN(parseFloat(e.target.value))
+                                    ? 0
+                                    : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -924,7 +950,9 @@ export default function WorkloadInfo(props): JSX.Element {
                               onChange={(e) =>
                                 setActivityBeingEdited({
                                   ...activityBeingEdited,
-                                  workload: parseFloat(e.target.value),
+                                  workload: isNaN(parseFloat(e.target.value))
+                                    ? 0
+                                    : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1082,7 +1110,9 @@ export default function WorkloadInfo(props): JSX.Element {
                               onChange={(e) =>
                                 setActivityBeingEdited({
                                   ...activityBeingEdited,
-                                  workload: parseFloat(e.target.value),
+                                  workload: isNaN(parseFloat(e.target.value))
+                                    ? 0
+                                    : parseFloat(e.target.value),
                                 })
                               }
                             />

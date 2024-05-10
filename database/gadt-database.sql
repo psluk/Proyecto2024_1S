@@ -413,3 +413,41 @@ alter table Activities
 
 alter table Activities
     add suggestedStudents integer;
+
+--- Update student factors to prevent errors
+
+UPDATE StudentFactors
+SET minStudents = 0
+WHERE studentFactorId = 14;
+
+UPDATE StudentFactors
+SET minStudents = 0
+WHERE studentFactorId = 1;
+
+UPDATE StudentFactors
+SET minStudents = 0
+WHERE studentFactorId = 6;
+
+UPDATE StudentFactors
+SET minStudents = 0
+WHERE studentFactorId = 11;
+
+UPDATE StudentFactors
+SET minHours = 0
+WHERE studentFactorId = 2;
+
+UPDATE StudentFactors
+SET minHours = 0
+WHERE studentFactorId = 3;
+
+UPDATE StudentFactors
+SET minHours = 0
+WHERE studentFactorId = 5;
+
+UPDATE StudentFactors
+SET minHours = 0
+WHERE studentFactorId = 4;
+
+UPDATE StudentFactors
+SET minHours = 0
+WHERE studentFactorId = 1;

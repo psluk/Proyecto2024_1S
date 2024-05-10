@@ -517,7 +517,7 @@ export default class ProfessorDao {
                   A.students                 AS 'students',
                   A.suggestedStudents        AS 'suggestedStudents',
                   A.groupNumber              AS 'groupNumber',
-                  A.load                     AS 'workload',
+                  COALESCE(A.load, 0)        AS 'workload',
                   CE.name                    AS 'experienceFactor',
                   CASE
                     WHEN SF.factor IS NOT NULL AND EF.factor IS NOT NULL THEN
