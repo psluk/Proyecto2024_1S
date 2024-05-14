@@ -39,6 +39,25 @@ export interface OtherActivity {
 
 export default class ProfessorDao {
   /**
+   *
+   * @param tableName table to be cleaned on database, record are deleted and primary key sequence is reset
+   */
+  cleanTable(tableName: string): void {
+    try {
+      database.transaction(() => {
+        database.prepare(`DELETE FROM ${tableName};`).run();
+
+        database
+          .prepare(`DELETE FROM sqlite_sequence WHERE name=?;`)
+          .run(tableName);
+      })();
+    } catch (error) {
+      console.error(`Failed to clean the table ${tableName}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Adds a professor to the database.
    * Throws an error if the professor could not be added.
    * @param professor The professor to be added.
@@ -83,27 +102,9 @@ export default class ProfessorDao {
 
     database.transaction(() => {
       if (shouldClearList) {
-        database
-          .prepare(
-            `
-              DELETE
-              FROM ActivityCourses;`,
-          )
-          .run();
-        database
-          .prepare(
-            `
-              DELETE
-              FROM Activities;`,
-          )
-          .run();
-        database
-          .prepare(
-            `
-              DELETE
-              FROM Professors;`,
-          )
-          .run();
+        this.cleanTable("ActivityCourses");
+        this.cleanTable("Activities");
+        this.cleanTable("Professors");
       }
 
       list.forEach((professor) => {
@@ -229,27 +230,9 @@ export default class ProfessorDao {
 
     database.transaction(() => {
       if (shouldClearList) {
-        database
-          .prepare(
-            `
-              DELETE
-              FROM ActivityCourses;`,
-          )
-          .run();
-        database
-          .prepare(
-            `
-              DELETE
-              FROM Activities;`,
-          )
-          .run();
-        database
-          .prepare(
-            `
-              DELETE
-              FROM Courses;`,
-          )
-          .run();
+        this.cleanTable("ActivityCourses");
+        this.cleanTable("Activities");
+        this.cleanTable("Courses");
       }
 
       list.forEach((course) => {
@@ -319,20 +302,8 @@ export default class ProfessorDao {
     database.transaction(() => {
       // Clear tables if requested
       if (shouldClearList) {
-        database
-          .prepare(
-            `
-              DELETE
-              FROM ActivityCourses;`,
-          )
-          .run();
-        database
-          .prepare(
-            `
-              DELETE
-              FROM Activities;`,
-          )
-          .run();
+        this.cleanTable("ActivityCourses");
+        this.cleanTable("Activities");
       }
       // Start by creating the temporary tables
       database
