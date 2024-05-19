@@ -77,7 +77,7 @@ export default function RandomGroupsForm({
               </div>
             </div>
             <p>
-              Con la cantidad seleccionada se crearan{" "}
+              Con la cantidad seleccionada se crearán{" "}
               <span className="font-bold underline">
                 {Math.floor(
                   selectedAmount > 0 ? professorAmount / selectedAmount : 0,
