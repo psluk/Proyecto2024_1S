@@ -56,6 +56,7 @@ export default class StudentDao {
     const successfulInserts: Student[] = [];
     const errors: Student[] = [];
 
+    const deleteStudentsGroups = database.prepare(`DELETE FROM GroupStudents;`);
     const clearQuery = database.prepare(`DELETE FROM Students;`);
 
     const insertQuery = database.prepare(`
@@ -63,6 +64,7 @@ export default class StudentDao {
 
     database.transaction(() => {
       if (shouldClearList) {
+        deleteStudentsGroups.run();
         clearQuery.run();
       }
 
