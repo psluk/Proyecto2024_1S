@@ -75,6 +75,7 @@ export default class StudentDao {
     const successfulInserts: Student[] = [];
     const errors: Student[] = [];
 
+    const clearActivity = `UPDATE Activities SET students = 0, load = 0 WHERE suggestedStudents IS NOT NULL`;
     const insertQuery = database.prepare(`
     INSERT INTO Students (name, phoneNumber, email, universityId, isEnabled) VALUES (?, ?, ?, ?, ?);`);
 
@@ -84,6 +85,8 @@ export default class StudentDao {
         this.cleanTable("StudentProfessors");
         this.cleanTable("Students");
       }
+
+      database.prepare(clearActivity).run();
 
       list.forEach((student) => {
         try {
