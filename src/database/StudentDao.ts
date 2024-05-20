@@ -12,6 +12,25 @@ interface StudentRow {
 
 export default class StudentDao {
   /**
+   *
+   * @param tableName table to be cleaned on database, record are deleted and primary key sequence is reset
+   */
+  cleanTable(tableName: string): void {
+    try {
+      database.transaction(() => {
+        database.prepare(`DELETE FROM ${tableName};`).run();
+
+        database
+          .prepare(`DELETE FROM sqlite_sequence WHERE name=?;`)
+          .run(tableName);
+      })();
+    } catch (error) {
+      console.error(`Failed to clean the table ${tableName}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Adds a student to the database.
    * Throws an error if the student could not be added.
    * @param student The student to be added.
@@ -56,16 +75,14 @@ export default class StudentDao {
     const successfulInserts: Student[] = [];
     const errors: Student[] = [];
 
-    const deleteStudentsGroups = database.prepare(`DELETE FROM GroupStudents;`);
-    const clearQuery = database.prepare(`DELETE FROM Students;`);
-
     const insertQuery = database.prepare(`
     INSERT INTO Students (name, phoneNumber, email, universityId, isEnabled) VALUES (?, ?, ?, ?, ?);`);
 
     database.transaction(() => {
       if (shouldClearList) {
-        deleteStudentsGroups.run();
-        clearQuery.run();
+        this.cleanTable("GroupStudents");
+        this.cleanTable("StudentProfessors");
+        this.cleanTable("Students");
       }
 
       list.forEach((student) => {
