@@ -277,7 +277,7 @@ export default class MainController {
    * Deletes a professor from the database.
    * @param id The id of the professor to delete.
    */
-  public deleteProfessor(id: number) {
+  public deleteProfessor(id: number): void {
     this.professorController.deleteProfessor(id);
   }
 
@@ -371,7 +371,7 @@ export default class MainController {
    * Deletes a student from the database.
    * @param id The id of the student to delete.
    */
-  public deleteStudent(id: number) {
+  public deleteStudent(id: number): void {
     this.studentController.deleteStudent(id);
   }
 
@@ -395,7 +395,7 @@ export default class MainController {
     students: StudentInterface[],
     professors: ProfessorInterface[],
     moderator: ProfessorInterface | null,
-  ): { success: boolean; error?: any } {
+  ): { success: boolean } {
     return this.groupController.addGroup(
       groupNumber,
       classroom || null,
@@ -508,7 +508,7 @@ export default class MainController {
     students: StudentInterface[],
     professors: ProfessorInterface[],
     moderator: ProfessorInterface | null,
-  ): { success: boolean; error?: any } {
+  ): { success: boolean } {
     return this.groupController.updateGroup(
       new Group(
         id,
@@ -555,7 +555,7 @@ export default class MainController {
     this.groupController.deleteGroup(id);
   }
 
-  public deleteGroups(): { success: boolean; error?: any } {
+  public deleteGroups(): { success: boolean } {
     return this.groupController.deleteGroups();
   }
   /**
