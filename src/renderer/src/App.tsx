@@ -25,6 +25,7 @@ import AddCourseActivity from "./pages/admin/AddCourseActivity";
 import AddTFGActivity from "./pages/admin/AddTFGActivity";
 import AddOtherActivity from "./pages/admin/AddOtherActivity";
 import ManageAdvisors from "./pages/admin/pfg/ManageAdvisors";
+import ManagePresentations from "./pages/admin/pfg/ManagePresentations";
 
 function App(): JSX.Element {
   return (
@@ -76,6 +77,10 @@ function App(): JSX.Element {
           <Route
             path="/admin/manageTheses/advisors"
             element={<ManageAdvisors />}
+          />
+          <Route
+            path="/admin/manageTheses/presentations"
+            element={<ManagePresentations />}
           />
           <Route path="*" element={<NotFound />} />
         </Routes>
