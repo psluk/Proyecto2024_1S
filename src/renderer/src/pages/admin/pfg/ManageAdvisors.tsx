@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { StudentProfessorInterface } from "../../../../../models/StudentProfessor";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import DialogConfirm from "@renderer/components/DialogConfirm";
 
 export default function ManageAdvisors(): React.ReactElement {
   const [students, setStudents] = useState<StudentProfessorInterface[]>([]);
@@ -10,6 +11,7 @@ export default function ManageAdvisors(): React.ReactElement {
   const [filteredStudents, setFilteredStudents] = useState<
     StudentProfessorInterface[]
   >([]);
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
 
   useEffect(() => {
     const loadedStudents = window.mainController.getStudentsProfessors();
@@ -29,8 +31,19 @@ export default function ManageAdvisors(): React.ReactElement {
     }
   }, [search, students]);
 
+  const handleRandomGeneration = (): void => {
+    if (
+      students.find((student) => student.professors.length < 3) === undefined
+    ) {
+      setOpenDialog(true);
+      return;
+    } else {
+      generateRandom();
+    }
+  };
+
   const generateRandom = (): void => {
-    window.mainController.generateRandomAssignment();
+    window.mainController.generateRandomProfessorsAssigments();
     const loadedStudents = window.mainController.getStudentsProfessors();
     setStudents(loadedStudents);
     setFilteredStudents(loadedStudents);
@@ -58,7 +71,7 @@ export default function ManageAdvisors(): React.ReactElement {
         <button
           className="h-8 rounded-md bg-teal-500 px-4 font-semibold text-white shadow-sm hover:bg-teal-600"
           type="button"
-          onClick={() => generateRandom()}
+          onClick={() => handleRandomGeneration()}
         >
           Generar aleatoriamente
         </button>
@@ -124,6 +137,17 @@ export default function ManageAdvisors(): React.ReactElement {
           </table>
         </div>
       </div>
+      <DialogConfirm
+        title="Generación aleatoria de tutores"
+        message="Todos los estudiantes tienen profesores asignados. ¿Desea generarlos nuevamente?"
+        show={openDialog}
+        handleConfirm={() => {
+          window.mainController.deleteProfessorsAssigments();
+          generateRandom();
+          setOpenDialog(false);
+        }}
+        handleCancel={() => setOpenDialog(false)}
+      />
     </main>
   );
 }

@@ -120,6 +120,10 @@ export default class StudentProfessorDao {
     })();
   }
 
+  /**
+   * Returns the professors suggestions.
+   * @returns An array of ProfessorsSuggestionsRow objects.
+   */
   getProfessorsSuggestions(): ProfessorsSuggestionsRow[] {
     const query = `SELECT P.professorId, P.name, A.students, A.suggestedStudents, A.activityId, hours
     FROM Activities A
@@ -154,9 +158,7 @@ export default class StudentProfessorDao {
              INNER JOIN StudentProfessors SP ON S.studentId = SP.studentId
              INNER JOIN Professors Pr ON SP.professorId = Pr.professorId;`;
 
-    const rows = database
-      .prepare(query)
-      .all() as {
+    const rows = database.prepare(query).all() as {
       id: number;
       startTime: string;
       minuteDuration: number;
@@ -196,8 +198,20 @@ export default class StudentProfessorDao {
             email: row.studentEmail,
           },
           professors: attendees,
-        }
+        },
       );
     });
+  }
+
+  /**
+   * Deletes all student-professor assignments.
+   */
+  deleteProfessorsAssigments(): void {
+    const query = `DELETE FROM StudentProfessors`;
+    const clearActivity = `UPDATE Activities SET students = 0, load = 0 WHERE suggestedStudents IS NOT NULL`;
+    database.transaction(() => {
+      database.prepare(query).run();
+      database.prepare(clearActivity).run();
+    })();
   }
 }

@@ -21,7 +21,11 @@ export default class StudentProfessorController {
     return this.studentProfessorDao.getStudentsProfessors();
   }
 
-  generateRandom(): void {
+  /**
+   * Generates random professors assignments.
+   * It will assign a random advisor to students that don't have one.
+   */
+  generateRandomProfessorsAssigments(): void {
     const students = this.studentProfessorDao.getStudentsProfessors();
     const professorsSuggestions =
       this.studentProfessorDao.getProfessorsSuggestions();
@@ -89,7 +93,6 @@ export default class StudentProfessorController {
         readersNeeded--;
       }
 
-      // Guardar actualizaciones de cada estudiante
       for (const prof of student.getProfessors()) {
         this.studentProfessorDao.assignProfessor(
           student.getStudentId(),
@@ -98,5 +101,9 @@ export default class StudentProfessorController {
         );
       }
     });
+  }
+
+  deleteProfessorsAssigments(): void {
+    this.studentProfessorDao.deleteProfessorsAssigments();
   }
 }

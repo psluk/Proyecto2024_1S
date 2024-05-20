@@ -75,7 +75,10 @@ export default class MainController {
     this.deleteActivity = this.deleteActivity.bind(this);
 
     this.getStudentsProfessors = this.getStudentsProfessors.bind(this);
-    this.generateRandomAssignment = this.generateRandomAssignment.bind(this);
+    this.generateRandomProfessorsAssigments =
+      this.generateRandomProfessorsAssigments.bind(this);
+    this.deleteProfessorsAssigments =
+      this.deleteProfessorsAssigments.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -770,7 +773,11 @@ export default class MainController {
       .map((sp) => sp.asObject());
   }
 
-  public generateRandomAssignment(): void {
-    return this.studentProfessorController.generateRandom();
+  public generateRandomProfessorsAssigments(): void {
+    return this.studentProfessorController.generateRandomProfessorsAssigments();
+  }
+
+  public deleteProfessorsAssigments(): void {
+    return this.studentProfessorController.deleteProfessorsAssigments();
   }
 }
