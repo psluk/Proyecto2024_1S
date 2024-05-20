@@ -9,15 +9,14 @@ import Student from "../../../../../models/Student";
 import Professor from "../../../../../models/Professor";
 
 import RandomGroupsForm from "@renderer/components/RandomGroupsForm";
-const ManageGroups = () => {
+const ManageGroups = (): React.ReactElement => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [showDialog, setShowDialog] = useState(false);
-  const [filter, setFilter] = useState({ filter: "professor" });
   const [amount, setAmount] = useState(3);
   const [amountStudents, setAmountStudents] = useState(0);
   const [amountProfessors, setAmountProfessors] = useState(0);
   const [showAlert, setShowAlert] = useState(false);
-  const fetchGroups = () => {
+  const fetchGroups = (): void => {
     const groups = window.mainController
       .getGroups()
       .map((group) => Group.reinstantiate(group) as Group);
@@ -39,12 +38,12 @@ const ManageGroups = () => {
     setGroups(groups);
   };
 
-  const handleDeleteGroup = (id: number) => {
+  const handleDeleteGroup = (id: number): void => {
     window.mainController.deleteGroup(id);
     fetchGroups();
   };
 
-  const handleRoomChange = (value: string | null, id: number | null) => {
+  const handleRoomChange = (value: string | null, id: number | null): void => {
     if (id === null) {
       return;
     }
@@ -67,7 +66,7 @@ const ManageGroups = () => {
     fetchGroups();
   };
 
-  const addGroup = () => {
+  const addGroup = (): void => {
     const group = new Group(
       groups.length + 1,
       groups.length + 1,
@@ -88,27 +87,27 @@ const ManageGroups = () => {
     fetchGroups();
   };
 
-  const shuffleArray = (array) => {
+  function shuffleArray<T>(array: T[]): T[] {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
-  };
-
-  const generateRandomGroups = () => {
+  }
+  const generateRandomGroups = (): void => {
     if (groups.length > 0) {
       window.mainController.deleteGroups();
     }
-    let students = window.mainController
-      .getStudentsWithoutGroup()
-      .map((student) => Student.reinstantiate(student) as Student);
-    let professors = window.mainController
-      .getProfessors()
-      .map((professor) => Professor.reinstantiate(professor) as Professor);
-    // Shuffle arrays
-    students = shuffleArray(students);
-    professors = shuffleArray(professors);
+    const students: Student[] = shuffleArray(
+      window.mainController
+        .getStudentsWithoutGroup()
+        .map((student) => Student.reinstantiate(student)!),
+    );
+    let professors: Professor[] = shuffleArray(
+      window.mainController
+        .getProfessors()
+        .map((professor) => Professor.reinstantiate(professor)!),
+    );
     professors = professors.filter(
       (professor) => professor.getName() !== "Sin Profesor",
     );
@@ -164,7 +163,9 @@ const ManageGroups = () => {
         <button
           className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
           onClick={() =>
-            amountProfessors > 3 && amountStudents > 0 ? setShowDialog(true) : setShowAlert(true)
+            amountProfessors > 3 && amountStudents > 0
+              ? setShowDialog(true)
+              : setShowAlert(true)
           }
         >
           Generar aleatoriamente
@@ -243,7 +244,6 @@ const ManageGroups = () => {
           generateRandomGroups();
         }}
         show={showDialog}
-        setFilter={setFilter}
         setAmount={setAmount}
         professorAmount={amountProfessors}
         selectedAmount={amount}
