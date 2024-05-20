@@ -104,6 +104,8 @@ export default class ProfessorDao {
       if (shouldClearList) {
         this.cleanTable("ActivityCourses");
         this.cleanTable("Activities");
+        this.cleanTable("GroupProfessors");
+        this.cleanTable("StudentProfessors");
         this.cleanTable("Professors");
       }
 

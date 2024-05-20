@@ -16,7 +16,7 @@ export const pfgOptions = [
   {
     name: "Tutores",
     icon: faChalkboardTeacher,
-    path: "/admin/manageTheses/asignStudents",
+    path: "/admin/manageTheses/advisors",
     background: "bg-purple-600",
     hoverBackground: "hover:bg-purple-500",
   },

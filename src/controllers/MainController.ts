@@ -11,18 +11,23 @@ import Workload from "../models/Workload";
 import { CourseInterface } from "src/models/Course";
 import { OtherActivity } from "src/database/ProfessorDao";
 
+import StudentProfessorController from "./StudentProfessorController";
+import { StudentProfessorInterface } from "src/models/StudentProfessor";
+
 export default class MainController {
   private static instance: MainController;
   private userController: UserController;
   private professorController: ProfessorController;
   private studentController: StudentController;
   private groupController: GroupController;
+  private studentProfessorController: StudentProfessorController;
 
   private constructor() {
     this.userController = new UserController();
     this.professorController = new ProfessorController();
     this.studentController = new StudentController();
     this.groupController = new GroupController();
+    this.studentProfessorController = new StudentProfessorController();
 
     // Bind methods
     this.login = this.login.bind(this);
@@ -57,6 +62,8 @@ export default class MainController {
     this.deleteGroup = this.deleteGroup.bind(this);
     this.deleteGroups = this.deleteGroups.bind(this);
     this.getStudentsWithoutGroup = this.getStudentsWithoutGroup.bind(this);
+    this.deleteProfessorFromGroups = this.deleteProfessorFromGroups.bind(this);
+
     this.getCourses = this.getCourses.bind(this);
     this.addCourseToWorkload = this.addCourseToWorkload.bind(this);
     this.addTFGActivityToWorkload = this.addTFGActivityToWorkload.bind(this);
@@ -66,7 +73,9 @@ export default class MainController {
     this.updateWorkload = this.updateWorkload.bind(this);
     this.getCalculatedWorkload = this.getCalculatedWorkload.bind(this);
     this.deleteActivity = this.deleteActivity.bind(this);
-    this.deleteProfessorFromGroups = this.deleteProfessorFromGroups.bind(this);
+
+    this.getStudentsProfessors = this.getStudentsProfessors.bind(this);
+    this.generateRandomAssignment = this.generateRandomAssignment.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -749,5 +758,19 @@ export default class MainController {
    */
   public deleteActivity(activityId: number): void {
     return this.professorController.deleteActivity(activityId);
+  }
+
+  /**
+   * Gets all students and their professors.
+   * @returns An array of StudentProfessor objects.
+   */
+  public getStudentsProfessors(): StudentProfessorInterface[] {
+    return this.studentProfessorController
+      .getStudentsProfessors()
+      .map((sp) => sp.asObject());
+  }
+
+  public generateRandomAssignment(): void {
+    return this.studentProfessorController.generateRandom();
   }
 }
