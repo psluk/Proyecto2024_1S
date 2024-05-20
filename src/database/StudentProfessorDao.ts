@@ -2,6 +2,7 @@ import StudentProfessor, {
   StudentProfessorInterface,
 } from "../models/StudentProfessor";
 import database from "./DatabaseProvider";
+import Presentation from "../models/Presentation";
 
 interface StudentProfessorRow {
   id: number | null;
@@ -26,18 +27,18 @@ export default class StudentProfessorDao {
    */
   getStudentsProfessors(): StudentProfessor[] {
     const query = `
-        SELECT 
+        SELECT
             sp.studentProfessorId AS id,
             s.studentId AS studentId,
             s.name AS studentName,
             p.professorId AS professorId,
             p.name AS professorName,
             sp.isAdvisor
-        FROM 
+        FROM
             Students s
-        LEFT JOIN 
+        LEFT JOIN
             StudentProfessors sp ON s.studentId = sp.studentId
-        LEFT JOIN 
+        LEFT JOIN
             Professors p ON sp.professorId = p.professorId;`;
 
     const rows: StudentProfessorRow[] = database
@@ -87,7 +88,7 @@ export default class StudentProfessorDao {
     isAdvisor: boolean,
   ): void {
     const queryCheck = `
-      SELECT COUNT(*) AS count FROM StudentProfessors 
+      SELECT COUNT(*) AS count FROM StudentProfessors
       WHERE studentId = ? AND professorId = ?`;
 
     const queryInsert = `
@@ -131,5 +132,72 @@ export default class StudentProfessorDao {
       .all() as ProfessorsSuggestionsRow[];
 
     return rows;
+  }
+
+  /**
+   * Retrieves presentations from the database.
+   * @returns An array of Presentation objects.
+   */
+  getPresentations(): Presentation[] {
+    const query = `
+      SELECT presentationId                                                       AS id,
+             startTime,
+             minuteDuration,
+             classroom,
+             SP.studentProfessorId                                                AS studentProfessorId,
+             S.studentId                                                          AS studentId,
+             S.name                                                               AS studentName,
+             S.email                                                              AS studentEmail,
+             json_array('id', Pr.professorId, 'name', Pr.name, 'email', Pr.email, 'isAdvisor', SP.isAdvisor) AS professors
+      FROM Presentations P
+             INNER JOIN Students S ON P.studentId = S.studentId
+             INNER JOIN StudentProfessors SP ON S.studentId = SP.studentId
+             INNER JOIN Professors Pr ON SP.professorId = Pr.professorId;`;
+
+    const rows = database
+      .prepare(query)
+      .all() as {
+      id: number;
+      startTime: string;
+      minuteDuration: number;
+      classroom: string;
+      studentProfessorId: number;
+      studentId: number;
+      studentName: string;
+      studentEmail: string;
+      professors: string;
+    }[];
+
+    return rows.map((row) => {
+      const professors = JSON.parse(row.professors) as {
+        id: number;
+        name: string;
+        email: string;
+        isAdvisor: number;
+      }[];
+
+      const attendees = professors.map((professor) => ({
+        id: professor.id,
+        name: professor.name,
+        email: professor.email,
+        isAdvisor: professor.isAdvisor !== 0,
+      }));
+
+      return new Presentation(
+        row.id,
+        row.startTime,
+        row.minuteDuration,
+        row.classroom,
+        {
+          id: row.studentProfessorId,
+          student: {
+            id: row.studentId,
+            name: row.studentName,
+            email: row.studentEmail,
+          },
+          professors: attendees,
+        }
+      );
+    });
   }
 }
