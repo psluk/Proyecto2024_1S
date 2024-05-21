@@ -95,11 +95,16 @@ export default class StudentProfessorDao {
       INSERT INTO StudentProfessors (studentId, professorId, isAdvisor)
       VALUES (?, ?, ?);`;
 
-    const queryActivity = `
+    const queryActivityAdvisor = `
       UPDATE Activities
       SET students = students + 1,
           load = (students + 1) * hours
       WHERE professorId = ? AND suggestedStudents IS NOT NULL;`;
+
+    const queryActivityTribunal = `
+      UPDATE Activities
+      SET students = students + 1
+      WHERE professorId = ? AND name = 'Proyecto de Graduación (tribunal)' AND workloadTypeId = 1;`;
 
     database.transaction(() => {
       const result: Record<string, number> = database
@@ -115,7 +120,9 @@ export default class StudentProfessorDao {
         .prepare(queryInsert)
         .run(studentId, professorId, isAdvisor ? 1 : 0);
       if (isAdvisor) {
-        database.prepare(queryActivity).run(professorId);
+        database.prepare(queryActivityAdvisor).run(professorId);
+      } else {
+        database.prepare(queryActivityTribunal).run(professorId);
       }
     })();
   }
@@ -208,7 +215,7 @@ export default class StudentProfessorDao {
    */
   deleteProfessorsAssigments(): void {
     const query = `DELETE FROM StudentProfessors`;
-    const clearActivity = `UPDATE Activities SET students = 0, load = 0 WHERE suggestedStudents IS NOT NULL`;
+    const clearActivity = `UPDATE Activities SET students = 0, load = 0 WHERE suggestedStudents IS NOT NULL OR (name = 'Proyecto de Graduación (tribunal)' AND workloadTypeId = 1);`;
     database.transaction(() => {
       database.prepare(query).run();
       database.prepare(clearActivity).run();
