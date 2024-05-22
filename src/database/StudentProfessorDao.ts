@@ -146,7 +146,10 @@ export default class StudentProfessorDao {
     return rows;
   }
 
-  addPresentations(presentations: PresentationInterface[], shouldClearTable: boolean = false): void {
+  addPresentations(
+    presentations: PresentationInterface[],
+    shouldClearTable: boolean = false,
+  ): void {
     if (shouldClearTable) {
       const query = `DELETE FROM Presentations;`;
       database.prepare(query).run();
@@ -160,7 +163,8 @@ export default class StudentProfessorDao {
       presentations.forEach((presentation) => {
         const { student, startTime, endTime, classroom } = presentation;
         const studentId = student.id;
-        const minuteDuration = (endTime.getTime() - startTime.getTime()) / 60000;
+        const minuteDuration =
+          (endTime.getTime() - startTime.getTime()) / 60000;
 
         database
           .prepare(query)
@@ -255,7 +259,7 @@ export default class StudentProfessorDao {
 
   /**
    * Deletes a student-professor relationship.
-   * @param id The student-professor relationship ID.
+   * @param studentProfessorId The student-professor relationship ID.
    */
   deleteStudentProfessor(studentProfessorId: number | null): void {
     const query = `DELETE FROM StudentProfessors WHERE studentId = ?;`;
@@ -268,8 +272,11 @@ export default class StudentProfessorDao {
   }
 
   /**
-   * Updates a student-professor relationship.
-   * @param studentProfessor The student-professor relationship object.
+   * Updates the student-professor relationships.
+   * @param studentId
+   * @param professorGuia
+   * @param profesorLector1
+   * @param profesorLector2
    */
   updateStudentProfessor(
     studentId: number,
