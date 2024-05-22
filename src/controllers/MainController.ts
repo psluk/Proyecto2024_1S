@@ -13,6 +13,8 @@ import { OtherActivity } from "src/database/ProfessorDao";
 
 import StudentProfessorController from "./StudentProfessorController";
 import { StudentProfessorInterface } from "src/models/StudentProfessor";
+import { PresentationInterface } from "../models/Presentation";
+import { Classroom } from "../interfaces/PresentationGeneration";
 import ExcelExporter from "../utils/ExcelExporter";
 
 export default class MainController {
@@ -90,6 +92,8 @@ export default class MainController {
 
     this.deleteStudentProfessor = this.deleteStudentProfessor.bind(this);
     this.updateStudentProfessor = this.updateStudentProfessor.bind(this);
+    this.getPresentations = this.getPresentations.bind(this);
+    this.generatePresentations = this.generatePresentations.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -860,5 +864,45 @@ export default class MainController {
       profesorLector1,
       profesorLector2,
     );
+  }
+
+  /**
+   * Retrieves the list of presentations.
+   * @returns An array of Presentation objects.
+   */
+  public getPresentations(): PresentationInterface[] {
+    return this.studentProfessorController
+      .getPresentations()
+      .map((presentation) => presentation.asObject());
+  }
+
+  /**
+   * Generates presentations for students.
+   * @param classrooms The list of classrooms
+   * @param presentationInterval The interval between presentations in minutes
+   * @param lunchBreak The lunch break time
+   */
+  public generatePresentations(
+    classrooms: Classroom[],
+    presentationInterval: number,
+    lunchBreak: {
+      startTime: string;
+      endTime: string;
+    },
+  ): {
+    resolved: PresentationInterface[];
+    unresolved: StudentProfessorInterface[];
+  } {
+    const { resolved, unresolved } =
+      this.studentProfessorController.generatePresentations(
+        classrooms,
+        presentationInterval,
+        lunchBreak,
+      );
+
+    return {
+      resolved: resolved.map((presentation) => presentation.asObject()),
+      unresolved,
+    };
   }
 }

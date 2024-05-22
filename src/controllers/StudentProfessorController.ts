@@ -1,5 +1,10 @@
 import StudentProfessorDao from "../database/StudentProfessorDao";
-import StudentProfessor from "../models/StudentProfessor";
+import StudentProfessor, { StudentProfessorInterface } from "../models/StudentProfessor";
+import { Classroom, PresentationInterface } from "../interfaces/PresentationGeneration";
+import Presentation from "../models/Presentation";
+import { convertApiDateToHtmlAttribute } from "../renderer/src/utils/DateFormatters";
+import { shuffleArray } from "../utils/Shuffle";
+import { doDatesOverlap } from "../utils/DateOverlap";
 
 interface ProfessorCapacity {
   name: string;
@@ -17,7 +22,7 @@ export default class StudentProfessorController {
    * Gets all students and their professors.
    * @returns An array of StudentProfessor objects.
    */
-  getStudentsProfessors(): StudentProfessor[] {
+  public getStudentsProfessors(): StudentProfessor[] {
     return this.studentProfessorDao.getStudentsProfessors();
   }
 
@@ -25,7 +30,7 @@ export default class StudentProfessorController {
    * Generates random professors assignments.
    * It will assign a random advisor to students that don't have one.
    */
-  generateRandomProfessorsAssigments(): void {
+  public generateRandomProfessorsAssigments(): void {
     const students = this.studentProfessorDao.getStudentsProfessors();
     const professorsSuggestions =
       this.studentProfessorDao.getProfessorsSuggestions();
@@ -103,7 +108,7 @@ export default class StudentProfessorController {
     });
   }
 
-  deleteProfessorsAssigments(): void {
+  public deleteProfessorsAssigments(): void {
     this.studentProfessorDao.deleteProfessorsAssigments();
   }
 
@@ -111,7 +116,7 @@ export default class StudentProfessorController {
    * Deletes a student-professor relationship.
    * @param studentProfessorId
    */
-  deleteStudentProfessor(studentProfessorId: number | null): void {
+  public deleteStudentProfessor(studentProfessorId: number | null): void {
     this.studentProfessorDao.deleteStudentProfessor(studentProfessorId);
   }
 
@@ -122,7 +127,7 @@ export default class StudentProfessorController {
    * @param profesorLector1
    * @param profesorLector2
    */
-  updateStudentProfessor(
+  public updateStudentProfessor(
     studentId: number,
     profesorGuia: number,
     profesorLector1: number,
@@ -134,5 +139,212 @@ export default class StudentProfessorController {
       profesorLector1,
       profesorLector2,
     );
+  }
+
+  /**
+   * Retrieves the list of presentations.
+   * @returns An array of Presentation objects.
+   */
+  public getPresentations(): Presentation[] {
+    return this.studentProfessorDao.getPresentations();
+  }
+
+  /**
+   * Generates presentations for students.
+   * @param classrooms The list of classrooms
+   * @param presentationInterval The interval between presentations in minutes
+   * @param lunchBreak The lunch break time
+   */
+  public generatePresentations(
+    classrooms: Classroom[],
+    presentationInterval: number,
+    lunchBreak: {
+      startTime: string;
+      endTime: string;
+    },
+  ): { resolved: Presentation[]; unresolved: StudentProfessorInterface[] } {
+    // Generate presentation slots
+    const presentationSlots: {
+      startTime: Date;
+      endTime: Date;
+      classrooms: string[];
+    }[] = [];
+
+    classrooms.forEach((classroom) => {
+      classroom.schedule.forEach((schedule) => {
+        const startTime = new Date(schedule.startTime);
+        const endTime = new Date(schedule.endTime);
+
+        // Create instances of the start and end of the lunch break
+        const lunchBreakStart = new Date(
+          convertApiDateToHtmlAttribute(schedule.startTime).split("T")[0] +
+            "T" +
+            lunchBreak.startTime,
+        );
+        const lunchBreakEnd = new Date(
+          convertApiDateToHtmlAttribute(schedule.startTime).split("T")[0] +
+            "T" +
+            lunchBreak.endTime,
+        );
+
+        let presentationsBeforeLunch: number;
+        let presentationsAfterLunch: number;
+
+        // If the lunch starts and ends at the same time, it means there is no lunch break
+        if (lunchBreakStart.getTime() === lunchBreakEnd.getTime()) {
+          presentationsBeforeLunch = Math.floor(
+            (endTime.getTime() - startTime.getTime()) /
+              (presentationInterval * 60000),
+          );
+          presentationsAfterLunch = 0;
+        } else {
+          // Calculate presentations before and after lunch break
+          presentationsBeforeLunch = Math.max(
+            Math.floor(
+              (Math.min(lunchBreakStart.getTime(), endTime.getTime()) -
+                startTime.getTime()) /
+                (presentationInterval * 60000),
+            ),
+            0,
+          );
+          presentationsAfterLunch = Math.max(
+            Math.floor(
+              (endTime.getTime() -
+                Math.max(lunchBreakEnd.getTime(), startTime.getTime())) /
+                (presentationInterval * 60000),
+            ),
+            0,
+          );
+        }
+
+        // Generate presentations before lunch break
+        for (let i = 0; i < presentationsBeforeLunch; i++) {
+          const presentationStartTime = new Date(
+            startTime.getTime() + i * presentationInterval * 60000,
+          );
+          const presentationEndTime = new Date(
+            presentationStartTime.getTime() + presentationInterval * 60000,
+          );
+
+          const existingPresentation = presentationSlots.find(
+            (p) =>
+              p.startTime.getTime() === presentationStartTime.getTime() &&
+              p.endTime.getTime() === presentationEndTime.getTime(),
+          );
+
+          if (existingPresentation) {
+            existingPresentation.classrooms.push(classroom.name);
+          } else {
+            presentationSlots.push({
+              startTime: presentationStartTime,
+              endTime: presentationEndTime,
+              classrooms: [classroom.name],
+            });
+          }
+        }
+
+        // Generate presentations after lunch break
+        for (let i = 0; i < presentationsAfterLunch; i++) {
+          const presentationStartTime = new Date(
+            Math.max(lunchBreakEnd.getTime(), startTime.getTime()) +
+              i * presentationInterval * 60000,
+          );
+          const presentationEndTime = new Date(
+            presentationStartTime.getTime() + presentationInterval * 60000,
+          );
+          const existingPresentation = presentationSlots.find(
+            (p) =>
+              p.startTime.getTime() === presentationStartTime.getTime() &&
+              p.endTime.getTime() === presentationEndTime.getTime(),
+          );
+
+          if (existingPresentation) {
+            existingPresentation.classrooms.push(classroom.name);
+          } else {
+            presentationSlots.push({
+              startTime: presentationStartTime,
+              endTime: presentationEndTime,
+              classrooms: [classroom.name],
+            });
+          }
+        }
+      });
+    });
+
+    // Retrieve the list of students and their professors
+    const originalStudentProfessors = this.studentProfessorDao
+      .getStudentsProfessors()
+      .map((studentProfessor) => studentProfessor.asObject());
+
+    // Randomize the list of students
+    const studentProfessors = shuffleArray(originalStudentProfessors);
+
+    // Assign presentations to classrooms
+
+    const schedule: PresentationInterface[] = [];
+
+    for (const studentProfessor of studentProfessors) {
+      for (const slot of presentationSlots) {
+        const availableClassroom = slot.classrooms.find((classroom) => {
+          // A room that is free
+          const isRoomFree = !schedule.some(
+            (presentation) =>
+              presentation.classroom === classroom &&
+              doDatesOverlap(
+                slot.startTime,
+                slot.endTime,
+                presentation.startTime,
+                presentation.endTime,
+              ),
+          );
+
+          // No professors are in a different presentation at the same time
+          const areProfessorsFree = !schedule.some((presentation) =>
+            presentation.professors.some((professor) =>
+              studentProfessor.professors.some(
+                (p) =>
+                  p.id === professor.id &&
+                  doDatesOverlap(
+                    slot.startTime,
+                    slot.endTime,
+                    presentation.startTime,
+                    presentation.endTime,
+                  ),
+              ),
+            ),
+          );
+
+          return isRoomFree && areProfessorsFree;
+        });
+
+        if (availableClassroom) {
+          schedule.push({
+            id: studentProfessor.id,
+            student: studentProfessor.student,
+            professors: studentProfessor.professors,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            classroom: availableClassroom,
+          });
+
+          slot.classrooms = slot.classrooms.filter(
+            (classroom) => classroom !== availableClassroom,
+          );
+          break;
+        }
+      }
+    }
+
+    // Add the presentations to the database
+    this.studentProfessorDao.addPresentations(schedule, true);
+
+    // Get the resolved presentations
+    const resolved = this.studentProfessorDao.getPresentations();
+
+    const unresolved = studentProfessors.filter(
+      (sp) => !schedule.some((p) => p.student.id === sp.student.id),
+    );
+
+    return { resolved, unresolved };
   }
 }

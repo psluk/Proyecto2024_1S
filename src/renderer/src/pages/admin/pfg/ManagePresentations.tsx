@@ -1,37 +1,113 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import {
-  faCheck,
-  faMagnifyingGlass,
-  faPlus,
-  faTrash
-} from "@fortawesome/free-solid-svg-icons";
-import { convertApiDateToHtmlAttribute } from "../../../utils/DateFormatters";
+  convertApiDateToHtmlAttribute,
+  convertApiDateToLocalString,
+  convertApiTimeToLocalString,
+} from "../../../utils/DateFormatters";
+import { Classroom } from "../../../../../interfaces/PresentationGeneration";
+import { PresentationInterface } from "../../../../../models/Presentation";
+import DialogAlert from "../../../components/DialogAlert";
+import DialogConfirm from "../../../components/DialogConfirm";
 
-interface Classroom {
-  name: string;
-  schedule: {
+const calculateNumberOfPresentations = (
+  classrooms: Classroom[],
+  presentationInterval: number,
+  lunchBreak: {
     startTime: string;
     endTime: string;
-  }[];
-}
+  },
+): number => {
+  let totalPresentations = 0;
+
+  classrooms.forEach((classroom) => {
+    classroom.schedule.forEach((schedule) => {
+      const startTime = new Date(schedule.startTime);
+      const endTime = new Date(schedule.endTime);
+
+      // Create instances of the start and end of the lunch break
+      const lunchBreakStart = new Date(
+        convertApiDateToHtmlAttribute(schedule.startTime).split("T")[0] +
+          "T" +
+          lunchBreak.startTime,
+      );
+      const lunchBreakEnd = new Date(
+        convertApiDateToHtmlAttribute(schedule.startTime).split("T")[0] +
+          "T" +
+          lunchBreak.endTime,
+      );
+
+      // Calculate presentations before and after lunch break
+      const presentationsBeforeLunch = Math.max(
+        Math.floor(
+          (Math.min(lunchBreakStart.getTime(), endTime.getTime()) -
+            startTime.getTime()) /
+            (presentationInterval * 60000),
+        ),
+        0,
+      );
+      const presentationsAfterLunch = Math.max(
+        Math.floor(
+          (endTime.getTime() -
+            Math.max(lunchBreakEnd.getTime(), startTime.getTime())) /
+            (presentationInterval * 60000),
+        ),
+        0,
+      );
+
+      totalPresentations += presentationsBeforeLunch + presentationsAfterLunch;
+    });
+  });
+
+  return totalPresentations;
+};
 
 export default function ManagePresentations(): React.ReactElement {
-  const [search, setSearch] = useState<string>("");
   const [showGenerationParameters, setShowGenerationParameters] =
     useState<boolean>(false);
-  const [presentationInterval, setPresentationInterval] = useState<number>(30);
+  const [presentationInterval, setPresentationInterval] = useState<number>(90);
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [lunchBreak, setLunchBreak] = useState<{
     startTime: string;
     endTime: string;
-  }>({ startTime: "12:00", endTime: "13:30" });
+  }>({ startTime: "12:30", endTime: "13:30" });
+  const [presentations, setPresentations] = useState<PresentationInterface[]>(
+    [],
+  );
+  const [groupedPresentations, setGroupedPresentations] = useState<
+    { classroom: string; presentations: PresentationInterface[] }[]
+  >([]);
+  const numberOfStudents = window.mainController
+    .getStudentsProfessors()
+    .filter((sp) => sp.professors.length > 0).length;
+  const [alertDialogParams, setAlertDialogParams] = useState<{
+    title: string;
+    message: string;
+    type: "success" | "error";
+  }>({
+    title: "",
+    message: "",
+    type: "success",
+  });
+  const [showAlertDialog, setShowAlertDialog] = useState<boolean>(false);
+  const [confirmationDialogParams, setConfirmationDialogParams] = useState<{
+    title: string;
+    message: string;
+    handleConfirm: () => void;
+  }>({
+    title: "",
+    message: "",
+    handleConfirm: () => {},
+  });
+  const [showConfirmationDialog, setShowDialogConfirm] =
+    useState<boolean>(false);
 
   const toggleGenerationParameters = (): void => {
     setShowGenerationParameters(!showGenerationParameters);
   };
 
-  const addClassroom = (): void => {
+  const nextDayHours = (): { startTime: string; endTime: string } => {
     const startDate = new Date();
     startDate.setHours(24 + 8);
     startDate.setMinutes(0);
@@ -39,7 +115,17 @@ export default function ManagePresentations(): React.ReactElement {
     startDate.setMilliseconds(0);
 
     const endDate = new Date(startDate);
-    endDate.setHours(endDate.getHours() + 3);
+    endDate.setHours(endDate.getHours() + 4);
+    endDate.setMinutes(endDate.getMinutes() + 30);
+
+    return {
+      startTime: startDate.toISOString(),
+      endTime: endDate.toISOString(),
+    };
+  };
+
+  const addClassroom = (): void => {
+    const { startTime, endTime } = nextDayHours();
 
     setClassrooms([
       ...classrooms,
@@ -47,8 +133,8 @@ export default function ManagePresentations(): React.ReactElement {
         name: `Aula #${classrooms.length + 1}`,
         schedule: [
           {
-            startTime: startDate.toISOString(),
-            endTime: endDate.toISOString(),
+            startTime,
+            endTime,
           },
         ],
       },
@@ -64,6 +150,17 @@ export default function ManagePresentations(): React.ReactElement {
   const addClassroomSchedule = (index: number): void => {
     // Duplicate the last schedule entry
     const newClassrooms = [...classrooms];
+
+    if (newClassrooms[index].schedule.length === 0) {
+      const { startTime, endTime } = nextDayHours();
+      newClassrooms[index].schedule.push({
+        startTime,
+        endTime,
+      });
+      setClassrooms(newClassrooms);
+      return;
+    }
+
     const lastSchedule =
       newClassrooms[index].schedule[newClassrooms[index].schedule.length - 1];
     newClassrooms[index].schedule.push({
@@ -137,40 +234,107 @@ export default function ManagePresentations(): React.ReactElement {
   };
 
   const handleSubmit = (): void => {
-    // Convert the lunch break to UTC timestamps
-    const lunchBreakStart = new Date(
-      `2000-01-01T${lunchBreak.startTime}:00`,
-    ).toISOString().split("T")[1];
-    const lunchBreakEnd = new Date(
-      `2000-01-01T${lunchBreak.endTime}:00`,
-    ).toISOString().split("T")[1];
+    // Warn if there are already presentations
+    if (presentations.length > 0) {
+      setConfirmationDialogParams({
+        title: "Advertencia",
+        message: "Ya se han generado presentaciones. ¿Desea sobreescribirlas?",
+        handleConfirm: () => {
+          generatePresentations();
+          setShowDialogConfirm(false);
+        },
+      });
+      setShowDialogConfirm(true);
+      return;
+    }
+    generatePresentations();
+  };
 
-    console.log({
-      classrooms,
-      presentationInterval,
-      lunchBreakStart,
-      lunchBreakEnd,
+  const generatePresentations = (): void => {
+    // Convert the lunch break to UTC timestamps
+    const lunchBreakStart = new Date(`2000-01-01T${lunchBreak.startTime}:00`)
+      .toISOString()
+      .split("T")[1];
+    const lunchBreakEnd = new Date(`2000-01-01T${lunchBreak.endTime}:00`)
+      .toISOString()
+      .split("T")[1];
+
+    try {
+      const { resolved, unresolved } =
+        window.mainController.generatePresentations(
+          classrooms,
+          presentationInterval,
+          {
+            startTime: lunchBreakStart,
+            endTime: lunchBreakEnd,
+          },
+        );
+      setPresentations(resolved);
+
+      const numberOfPresentations = calculateNumberOfPresentations(
+        classrooms,
+        presentationInterval,
+        lunchBreak,
+      );
+
+      setAlertDialogParams({
+        title: "Éxito",
+        message:
+          `Se generaron ${resolved.length} presentaciones de ${numberOfPresentations} posibles.` +
+          (unresolved.length > 0
+            ? ` No se pudieron generar ${unresolved.length} presentaciones.`
+            : ""),
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      setAlertDialogParams({
+        title: "Error",
+        message: "Error al generar las presentaciones.",
+        type: "error",
+      });
+      return;
+    } finally {
+      setShowAlertDialog(true);
+    }
+  };
+
+  useEffect(() => {
+    setPresentations(window.mainController.getPresentations());
+  }, []);
+
+  useEffect(() => {
+    const groupedPresentations: {
+      classroom: string;
+      presentations: PresentationInterface[];
+    }[] = [];
+
+    const classrooms: string[] = [];
+
+    presentations.forEach((presentation) => {
+      if (!classrooms.includes(presentation.classroom)) {
+        classrooms.push(presentation.classroom);
+      }
     });
-  }
+
+    classrooms.forEach((classroom) => {
+      const classroomPresentations = presentations.filter(
+        (presentation) => presentation.classroom === classroom,
+      );
+      groupedPresentations.push({
+        classroom,
+        presentations: classroomPresentations,
+      });
+    });
+
+    console.log(groupedPresentations);
+    setGroupedPresentations(groupedPresentations);
+  }, [presentations]);
 
   return (
     <main className="gap-10">
       <h1 className="text-3xl font-bold">Administrar presentaciones</h1>
       <div className="flex w-full max-w-7xl flex-col items-center justify-between gap-3 md:flex-row">
-        <div className="flex w-full max-w-sm items-center rounded-md border border-gray-300 bg-white">
-          <FontAwesomeIcon
-            icon={faMagnifyingGlass}
-            className="ml-4 text-gray-400"
-          />
-          <input
-            type="text"
-            placeholder="Buscar"
-            className="h-8 flex-1 rounded-md border-none pl-4 pr-10 focus:outline-none focus:ring-0"
-            onChange={(e) => {
-              setSearch(e.target.value);
-            }}
-          />
-        </div>
         <button
           className="h-8 rounded-md bg-blue-500 px-4 font-semibold text-white shadow-md transition-colors hover:bg-blue-600"
           type="button"
@@ -239,111 +403,117 @@ export default function ManagePresentations(): React.ReactElement {
           <h2 className="mb-2 mt-12 text-2xl font-bold">
             Disponibilidad de aulas
           </h2>
-          <p className="max-w-xl">
+          <p className="max-w-xl text-center">
             Se necesita la información de las aulas disponibles para generar las
             horas de las presentaciones sin choques de horario.
           </p>
           <div className="mt-5 grid w-full grid-cols-1 gap-4 xl:grid-cols-2">
             {classrooms.map((classroom, index) => (
               <article
-                className="flex w-full flex-col items-center overflow-hidden rounded-lg shadow-md"
+                className="flex w-full flex-col items-center justify-between overflow-hidden rounded-lg bg-white shadow-md"
                 key={index}
               >
-                <div className="mb-1 flex w-full items-center bg-neutral-400">
-                  <input
-                    className="w-full grow border-0 bg-inherit py-1 text-center text-lg font-bold outline-0 ring-0"
-                    value={classroom.name}
-                    type="text"
-                    onChange={(e) => updateClassroomName(index, e.target.value)}
-                  />
-                  <FontAwesomeIcon
-                    icon={faTrash}
-                    className="mx-2 cursor-pointer text-red-600"
-                    title="Eliminar"
-                    onClick={() => removeClassroom(index)}
-                  />
-                </div>
-                <table className="w-full">
-                  <thead>
-                    <tr>
-                      <th>Fecha</th>
-                      <th>Inicio</th>
-                      <th>Fin</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {classroom.schedule.map((schedule, scheduleIndex) => (
-                      <tr key={scheduleIndex}>
-                        <td>
-                          <input
-                            type="date"
-                            value={
-                              convertApiDateToHtmlAttribute(
-                                schedule.startTime,
-                              ).split("T")[0]
-                            }
-                            className="w-full border-0 bg-neutral-200 py-1 text-center font-bold outline-0 ring-0"
-                            onChange={(e) =>
-                              updateSchedule(
-                                index,
-                                scheduleIndex,
-                                "date",
-                                e.target.value,
-                              )
-                            }
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="time"
-                            value={
-                              convertApiDateToHtmlAttribute(
-                                schedule.startTime,
-                              ).split("T")[1]
-                            }
-                            className="w-full border-0 bg-neutral-200 py-1 text-center outline-0 ring-0"
-                            onChange={(e) =>
-                              updateSchedule(
-                                index,
-                                scheduleIndex,
-                                "startTime",
-                                e.target.value,
-                              )
-                            }
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="time"
-                            value={
-                              convertApiDateToHtmlAttribute(
-                                schedule.endTime,
-                              ).split("T")[1]
-                            }
-                            className="w-full border-0 bg-neutral-200 py-1 text-center outline-0 ring-0"
-                            onChange={(e) =>
-                              updateSchedule(
-                                index,
-                                scheduleIndex,
-                                "endTime",
-                                e.target.value,
-                              )
-                            }
-                          />
-                        </td>
-                        <td>
-                          <FontAwesomeIcon
-                            icon={faTrash}
-                            className="ms-2 cursor-pointer text-red-500"
-                            title="Eliminar"
-                            onClick={() => removeSchedule(index, scheduleIndex)}
-                          />
-                        </td>
+                <div className="flex w-full flex-col items-center">
+                  <div className="mb-1 flex w-full items-center bg-neutral-400">
+                    <input
+                      className="w-full grow border-0 bg-inherit py-1 text-center text-lg font-bold outline-0 ring-0"
+                      value={classroom.name}
+                      type="text"
+                      onChange={(e) =>
+                        updateClassroomName(index, e.target.value)
+                      }
+                    />
+                    <FontAwesomeIcon
+                      icon={faTrash}
+                      className="mx-2 cursor-pointer text-red-600"
+                      title="Eliminar"
+                      onClick={() => removeClassroom(index)}
+                    />
+                  </div>
+                  <table className="w-full">
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Inicio</th>
+                        <th>Fin</th>
+                        <th></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {classroom.schedule.map((schedule, scheduleIndex) => (
+                        <tr key={scheduleIndex}>
+                          <td>
+                            <input
+                              type="date"
+                              value={
+                                convertApiDateToHtmlAttribute(
+                                  schedule.startTime,
+                                ).split("T")[0]
+                              }
+                              className="w-full border-0 bg-neutral-200 py-1 text-center font-bold outline-0 ring-0"
+                              onChange={(e) =>
+                                updateSchedule(
+                                  index,
+                                  scheduleIndex,
+                                  "date",
+                                  e.target.value,
+                                )
+                              }
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="time"
+                              value={
+                                convertApiDateToHtmlAttribute(
+                                  schedule.startTime,
+                                ).split("T")[1]
+                              }
+                              className="w-full border-0 bg-neutral-200 py-1 text-center outline-0 ring-0"
+                              onChange={(e) =>
+                                updateSchedule(
+                                  index,
+                                  scheduleIndex,
+                                  "startTime",
+                                  e.target.value,
+                                )
+                              }
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="time"
+                              value={
+                                convertApiDateToHtmlAttribute(
+                                  schedule.endTime,
+                                ).split("T")[1]
+                              }
+                              className="w-full border-0 bg-neutral-200 py-1 text-center outline-0 ring-0"
+                              onChange={(e) =>
+                                updateSchedule(
+                                  index,
+                                  scheduleIndex,
+                                  "endTime",
+                                  e.target.value,
+                                )
+                              }
+                            />
+                          </td>
+                          <td>
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              className="me-1 ms-2 cursor-pointer text-red-500"
+                              title="Eliminar"
+                              onClick={() =>
+                                removeSchedule(index, scheduleIndex)
+                              }
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 <button
                   className="my-2 max-w-full place-self-center rounded-lg bg-slate-500 px-3 py-1 text-sm text-white shadow-md transition-colors hover:bg-slate-400"
                   onClick={() => addClassroomSchedule(index)}
@@ -361,8 +531,31 @@ export default function ManagePresentations(): React.ReactElement {
               Agregar aula
             </button>
           </div>
+          <p className="mt-10 text-center">
+            Hay <span className="font-bold">{numberOfStudents}</span>{" "}
+            estudiantes con profesor asignado para su defensa.
+            {numberOfStudents === 0 && (
+              <>
+                <br />
+                <span className="animate-pulse font-bold text-red-500">
+                  ¡No se asignarán las presentaciones sin asignar a los
+                  profesores!
+                </span>
+              </>
+            )}
+            <br />
+            Esta distribución de aulas permite{" "}
+            <span className="font-bold">
+              {calculateNumberOfPresentations(
+                classrooms,
+                presentationInterval,
+                lunchBreak,
+              )}
+            </span>{" "}
+            defensas.
+          </p>
           <button
-            className="max-w-full mt-14 rounded-lg text-xl font-bold bg-green-600 px-4 py-1 text-white shadow-md transition-colors hover:bg-green-500"
+            className="mt-2 max-w-full rounded-lg bg-green-600 px-4 py-1 text-xl font-bold text-white shadow-md transition-colors hover:bg-green-500"
             onClick={handleSubmit}
           >
             <FontAwesomeIcon icon={faCheck} className="me-2 size-5" />
@@ -370,6 +563,97 @@ export default function ManagePresentations(): React.ReactElement {
           </button>
         </div>
       )}
+      <h2 className="mb-2 mt-10 text-3xl font-bold">Lista de presentaciones</h2>
+      {presentations.length > 0 ? (
+        groupedPresentations.map((classroom) => (
+          <article
+            key={classroom.classroom}
+            className="w-full max-w-7xl overflow-hidden rounded-lg bg-white shadow-md [&:nth-child(2n)>h3]:bg-blue-500 [&>h3]:bg-purple-500"
+          >
+            <h3 className="px-4 py-2 text-2xl font-semibold text-white">
+              {classroom.classroom}
+            </h3>
+            <table className="mt-2 w-full table-auto">
+              <thead className="bg-slate-400">
+                <tr>
+                  <th>Día</th>
+                  <th>Hora</th>
+                  <th>Estudiante</th>
+                  <th>Profesores</th>
+                </tr>
+              </thead>
+              <tbody className="[&>tr:nth-child(2n)]:bg-gray-200">
+                {classroom.presentations.map((presentation) => {
+                  const endTime = new Date(presentation.startTime);
+                  endTime.setMinutes(
+                    endTime.getMinutes() + presentation.minuteDuration,
+                  );
+
+                  return (
+                    <tr key={presentation.id} className="[&>td]:p-2">
+                      <td>
+                        {convertApiDateToLocalString(
+                          presentation.startTime,
+                          "full",
+                        )}
+                      </td>
+                      <td>
+                        De{" "}
+                        {convertApiTimeToLocalString(
+                          presentation.startTime,
+                          "short",
+                        )}{" "}
+                        a{" "}
+                        {convertApiTimeToLocalString(
+                          endTime.toISOString(),
+                          "short",
+                        )}
+                      </td>
+                      <td>{presentation.attendees.student.name}</td>
+                      <td>
+                        <ol className="list-decimal">
+                          {presentation.attendees.professors.map(
+                            (professor) => (
+                              <li key={professor.id}>
+                                {professor.name}{" "}
+                                {professor.isAdvisor && (
+                                  <span className="text-sm font-bold">
+                                    (guía)
+                                  </span>
+                                )}
+                              </li>
+                            ),
+                          )}
+                        </ol>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </article>
+        ))
+      ) : (
+        <p>Aún no hay presentaciones generadas.</p>
+      )}
+      <DialogAlert
+        title={alertDialogParams.title}
+        message={alertDialogParams.message}
+        show={showAlertDialog}
+        handleConfirm={() => {
+          setShowAlertDialog(false);
+        }}
+        type={alertDialogParams.type}
+      />
+      <DialogConfirm
+        title={confirmationDialogParams.title}
+        message={confirmationDialogParams.message}
+        handleConfirm={confirmationDialogParams.handleConfirm}
+        handleCancel={() => {
+          setShowDialogConfirm(false);
+        }}
+        show={showConfirmationDialog}
+      />
     </main>
   );
 }

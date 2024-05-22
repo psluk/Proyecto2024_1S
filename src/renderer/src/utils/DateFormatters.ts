@@ -1,7 +1,7 @@
 const dateLanguage: string[] = ["es-UY", "es-CR"]; // Returns "set" for September
 
 const dateOptions: {
-  [key: string]: Intl.DateTimeFormatOptions
+  [key: string]: Intl.DateTimeFormatOptions;
 } = {
   month: { year: "numeric", month: "long" },
   short: { year: "numeric", month: "short", day: "numeric" },
@@ -21,9 +21,11 @@ const timeOptions: Intl.DateTimeFormatOptions = {
  * @param apiDateString The date string from the API.
  * @returns The local date string to use as an HTML attribute.
  */
-export const convertApiDateToHtmlAttribute = (apiDateString: string): string => {
+export const convertApiDateToHtmlAttribute = (
+  apiDateString: string,
+): string => {
   const apiDate = new Date(
-    apiDateString + (apiDateString.endsWith("Z") ? "" : "Z")
+    apiDateString + (apiDateString.endsWith("Z") ? "" : "Z"),
   );
   return new Date(
     Date.UTC(
@@ -32,8 +34,8 @@ export const convertApiDateToHtmlAttribute = (apiDateString: string): string => 
       apiDate.getDate(),
       apiDate.getHours(),
       apiDate.getMinutes(),
-      apiDate.getSeconds()
-    )
+      apiDate.getSeconds(),
+    ),
   )
     .toISOString()
     .split(".")[0];
@@ -52,8 +54,8 @@ export const getCurrentDateAsHtmlAttribute = (): string => {
       currentDate.getDate(),
       currentDate.getHours(),
       currentDate.getMinutes(),
-      0
-    )
+      0,
+    ),
   )
     .toISOString()
     .split(".")[0];
@@ -74,18 +76,14 @@ export const getCurrentDateAsHtmlAttribute = (): string => {
 export const convertApiDateToLocalString = (
   apiDateString: string,
   dateType?: "month" | "short" | "long" | "full",
-  capitalizeFirstLetter: boolean = false
+  capitalizeFirstLetter: boolean = false,
 ): string => {
   try {
     const apiDate = new Date(
-      apiDateString + (apiDateString.endsWith("Z") ? "" : "Z")
+      apiDateString + (apiDateString.endsWith("Z") ? "" : "Z"),
     );
-    const selectedOptions = dateOptions[dateType || "short"] || dateOptions["short"];
-
-    // If the year is the current year, we don't show it
-    if (apiDate.getFullYear() === new Date().getFullYear()) {
-      delete selectedOptions.year;
-    }
+    const selectedOptions =
+      dateOptions[dateType || "short"] || dateOptions["short"];
 
     const result = apiDate.toLocaleDateString(dateLanguage, selectedOptions);
 
@@ -110,11 +108,11 @@ export const convertApiDateToLocalString = (
  */
 export const convertApiTimeToLocalString = (
   apiDateString: string,
-  timeType: "short" | "long" = "short"
+  timeType: "short" | "long" = "short",
 ): string => {
   try {
     const apiDate = new Date(
-      apiDateString + (apiDateString.endsWith("Z") ? "" : "Z")
+      apiDateString + (apiDateString.endsWith("Z") ? "" : "Z"),
     );
     const currentTimeOptions = { ...timeOptions };
 
@@ -149,12 +147,12 @@ export const convertApiTimeToLocalString = (
 export const convertApiDateTimeToLocalString = (
   apiDateString: string,
   dateType?: "month" | "short" | "long" | "full",
-  timeType?: "short" | "long"
+  timeType?: "short" | "long",
 ): string => {
   const separator = dateType === "full" ? " el " : ", ";
   return `${convertApiTimeToLocalString(
     apiDateString,
-    timeType
+    timeType,
   )}${separator}${convertApiDateToLocalString(apiDateString, dateType)}`.trim();
 };
 
@@ -163,7 +161,9 @@ export const convertApiDateTimeToLocalString = (
  * @param dateTimeString The local datetime string.
  * @returns The ISO string or undefined if the conversion fails.
  */
-export const convertLocalDateTimeToIso = (dateTimeString: string | Date): string | undefined => {
+export const convertLocalDateTimeToIso = (
+  dateTimeString: string | Date,
+): string | undefined => {
   try {
     const localDate = new Date(dateTimeString);
     return localDate.toISOString();

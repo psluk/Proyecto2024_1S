@@ -3,6 +3,7 @@ import StudentProfessor, {
 } from "../models/StudentProfessor";
 import database from "./DatabaseProvider";
 import Presentation from "../models/Presentation";
+import { PresentationInterface } from "../interfaces/PresentationGeneration";
 
 interface StudentProfessorRow {
   id: number | null;
@@ -145,6 +146,29 @@ export default class StudentProfessorDao {
     return rows;
   }
 
+  addPresentations(presentations: PresentationInterface[], shouldClearTable: boolean = false): void {
+    if (shouldClearTable) {
+      const query = `DELETE FROM Presentations;`;
+      database.prepare(query).run();
+    }
+
+    const query = `
+      INSERT INTO Presentations (startTime, minuteDuration, classroom, studentId)
+      VALUES (?, ?, ?, ?);`;
+
+    database.transaction(() => {
+      presentations.forEach((presentation) => {
+        const { student, startTime, endTime, classroom } = presentation;
+        const studentId = student.id;
+        const minuteDuration = (endTime.getTime() - startTime.getTime()) / 60000;
+
+        database
+          .prepare(query)
+          .run(startTime.toISOString(), minuteDuration, classroom, studentId);
+      });
+    })();
+  }
+
   /**
    * Retrieves presentations from the database.
    * @returns An array of Presentation objects.
@@ -159,11 +183,18 @@ export default class StudentProfessorDao {
              S.studentId                                                          AS studentId,
              S.name                                                               AS studentName,
              S.email                                                              AS studentEmail,
-             json_array('id', Pr.professorId, 'name', Pr.name, 'email', Pr.email, 'isAdvisor', SP.isAdvisor) AS professors
+             json_group_array(json_object(
+               'id', Pr.professorId,
+               'name', Pr.name,
+               'email', Pr.email,
+               'isAdvisor', SP.isAdvisor
+                              )) AS professors
       FROM Presentations P
              INNER JOIN Students S ON P.studentId = S.studentId
              INNER JOIN StudentProfessors SP ON S.studentId = SP.studentId
-             INNER JOIN Professors Pr ON SP.professorId = Pr.professorId;`;
+             INNER JOIN Professors Pr ON SP.professorId = Pr.professorId
+      GROUP BY P.classroom, P.startTime, P.presentationId
+      ORDER BY P.classroom, P.startTime;`;
 
     const rows = database.prepare(query).all() as {
       id: number;

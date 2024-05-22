@@ -83,6 +83,7 @@ export default class StudentDao {
       if (shouldClearList) {
         this.cleanTable("GroupStudents");
         this.cleanTable("StudentProfessors");
+        this.cleanTable("Presentations");
         this.cleanTable("Students");
       }
 
@@ -202,7 +203,7 @@ export default class StudentDao {
 
   getAmountOfActiveStudents(): { label: string; value: number }[] {
     const query = `
-    SELECT 
+    SELECT
       COALESCE(SUM(CASE WHEN isEnabled = 1 THEN 1 ELSE 0 END),0) AS Activos,
       COALESCE(SUM(CASE WHEN isEnabled = 0 THEN 1 ELSE 0 END),0)AS Inactivos
     FROM Students;`;
