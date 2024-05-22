@@ -61,7 +61,7 @@ export default function ManageAdvisors(): React.ReactElement {
     setFilteredStudents(loadedStudents);
   };
 
-  const handleDeleteStudentProfessor = (studentId: number | null) => {
+  const handleDeleteStudentProfessor = (studentId: number | null): void => {
     const studentProfessor = students.find((sp) => sp.student.id === studentId);
     setStudentProfessorId(
       studentProfessor ? studentProfessor.student.id : null,
@@ -69,7 +69,7 @@ export default function ManageAdvisors(): React.ReactElement {
     setShowDialog(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = (): void => {
     try {
       window.mainController.deleteStudentProfessor(studentProfessorId);
       const newStudents = students.filter(
@@ -197,6 +197,17 @@ export default function ManageAdvisors(): React.ReactElement {
           </table>
         </div>
       </div>
+      <DialogConfirm
+        title="Generación aleatoria de tutores"
+        message="Todos los estudiantes tienen profesores asignados. ¿Desea generarlos nuevamente?"
+        show={openDialog}
+        handleConfirm={() => {
+          window.mainController.deleteProfessorsAssigments();
+          generateRandom();
+          setOpenDialog(false);
+        }}
+        handleCancel={() => setOpenDialog(false)}
+      />
       <DialogConfirm
         title="Eliminar estudiante"
         message="¿Estás seguro de que deseas eliminar al estudiante?"
