@@ -87,6 +87,9 @@ export default class MainController {
     this.deleteProfessorFromGroups = this.deleteProfessorFromGroups.bind(this);
     this.exportProfessorsFile = this.exportProfessorsFile.bind(this);
     this.exportStudentsFile = this.exportStudentsFile.bind(this);
+
+    this.deleteStudentProfessor = this.deleteStudentProfessor.bind(this);
+    this.updateStudentProfessor = this.updateStudentProfessor.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -828,5 +831,34 @@ export default class MainController {
    */
   public exportStudentsFile(): void {
     return this.excelExporter.exportStudentsFile();
+  }
+
+  /**
+   * Deletes a student professor relationship.
+   * @param studentProfessorId
+   */
+  public deleteStudentProfessor(studentProfessorId: number | null): void {
+    this.studentProfessorController.deleteStudentProfessor(studentProfessorId);
+  }
+
+  /**
+   * Updates a student professor relationship.
+   * @param studentId
+   * @param profesorGuia
+   * @param profesorLector1
+   * @param profesorLector2
+   */
+  public updateStudentProfessor(
+    studentId: number,
+    profesorGuia: number,
+    profesorLector1: number,
+    profesorLector2: number,
+  ): void {
+    this.studentProfessorController.updateStudentProfessor(
+      studentId,
+      profesorGuia,
+      profesorLector1,
+      profesorLector2,
+    );
   }
 }

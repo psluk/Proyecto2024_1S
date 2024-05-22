@@ -221,4 +221,55 @@ export default class StudentProfessorDao {
       database.prepare(clearActivity).run();
     })();
   }
+
+  /**
+   * Deletes a student-professor relationship.
+   * @param id The student-professor relationship ID.
+   */
+  deleteStudentProfessor(studentProfessorId: number | null): void {
+    const query = `DELETE FROM StudentProfessors WHERE studentId = ?;`;
+    const result = database.prepare(query).run(studentProfessorId);
+    if (result.changes === 0) {
+      console.error(
+        `No student-professor relationship found with ID ${studentProfessorId}.`,
+      );
+    }
+  }
+
+  /**
+   * Updates a student-professor relationship.
+   * @param studentProfessor The student-professor relationship object.
+   */
+  updateStudentProfessor(
+    studentId: number,
+    professorGuia: number,
+    profesorLector1: number,
+    profesorLector2: number,
+  ): void {
+    const query1 = `DELETE FROM StudentProfessors WHERE studentId = ?;`;
+    const result1 = database.prepare(query1).run(studentId);
+    if (result1.changes === 0) {
+      console.error(
+        `Problem with deletion of student-professor relationships.`,
+      );
+    }
+
+    const query2 = `INSERT INTO StudentProfessors (professorId, studentId, isAdvisor) VALUES (?, ?, ?);`;
+    const result2 = database.prepare(query2).run(professorGuia, studentId, 1);
+    if (result2.changes === 0) {
+      console.error(`Problem with insertion of advisor.`);
+    }
+
+    const query3 = `INSERT INTO StudentProfessors (professorId, studentId, isAdvisor) VALUES (?, ?, ?);`;
+    const result3 = database.prepare(query3).run(profesorLector1, studentId, 0);
+    if (result3.changes === 0) {
+      console.error(`Problem with insertion of lector 1.`);
+    }
+
+    const query4 = `INSERT INTO StudentProfessors (professorId, studentId, isAdvisor) VALUES (?, ?, ?);`;
+    const result4 = database.prepare(query4).run(profesorLector2, studentId, 0);
+    if (result4.changes === 0) {
+      console.error(`Problem with insertion of lector 2.`);
+    }
+  }
 }

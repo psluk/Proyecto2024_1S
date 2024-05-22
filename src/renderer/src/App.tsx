@@ -28,6 +28,7 @@ import ManageAdvisors from "./pages/admin/pfg/ManageAdvisors";
 import ManagePresentations from "./pages/admin/pfg/ManagePresentations";
 import Statistics from "./pages/admin/Statistics";
 import ExportFiles from "./pages/admin/ExportFiles";
+import EditStudentProfessor from "./pages/admin/EditStudentProfessor";
 
 function App(): JSX.Element {
   return (
@@ -86,6 +87,10 @@ function App(): JSX.Element {
             element={<ManagePresentations />}
           />
           <Route path="/admin/statistics" element={<Statistics />} />
+          <Route
+            path="/admin/manageTheses/editStudentProfessor"
+            element={<EditStudentProfessor />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

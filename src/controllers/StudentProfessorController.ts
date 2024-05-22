@@ -106,4 +106,33 @@ export default class StudentProfessorController {
   deleteProfessorsAssigments(): void {
     this.studentProfessorDao.deleteProfessorsAssigments();
   }
+
+  /**
+   * Deletes a student-professor relationship.
+   * @param studentProfessorId
+   */
+  deleteStudentProfessor(studentProfessorId: number | null): void {
+    this.studentProfessorDao.deleteStudentProfessor(studentProfessorId);
+  }
+
+  /**
+   * Updates the professors of a student.
+   * @param studentId
+   * @param profesorGuia
+   * @param profesorLector1
+   * @param profesorLector2
+   */
+  updateStudentProfessor(
+    studentId: number,
+    profesorGuia: number,
+    profesorLector1: number,
+    profesorLector2: number,
+  ): void {
+    this.studentProfessorDao.updateStudentProfessor(
+      studentId,
+      profesorGuia,
+      profesorLector1,
+      profesorLector2,
+    );
+  }
 }

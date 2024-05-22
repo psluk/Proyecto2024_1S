@@ -2,8 +2,14 @@ import { useState, useEffect } from "react";
 
 import { StudentProfessorInterface } from "../../../../../models/StudentProfessor";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import DialogConfirm from "@renderer/components/DialogConfirm";
+import {
+  faMagnifyingGlass,
+  faPen,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import DialogConfirm from "../../../components/DialogConfirm";
+import DialogAlert from "@renderer/components/DialogAlert";
+import { Link } from "react-router-dom";
 
 export default function ManageAdvisors(): React.ReactElement {
   const [students, setStudents] = useState<StudentProfessorInterface[]>([]);
@@ -12,6 +18,12 @@ export default function ManageAdvisors(): React.ReactElement {
     StudentProfessorInterface[]
   >([]);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
+
+  const [studentProfessorId, setStudentProfessorId] = useState<number | null>(
+    0,
+  );
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [showDialogAlert, setShowDialogAlert] = useState<boolean>(false);
 
   useEffect(() => {
     const loadedStudents = window.mainController.getStudentsProfessors();
@@ -47,6 +59,28 @@ export default function ManageAdvisors(): React.ReactElement {
     const loadedStudents = window.mainController.getStudentsProfessors();
     setStudents(loadedStudents);
     setFilteredStudents(loadedStudents);
+  };
+
+  const handleDeleteStudentProfessor = (studentId: number | null) => {
+    const studentProfessor = students.find((sp) => sp.student.id === studentId);
+    setStudentProfessorId(
+      studentProfessor ? studentProfessor.student.id : null,
+    );
+    setShowDialog(true);
+  };
+
+  const handleConfirm = () => {
+    try {
+      window.mainController.deleteStudentProfessor(studentProfessorId);
+      const newStudents = students.filter(
+        (student) => student.student.id !== studentProfessorId,
+      );
+      setStudents(newStudents);
+      setFilteredStudents(newStudents);
+    } catch (error) {
+      setShowDialogAlert(true);
+    }
+    setShowDialog(false);
   };
 
   return (
@@ -96,21 +130,26 @@ export default function ManageAdvisors(): React.ReactElement {
                     Profesores lectores
                   </p>
                 </th>
+                <th>
+                  <p className="flex items-center justify-start gap-3">
+                    Acciones
+                  </p>
+                </th>
               </tr>
             </thead>
             <tbody>
               {filteredStudents.length ? (
-                filteredStudents.map((student) => (
-                  <tr key={student.student.id}>
-                    <td>{student.student.name}</td>
+                filteredStudents.map((studentProfessor) => (
+                  <tr key={studentProfessor.student.id}>
+                    <td>{studentProfessor.student.name}</td>
                     <td>
-                      {student.professors.filter(
+                      {studentProfessor.professors.filter(
                         (professor) => professor.isAdvisor,
                       )[0]?.name || "Sin asignar"}
                     </td>
                     <td className="flex gap-3">
                       {((): React.ReactElement => {
-                        const nonAdvisors = student.professors.filter(
+                        const nonAdvisors = studentProfessor.professors.filter(
                           (professor) => !professor.isAdvisor,
                         );
                         return nonAdvisors.length > 0 ? (
@@ -123,6 +162,27 @@ export default function ManageAdvisors(): React.ReactElement {
                           <p>Sin asignar</p>
                         );
                       })()}
+                    </td>
+                    <td className="space-x-3">
+                      <Link
+                        to={`/admin/manageTheses/editStudentProfessor`}
+                        className="text-sm font-semibold text-teal-800 hover:text-teal-600"
+                        title="Editar"
+                      >
+                        <FontAwesomeIcon icon={faPen} />
+                      </Link>
+                      <button
+                        className="text-sm font-semibold text-red-600 hover:text-red-800"
+                        onClick={() =>
+                          handleDeleteStudentProfessor(
+                            studentProfessor.student.id,
+                          )
+                        }
+                        title="Eliminar"
+                        type="button"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -138,15 +198,23 @@ export default function ManageAdvisors(): React.ReactElement {
         </div>
       </div>
       <DialogConfirm
-        title="Generación aleatoria de tutores"
-        message="Todos los estudiantes tienen profesores asignados. ¿Desea generarlos nuevamente?"
-        show={openDialog}
-        handleConfirm={() => {
-          window.mainController.deleteProfessorsAssigments();
-          generateRandom();
-          setOpenDialog(false);
+        title="Eliminar estudiante"
+        message="¿Estás seguro de que deseas eliminar al estudiante?"
+        handleConfirm={handleConfirm}
+        handleCancel={() => {
+          setShowDialog(false);
         }}
-        handleCancel={() => setOpenDialog(false)}
+        show={showDialog}
+      />
+
+      <DialogAlert
+        title="Error"
+        message={"Ocurrió un error al eliminar al estudiante."}
+        show={showDialogAlert}
+        handleConfirm={() => {
+          setShowDialogAlert(!showDialogAlert);
+        }}
+        type="error"
       />
     </main>
   );
