@@ -2,6 +2,7 @@ import {
   faChalkboardUser,
   faChartColumn,
   faFileArrowUp,
+  faFileExport,
   faGraduationCap,
   faHouse,
   faUser,
@@ -20,8 +21,8 @@ export const adminOptions = [
     name: "Estadísticas",
     icon: faChartColumn,
     path: "/admin/statistics",
-    background: "bg-emerald-600",
-    hoverBackground: "hover:bg-emerald-500",
+    background: "bg-rose-600",
+    hoverBackground: "hover:bg-rose-500",
   },
   {
     name: "Profesores",
@@ -43,6 +44,13 @@ export const adminOptions = [
     path: "/admin/uploadFiles",
     background: "bg-blue-600",
     hoverBackground: "hover:bg-blue-500",
+  },
+  {
+    name: "Exportar datos",
+    icon: faFileExport,
+    path: "/admin/exportFiles",
+    background: "bg-green-600",
+    hoverBackground: "hover:bg-green-500",
   },
   {
     name: "Usuarios",

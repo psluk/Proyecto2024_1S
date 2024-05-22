@@ -24,6 +24,7 @@ import EditGroupStudents from "./pages/admin/pfg/EditGroupStudents";
 import AddCourseActivity from "./pages/admin/AddCourseActivity";
 import AddTFGActivity from "./pages/admin/AddTFGActivity";
 import AddOtherActivity from "./pages/admin/AddOtherActivity";
+import ExportFiles from "./pages/admin/ExportFiles";
 
 function App(): JSX.Element {
   return (
@@ -43,6 +44,7 @@ function App(): JSX.Element {
           <Route path="/admin/manageUsers" element={<ManageUsers />} />
           <Route path="/admin/editUser/:id" element={<EditUser />} />
           <Route path="/admin/uploadFiles" element={<UploadFiles />} />
+          <Route path="/admin/exportFiles" element={<ExportFiles />} />
           <Route
             path="/admin/manageProfessors"
             element={<ManageProfessors />}

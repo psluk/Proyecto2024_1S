@@ -10,6 +10,7 @@ import GroupController from "./GroupController";
 import Workload from "../models/Workload";
 import { CourseInterface } from "src/models/Course";
 import { OtherActivity } from "src/database/ProfessorDao";
+import ExcelExporter from '../utils/ExcelExporter';
 
 export default class MainController {
   private static instance: MainController;
@@ -17,12 +18,14 @@ export default class MainController {
   private professorController: ProfessorController;
   private studentController: StudentController;
   private groupController: GroupController;
+  private excelExporter: ExcelExporter;
 
   private constructor() {
     this.userController = new UserController();
     this.professorController = new ProfessorController();
     this.studentController = new StudentController();
     this.groupController = new GroupController();
+    this.excelExporter = new ExcelExporter();
 
     // Bind methods
     this.login = this.login.bind(this);
@@ -67,6 +70,8 @@ export default class MainController {
     this.getCalculatedWorkload = this.getCalculatedWorkload.bind(this);
     this.deleteActivity = this.deleteActivity.bind(this);
     this.deleteProfessorFromGroups = this.deleteProfessorFromGroups.bind(this);
+    this.exportProfessorsFile = this.exportProfessorsFile.bind(this);
+    this.exportStudentsFile = this.exportStudentsFile.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -749,5 +754,19 @@ export default class MainController {
    */
   public deleteActivity(activityId: number): void {
     return this.professorController.deleteActivity(activityId);
+  }
+
+  /**
+   * Exports the data in the database to an Excel file with a specific format
+   */
+  public exportProfessorsFile(): void {
+    return this.excelExporter.exportProfessorsFile();
+  }
+
+  /**
+   * Exports the data in the database to an Excel file with a specific format
+   */
+  public exportStudentsFile(): void {
+    return this.excelExporter.exportStudentsFile();
   }
 }
