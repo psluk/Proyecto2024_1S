@@ -92,6 +92,9 @@ export default class MainController {
 
     this.deleteStudentProfessor = this.deleteStudentProfessor.bind(this);
     this.updateStudentProfessor = this.updateStudentProfessor.bind(this);
+    this.updateActivityAdvisor = this.updateActivityAdvisor.bind(this);
+    this.updateActivityLector = this.updateActivityLector.bind(this);
+
     this.getPresentations = this.getPresentations.bind(this);
     this.generatePresentations = this.generatePresentations.bind(this);
   }
@@ -863,6 +866,33 @@ export default class MainController {
       profesorGuia,
       profesorLector1,
       profesorLector2,
+    );
+  }
+
+  /**
+   * Updates the activity table.
+   * @param oldLectorId
+   * @param newLectorId
+   */
+  public updateActivityAdvisor(
+    oldAdvisorId: number,
+    newAdvisorId: number,
+  ): void {
+    this.studentProfessorController.updateActivityAdvisor(
+      oldAdvisorId,
+      newAdvisorId,
+    );
+  }
+
+  /**
+   * Updates the activity table.
+   * @param oldLectorId
+   * @param newLectorId
+   */
+  public updateActivityLector(oldLectorId: number, newLectorId: number): void {
+    this.studentProfessorController.updateActivityLector(
+      oldLectorId,
+      newLectorId,
     );
   }
 

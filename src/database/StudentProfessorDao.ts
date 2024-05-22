@@ -310,4 +310,58 @@ export default class StudentProfessorDao {
       console.error(`Problem with insertion of lector 2.`);
     }
   }
+
+  /**
+   * Updates the activity advisor.
+   * @param oldAdvisorId
+   * @param newAdvisorId
+   */
+  updateActivityAdvisor(oldAdvisorId: number, newAdvisorId: number): void {
+    const query1 = `UPDATE Activities 
+SET students = students - 1 
+WHERE name = 'Proyecto Final de Graduación' 
+AND workloadTypeId = 1
+AND professorId = ?;`;
+    const result1 = database.prepare(query1).run(oldAdvisorId);
+    if (result1.changes === 0) {
+      console.error(`Problem with update of activity advisor.`);
+    }
+
+    const query2 = `UPDATE Activities 
+SET students = students + 1 
+WHERE name = 'Proyecto Final de Graduación' 
+AND workloadTypeId = 1
+AND professorId = ?;`;
+    const result2 = database.prepare(query2).run(newAdvisorId);
+    if (result2.changes === 0) {
+      console.error(`Problem with update of activity advisor.`);
+    }
+  }
+
+  /**
+   * Updates the activity lector.
+   * @param oldLectorId
+   * @param newLectorId
+   */
+  updateActivityLector(oldLectorId: number, newLectorId: number): void {
+    const query1 = `UPDATE Activities 
+SET students = students - 1 
+WHERE name = 'Proyecto de Graduación (tribunal)' 
+AND workloadTypeId = 1
+AND professorId = ?;`;
+    const result1 = database.prepare(query1).run(oldLectorId);
+    if (result1.changes === 0) {
+      console.error(`Problem with update of activity lector.`);
+    }
+
+    const query2 = `UPDATE Activities 
+SET students = students + 1 
+WHERE name = 'Proyecto de Graduación (tribunal)' 
+AND workloadTypeId = 1
+AND professorId = ?;`;
+    const result2 = database.prepare(query2).run(newLectorId);
+    if (result2.changes === 0) {
+      console.error(`Problem with update of activity lector.`);
+    }
+  }
 }

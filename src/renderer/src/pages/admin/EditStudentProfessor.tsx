@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import DialogAlert from "@renderer/components/DialogAlert";
 import { ProfessorInterface } from "../../../../models/Professor";
 import { StudentProfessorInterface } from "../../../../models/StudentProfessor";
@@ -29,6 +29,11 @@ export default function EditStudentProfessor() {
   const [selectedGuia, setSelectedGuia] = useState<string>("");
   const [selectedLector1, setSelectedLector1] = useState<string>("");
   const [selectedLector2, setSelectedLector2] = useState<string>("");
+
+  const initialSelectedGuia = useRef<string>("");
+  const initialSelectedLector1 = useRef<string>("");
+  const initialSelectedLector2 = useRef<string>("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,6 +62,14 @@ export default function EditStudentProfessor() {
       setSelectedLector2(
         professorLector2 ? professorLector2.id.toString() : "",
       );
+
+      initialSelectedGuia.current = advisor ? advisor.id.toString() : "";
+      initialSelectedLector1.current = professorLector1
+        ? professorLector1.id.toString()
+        : "";
+      initialSelectedLector2.current = professorLector2
+        ? professorLector2.id.toString()
+        : "";
     }
   }, []);
 
@@ -92,6 +105,27 @@ export default function EditStudentProfessor() {
           profesorLector1,
           profesorLector2,
         );
+        /*
+        if (initialSelectedGuia.current !== selectedGuia) {
+          console.log(initialSelectedGuia.current, selectedGuia);
+          window.mainController.updateActivityAdvisor(
+            parseInt(initialSelectedGuia.current),
+            profesorGuia,
+          );
+        }
+        if (initialSelectedLector1.current !== selectedLector1) {
+          window.mainController.updateActivityLector(
+            parseInt(initialSelectedLector1.current),
+            profesorLector1,
+          );
+        }
+        if (initialSelectedLector2.current !== selectedLector2) {
+          window.mainController.updateActivityLector(
+            parseInt(initialSelectedLector2.current),
+            profesorLector2,
+          );
+        }
+        */
         setTitle("Éxito");
         setTypeDialog("success");
         setMessage("Tutoría modificada con éxito");

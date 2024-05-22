@@ -1,6 +1,11 @@
 import StudentProfessorDao from "../database/StudentProfessorDao";
-import StudentProfessor, { StudentProfessorInterface } from "../models/StudentProfessor";
-import { Classroom, PresentationInterface } from "../interfaces/PresentationGeneration";
+import StudentProfessor, {
+  StudentProfessorInterface,
+} from "../models/StudentProfessor";
+import {
+  Classroom,
+  PresentationInterface,
+} from "../interfaces/PresentationGeneration";
 import Presentation from "../models/Presentation";
 import { convertApiDateToHtmlAttribute } from "../renderer/src/utils/DateFormatters";
 import { shuffleArray } from "../utils/Shuffle";
@@ -139,6 +144,27 @@ export default class StudentProfessorController {
       profesorLector1,
       profesorLector2,
     );
+  }
+
+  /**
+   * Updates the advisor of an activity.
+   * @param oldAdvisorId
+   * @param newAdvisorId
+   */
+  public updateActivityAdvisor(
+    oldAdvisorId: number,
+    newAdvisorId: number,
+  ): void {
+    this.studentProfessorDao.updateActivityAdvisor(oldAdvisorId, newAdvisorId);
+  }
+
+  /**
+   * Updates the lector of an activity.
+   * @param oldLector
+   * @param newLector
+   */
+  public updateActivityLector(oldLectorId: number, newLectorId: number): void {
+    this.studentProfessorDao.updateActivityLector(oldLectorId, newLectorId);
   }
 
   /**
