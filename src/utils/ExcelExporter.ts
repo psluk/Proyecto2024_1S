@@ -5,6 +5,7 @@ import Workload, { WorkloadInterface } from "../models/Workload";
 import Course from "src/models/Course";
 import StudentDao from "../database/StudentDao";
 import GroupDao from "../database/GroupDao";
+import StudentProfessorDao from "../database/StudentProfessorDao";
 
 interface SolidFill {
   type: "pattern";
@@ -55,11 +56,13 @@ export default class ExcelExporter {
   private professorDao: ProfessorDao;
   private studentDao: StudentDao;
   private groupDao: GroupDao;
+  private studentProfessorDao: StudentProfessorDao;
 
   constructor() {
     this.professorDao = new ProfessorDao();
     this.studentDao = new StudentDao();
     this.groupDao = new GroupDao();
+    this.studentProfessorDao = new StudentProfessorDao();
   }
 
   public exportProfessorsFile(): void {
@@ -562,6 +565,8 @@ export default class ExcelExporter {
     const workbook = new ExcelJS.Workbook();
     this.exportStudentListSheet(workbook);
     this.exportGroupsSheet(workbook);
+    this.exportAdvisorsSheet(workbook);
+    this.exportPresentationsSheet(workbook);
 
     workbook.xlsx.writeBuffer().then((data) => {
       const blob = new Blob([data], {
@@ -906,5 +911,264 @@ export default class ExcelExporter {
       currentColumn += 2;
       colorIndex++;
     });
+  }
+
+  public exportAdvisorsSheet(ExcelFile: ExcelJS.Workbook): void {
+    const sheet = ExcelFile.addWorksheet("Profesores");
+    const studentProfesorList =
+      this.studentProfessorDao.getStudentsProfessors();
+    const studentOnlyList = this.studentDao.getStudents();
+
+    sheet.getColumn(2).width = 35; // Estudiante
+    sheet.getColumn(3).width = 15; // Carnet
+    sheet.getColumn(4).width = 35; // Profesor guía
+    sheet.getColumn(5).width = 35; // Profesor lector
+    sheet.getColumn(6).width = 35; // Profesor lector
+
+    const titleRow = sheet.getRow(4);
+    const titleCell = titleRow.getCell(2);
+    titleCell.value = "Proyecto Final de Graduación CM-5300";
+    titleCell.font = {
+      name: "Calibri",
+      size: 12,
+      bold: true,
+      color: { argb: "FFFFFFFF" },
+    };
+    titleCell.alignment = { vertical: "middle", horizontal: "center" };
+    titleCell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF305496" },
+    };
+    sheet.mergeCells(4, 2, 4, 6);
+
+    const headerRow = sheet.getRow(5);
+    headerRow.getCell(2).value = "Estudiante";
+    headerRow.getCell(3).value = "Carnet";
+    headerRow.getCell(4).value = "Profesor Guía";
+    headerRow.getCell(5).value = "Profesor lector";
+    headerRow.getCell(6).value = "Profesor lector";
+    headerRow.font = {
+      name: "Calibri",
+      size: 12,
+      bold: true,
+      color: { argb: "FFFFFFFF" },
+    };
+    headerRow.alignment = { vertical: "middle", horizontal: "center" };
+    headerRow.eachCell((cell, colNumber) => {
+      if (colNumber > 1) {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF305496" },
+        };
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+      }
+    });
+
+    let currentRow = 6;
+    studentProfesorList.forEach((one) => {
+      const student = one.getStudent();
+      const row = sheet.getRow(currentRow);
+      row.getCell(2).value = student.name;
+      row.getCell(3).value = studentOnlyList
+        .find((oneStudent) => oneStudent.getName() === student.name)
+        ?.getUniversityId();
+
+      const professors = one.getProfessors();
+      const advisor = professors.find(
+        (professor) => +professor.isAdvisor === 1,
+      );
+      const nonAdvisors = professors.filter(
+        (professor) => +professor.isAdvisor === 0,
+      );
+
+      while (nonAdvisors.length < 2) {
+        nonAdvisors.push({ id: 0, name: "No asignado", isAdvisor: false });
+      }
+
+      row.getCell(4).value = advisor ? advisor.name : "No asignado";
+      row.getCell(5).value = nonAdvisors[0]
+        ? nonAdvisors[0].name
+        : "No asignado";
+      row.getCell(6).value = nonAdvisors[1]
+        ? nonAdvisors[1].name
+        : "No asignado";
+
+      row.getCell(2).fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFEBF1DE" },
+      };
+
+      row.eachCell((cell, colNumber) => {
+        if (colNumber > 1) {
+          cell.font = { name: "Arial", size: 10 };
+          cell.border = {
+            top: { style: "thin" },
+            left: { style: "thin" },
+            bottom: { style: "thin" },
+            right: { style: "thin" },
+          };
+        }
+      });
+
+      currentRow++;
+    });
+
+    sheet.eachRow((row) => {
+      row.height = 15;
+    });
+  }
+
+  public exportPresentationsSheet(ExcelFile: ExcelJS.Workbook): void {
+    const sheet = ExcelFile.addWorksheet("Presentaciones");
+    const presentationsList = this.studentProfessorDao.getPresentations();
+    const studentList = this.studentDao.getStudents();
+
+    sheet.getColumn(2).width = 10; // Aula
+    sheet.getColumn(3).width = 35; // Estudiante
+    sheet.getColumn(4).width = 20; // Carnet institucional
+    sheet.getColumn(5).width = 20; // Hora de presentación
+    sheet.getColumn(6).width = 25; // Fecha de presentación
+    sheet.getColumn(7).width = 25; // Profesor Guía
+    sheet.getColumn(8).width = 25; // Profesor Lector
+    sheet.getColumn(9).width = 25; // Profesor Lector
+
+    let currentRow = 2;
+    let lastClassroom = "";
+    let lastDate = "";
+
+    presentationsList.forEach((presentation, index) => {
+      const presentationDate = new Date(
+        presentation.getStartTime(),
+      ).toLocaleDateString();
+      const classroom = presentation.getClassroom();
+
+      if (classroom !== lastClassroom || presentationDate !== lastDate) {
+        if (index > 0) {
+          // Agregar fila de separación
+          currentRow++;
+        }
+        // Añadir cabecera para el nuevo grupo
+        const headerRow = sheet.getRow(currentRow);
+        const headers = [
+          "Aula",
+          "Estudiante",
+          "Carnet institucional",
+          "Hora de Presentación",
+          "Fecha de presentación",
+          "Profesor Guía",
+          "Profesor Lector",
+          "Profesor Lector",
+        ];
+        headers.forEach((header, colIndex) => {
+          const cell = headerRow.getCell(colIndex + 2);
+          cell.value = header;
+          cell.font = {
+            name: "Calibri",
+            size: 12,
+            bold: true,
+            color: { argb: "FFFFFFFF" },
+          };
+          cell.alignment = { vertical: "middle", horizontal: "center" };
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FF305496" },
+          };
+          cell.border = {
+            top: { style: "thin" },
+            left: { style: "thin" },
+            bottom: { style: "thin" },
+            right: { style: "thin" },
+          };
+        });
+
+        currentRow++;
+        lastClassroom = classroom;
+        lastDate = presentationDate;
+      }
+
+      const student = presentation.getAttendees().getStudent();
+      const professors = presentation.getAttendees().getProfessors();
+
+      const advisor = professors.find((professor) => professor.isAdvisor);
+      const nonAdvisors = professors.filter(
+        (professor) => !professor.isAdvisor,
+      );
+
+      // Rellenar con "No asignado" si faltan profesores lectores
+      while (nonAdvisors.length < 2) {
+        nonAdvisors.push({
+          id: 0,
+          name: "No asignado",
+          email: "",
+          isAdvisor: false,
+        });
+      }
+
+      const row = sheet.getRow(currentRow);
+      row.getCell(2).value = classroom;
+      row.getCell(3).value = student.name;
+      row.getCell(4).value = studentList
+        .find((oneStudent) => oneStudent.getName() === student.name)
+        ?.getUniversityId();
+      row.getCell(5).value = new Date(
+        presentation.getStartTime(),
+      ).toLocaleTimeString();
+      row.getCell(6).value = presentationDate;
+      row.getCell(7).value = advisor ? advisor.name : "No asignado";
+      row.getCell(8).value = nonAdvisors[0]
+        ? nonAdvisors[0].name
+        : "No asignado";
+      row.getCell(9).value = nonAdvisors[1]
+        ? nonAdvisors[1].name
+        : "No asignado";
+
+      // Formato de las celdas
+      row.eachCell((cell) => {
+        cell.font = { name: "Arial", size: 10 };
+        cell.alignment = { vertical: "middle", horizontal: "center" };
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+      });
+
+      currentRow++;
+    });
+
+    sheet.eachRow((row) => {
+      row.height = 15;
+    });
+
+    // Combinar celdas de Aula y Fecha para cada grupo
+    let startRow = 3;
+    while (startRow < currentRow) {
+      let endRow = startRow;
+      while (
+        endRow < currentRow &&
+        sheet.getRow(endRow).getCell(2).value ===
+          sheet.getRow(startRow).getCell(2).value &&
+        sheet.getRow(endRow).getCell(6).value ===
+          sheet.getRow(startRow).getCell(6).value
+      ) {
+        endRow++;
+      }
+      endRow--; // Ajustar al último índice válido
+
+      sheet.mergeCells(startRow, 2, endRow, 2);
+      sheet.mergeCells(startRow, 6, endRow, 6);
+
+      startRow = endRow + 1;
+    }
   }
 }
