@@ -79,6 +79,8 @@ export default class MainController {
       this.generateRandomProfessorsAssigments.bind(this);
     this.deleteProfessorsAssigments =
       this.deleteProfessorsAssigments.bind(this);
+
+    this.gatherStatistics = this.gatherStatistics.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -779,5 +781,32 @@ export default class MainController {
 
   public deleteProfessorsAssigments(): void {
     return this.studentProfessorController.deleteProfessorsAssigments();
+  }
+
+  public gatherStatistics(): {
+    title: string;
+    values: { label: string; value: number }[];
+  }[] {
+    const result: {
+      title: string;
+      values: { label: string; value: number }[];
+    }[] = [];
+
+    result.push({
+      title: "Estudiantes activos e inactivos",
+      values: this.studentController.getAmountOfActiveStudents(),
+    });
+
+    result.push({
+      title: "Estudiantes por profesor",
+      values: this.professorController.getStudentsDistribution(),
+    });
+
+    result.push({
+      title: "Cargas de trabajo por profesor",
+      values: this.professorController.getWorkloadStats(),
+    });
+
+    return result;
   }
 }

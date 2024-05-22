@@ -579,4 +579,12 @@ export default class ProfessorController {
   public deleteActivity(activityId: number): void {
     return this.professorDao.deleteActivity(activityId);
   }
+
+  public getStudentsDistribution(): { label: string; value: number }[] {
+    return this.professorDao.getStudentsDistribution();
+  }
+
+  public getWorkloadStats(): { label: string; value: number }[] {
+    return this.professorDao.getWorkloadStats();
+  }
 }

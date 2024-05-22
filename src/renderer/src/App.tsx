@@ -26,6 +26,7 @@ import AddTFGActivity from "./pages/admin/AddTFGActivity";
 import AddOtherActivity from "./pages/admin/AddOtherActivity";
 import ManageAdvisors from "./pages/admin/pfg/ManageAdvisors";
 import ManagePresentations from "./pages/admin/pfg/ManagePresentations";
+import Statistics from "./pages/admin/Statistics";
 
 function App(): JSX.Element {
   return (
@@ -82,6 +83,7 @@ function App(): JSX.Element {
             path="/admin/manageTheses/presentations"
             element={<ManagePresentations />}
           />
+          <Route path="/admin/statistics" element={<Statistics />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

@@ -199,4 +199,19 @@ export default class StudentDao {
       throw new Error(`No student found with ID ${id} to delete.`);
     }
   }
+
+  getAmountOfActiveStudents(): { label: string; value: number }[] {
+    const query = `
+    SELECT 
+      COALESCE(SUM(CASE WHEN isEnabled = 1 THEN 1 ELSE 0 END),0) AS Activos,
+      COALESCE(SUM(CASE WHEN isEnabled = 0 THEN 1 ELSE 0 END),0)AS Inactivos
+    FROM Students;`;
+
+    const readQuery = database.prepare(query);
+    const row = readQuery.get() as { Activos: number; Inactivos: number };
+    return [
+      { label: "Activos", value: row.Activos },
+      { label: "Inactivos", value: row.Inactivos },
+    ];
+  }
 }
