@@ -143,7 +143,7 @@ export default class GroupDao {
             SELECT DISTINCT Students.studentId, Students.name, Students.phoneNumber, Students.email, Students.universityId, Students.isEnabled
             FROM GroupStudents
             JOIN Students ON GroupStudents.studentId = Students.studentId
-            WHERE GroupStudents.groupId = Groups.groupId
+            WHERE GroupStudents.groupId = Groups.groupId AND Students.isEnabled = 1
         )
     ) AS students,
     (
@@ -247,7 +247,7 @@ GROUP BY
             SELECT DISTINCT Students.studentId, Students.name, Students.phoneNumber, Students.email, Students.universityId, Students.isEnabled
             FROM GroupStudents
             JOIN Students ON GroupStudents.studentId = Students.studentId
-            WHERE GroupStudents.groupId = Groups.groupId
+            WHERE GroupStudents.groupId = Groups.groupId AND Students.isEnabled = 1
         )
     ) AS students,
     (
@@ -490,7 +490,7 @@ WHERE
     studentId NOT IN (
         SELECT DISTINCT studentId
         FROM GroupStudents
-    );
+    ) AND isEnabled = 1;
 `;
 
     const rows = database.prepare(query).all() as StudentInterface[];

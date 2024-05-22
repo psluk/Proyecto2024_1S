@@ -40,7 +40,8 @@ export default class StudentProfessorDao {
         LEFT JOIN
             StudentProfessors sp ON s.studentId = sp.studentId
         LEFT JOIN
-            Professors p ON sp.professorId = p.professorId;`;
+            Professors p ON sp.professorId = p.professorId
+        Where S.isEnabled = 1;`;
 
     const rows: StudentProfessorRow[] = database
       .prepare(query)
