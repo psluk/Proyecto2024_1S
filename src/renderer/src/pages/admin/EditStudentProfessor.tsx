@@ -218,7 +218,7 @@ export default function EditStudentProfessor() {
         show={showDialog}
         handleConfirm={() => {
           setShowDialog(false);
-          typeDialog === "success" && navigate("/admin/EditStudentProfessor");
+          typeDialog === "success" && navigate("/admin/manageTheses/advisors");
         }}
         message={message}
         title={title}
