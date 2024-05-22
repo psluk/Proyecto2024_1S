@@ -1052,10 +1052,8 @@ export default class ExcelExporter {
 
       if (classroom !== lastClassroom || presentationDate !== lastDate) {
         if (index > 0) {
-          // Agregar fila de separación
           currentRow++;
         }
-        // Añadir cabecera para el nuevo grupo
         const headerRow = sheet.getRow(currentRow);
         const headers = [
           "Aula",
@@ -1103,7 +1101,6 @@ export default class ExcelExporter {
         (professor) => !professor.isAdvisor,
       );
 
-      // Rellenar con "No asignado" si faltan profesores lectores
       while (nonAdvisors.length < 2) {
         nonAdvisors.push({
           id: 0,
@@ -1121,7 +1118,7 @@ export default class ExcelExporter {
         ?.getUniversityId();
       row.getCell(5).value = new Date(
         presentation.getStartTime(),
-      ).toLocaleTimeString();
+      ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       row.getCell(6).value = presentationDate;
       row.getCell(7).value = advisor ? advisor.name : "No asignado";
       row.getCell(8).value = nonAdvisors[0]
@@ -1131,7 +1128,6 @@ export default class ExcelExporter {
         ? nonAdvisors[1].name
         : "No asignado";
 
-      // Formato de las celdas
       row.eachCell((cell) => {
         cell.font = { name: "Arial", size: 10 };
         cell.alignment = { vertical: "middle", horizontal: "center" };
@@ -1150,7 +1146,6 @@ export default class ExcelExporter {
       row.height = 15;
     });
 
-    // Combinar celdas de Aula y Fecha para cada grupo
     let startRow = 3;
     while (startRow < currentRow) {
       let endRow = startRow;
@@ -1163,7 +1158,7 @@ export default class ExcelExporter {
       ) {
         endRow++;
       }
-      endRow--; // Ajustar al último índice válido
+      endRow--;
 
       sheet.mergeCells(startRow, 2, endRow, 2);
       sheet.mergeCells(startRow, 6, endRow, 6);
