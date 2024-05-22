@@ -94,4 +94,8 @@ export default class StudentController {
   public deleteStudent(id: number): void {
     this.studentDao.deleteStudent(id);
   }
+
+  public getAmountOfActiveStudents(): { label: string; value: number }[] {
+    return this.studentDao.getAmountOfActiveStudents();
+  }
 }

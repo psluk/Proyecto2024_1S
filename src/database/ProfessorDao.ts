@@ -104,6 +104,8 @@ export default class ProfessorDao {
       if (shouldClearList) {
         this.cleanTable("ActivityCourses");
         this.cleanTable("Activities");
+        this.cleanTable("GroupProfessors");
+        this.cleanTable("StudentProfessors");
         this.cleanTable("Professors");
       }
 
@@ -904,5 +906,76 @@ export default class ProfessorDao {
         throw new Error(`Failed to delete activity ${activityId}`);
       }
     })();
+  }
+
+  getStudentsDistribution(): { label: string; value: number }[] {
+    const query = `
+    SELECT 
+        students, 
+        COUNT(*) AS CountOfProfessors
+    FROM 
+        Activities
+    WHERE 
+        suggestedStudents IS NOT NULL
+    GROUP BY 
+        Students`;
+
+    const result = database.prepare(query).all() as {
+      CountOfProfessors: number;
+      students: string;
+    }[];
+
+    return result.map((row) => ({
+      label: `Profesores con ${row.students} ${row.students == "1" ? "estudiante" : "estudiantes"}`,
+      value: row.CountOfProfessors,
+    }));
+  }
+
+  getWorkloadStats(): { label: string; value: number }[] {
+    const query = `
+      WITH TotalLoadPerProfessor AS (
+        SELECT 
+            professorId,
+            SUM(load) AS TotalLoad
+        FROM 
+            Activities
+        GROUP BY 
+            professorId
+    ),
+    LoadRanges AS (
+        SELECT
+            professorId,
+            CASE 
+                WHEN TotalLoad <= 10 THEN '0-10'
+                WHEN TotalLoad <= 20 THEN '11-20'
+                WHEN TotalLoad <= 30 THEN '21-30'
+                WHEN TotalLoad <= 40 THEN '31-40'
+                WHEN TotalLoad <= 50 THEN '41-50'
+                WHEN TotalLoad <= 60 THEN '51-60'
+                ELSE '61+'
+            END AS LoadRange
+        FROM 
+            TotalLoadPerProfessor
+    )
+    SELECT 
+        LoadRange,
+        COUNT(*) AS NumberOfProfessors
+    FROM 
+        LoadRanges
+    GROUP BY 
+        LoadRange
+    ORDER BY 
+        LoadRange;
+`;
+
+    const result = database.prepare(query).all() as {
+      LoadRange: string;
+      NumberOfProfessors: number;
+    }[];
+
+    return result.map((row) => ({
+      label: `Profesores con carga entre ${row.LoadRange}`,
+      value: row.NumberOfProfessors,
+    }));
   }
 }

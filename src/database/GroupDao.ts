@@ -25,7 +25,6 @@ export default class GroupDao {
    */
   addGroup(group: Group): {
     success: boolean;
-    error?: any;
   } {
     const insertQuery = database.prepare(`
       INSERT INTO Groups (groupNumber, classroom)
@@ -66,8 +65,8 @@ export default class GroupDao {
         });
       })();
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error) {
+      return { success: false };
     }
   }
 
@@ -181,7 +180,14 @@ GROUP BY
     }
 
     const students = JSON.parse(row.students).map(
-      (student) =>
+      (student: {
+        id: number | null;
+        name: string;
+        phoneNum: string;
+        email: string;
+        universityId: string;
+        isEnabled: boolean;
+      }) =>
         new Student(
           student.id,
           student.name,
@@ -192,7 +198,12 @@ GROUP BY
         ),
     );
     const professors = JSON.parse(row.professors).map(
-      (professor) =>
+      (professor: {
+        id: number | null;
+        type: string;
+        name: string;
+        email: string | null;
+      }) =>
         new Professor(
           professor.id,
           professor.type,
@@ -270,7 +281,14 @@ GROUP BY
 
     return rowList.map((row) => {
       const students = JSON.parse(row.students).map(
-        (student: any) =>
+        (student: {
+          id: number | null;
+          name: string;
+          phoneNum: string;
+          email: string;
+          universityId: string;
+          isEnabled: boolean;
+        }) =>
           new Student(
             student.id,
             student.name,
@@ -281,7 +299,12 @@ GROUP BY
           ),
       );
       const professors = JSON.parse(row.professors).map(
-        (professor) =>
+        (professor: {
+          id: number | null;
+          type: string;
+          name: string;
+          email: string | null;
+        }) =>
           new Professor(
             professor.id,
             professor.type,
@@ -315,7 +338,7 @@ GROUP BY
    * @param group The group to update.
    * @returns Whether the update was successful.
    */
-  updateGroup(group: Group): { success: boolean; error?: any } {
+  updateGroup(group: Group): { success: boolean } {
     const updateQuery = database.prepare(`
       UPDATE Groups
       SET groupNumber = ?, classroom = ?
@@ -365,8 +388,8 @@ GROUP BY
         });
       })();
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error) {
+      return { success: false };
     }
   }
 
@@ -375,7 +398,7 @@ GROUP BY
    * @param id The ID of the group to delete.
    * @returns Whether the deletion was successful.
    */
-  deleteGroup(id: number): { success: boolean; error?: any } {
+  deleteGroup(id: number): { success: boolean } {
     const deleteProfessorsQuery = database.prepare(`
       DELETE FROM GroupProfessors
       WHERE groupId = ?;
@@ -398,8 +421,8 @@ GROUP BY
         deleteQuery.run(id);
       })();
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error) {
+      return { success: false };
     }
   }
 
@@ -408,7 +431,7 @@ GROUP BY
    * @returns Whether the deletion was successful.
    *
    */
-  deleteGroups(): { success: boolean; error?: any } {
+  deleteGroups(): { success: boolean } {
     const deleteProfessorsQuery = database.prepare(`
       DELETE FROM GroupProfessors
     `);
@@ -443,8 +466,8 @@ GROUP BY
         resetGroupsQuery.run();
       })();
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error) {
+      return { success: false };
     }
   }
 
@@ -492,7 +515,6 @@ WHERE
    */
   deleteProfessorFromGroups(professorId: number): {
     success: boolean;
-    error?: any;
   } {
     const deleteQuery = database.prepare(`
       DELETE FROM GroupProfessors
@@ -504,8 +526,8 @@ WHERE
         deleteQuery.run(professorId);
       })();
       return { success: true };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error) {
+      return { success: false };
     }
   }
 }

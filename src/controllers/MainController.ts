@@ -10,7 +10,10 @@ import GroupController from "./GroupController";
 import Workload from "../models/Workload";
 import { CourseInterface } from "src/models/Course";
 import { OtherActivity } from "src/database/ProfessorDao";
-import ExcelExporter from '../utils/ExcelExporter';
+
+import StudentProfessorController from "./StudentProfessorController";
+import { StudentProfessorInterface } from "src/models/StudentProfessor";
+import ExcelExporter from "../utils/ExcelExporter";
 
 export default class MainController {
   private static instance: MainController;
@@ -18,6 +21,7 @@ export default class MainController {
   private professorController: ProfessorController;
   private studentController: StudentController;
   private groupController: GroupController;
+  private studentProfessorController: StudentProfessorController;
   private excelExporter: ExcelExporter;
 
   private constructor() {
@@ -25,6 +29,7 @@ export default class MainController {
     this.professorController = new ProfessorController();
     this.studentController = new StudentController();
     this.groupController = new GroupController();
+    this.studentProfessorController = new StudentProfessorController();
     this.excelExporter = new ExcelExporter();
 
     // Bind methods
@@ -60,6 +65,8 @@ export default class MainController {
     this.deleteGroup = this.deleteGroup.bind(this);
     this.deleteGroups = this.deleteGroups.bind(this);
     this.getStudentsWithoutGroup = this.getStudentsWithoutGroup.bind(this);
+    this.deleteProfessorFromGroups = this.deleteProfessorFromGroups.bind(this);
+
     this.getCourses = this.getCourses.bind(this);
     this.addCourseToWorkload = this.addCourseToWorkload.bind(this);
     this.addTFGActivityToWorkload = this.addTFGActivityToWorkload.bind(this);
@@ -69,6 +76,14 @@ export default class MainController {
     this.updateWorkload = this.updateWorkload.bind(this);
     this.getCalculatedWorkload = this.getCalculatedWorkload.bind(this);
     this.deleteActivity = this.deleteActivity.bind(this);
+
+    this.getStudentsProfessors = this.getStudentsProfessors.bind(this);
+    this.generateRandomProfessorsAssigments =
+      this.generateRandomProfessorsAssigments.bind(this);
+    this.deleteProfessorsAssigments =
+      this.deleteProfessorsAssigments.bind(this);
+
+    this.gatherStatistics = this.gatherStatistics.bind(this);
     this.deleteProfessorFromGroups = this.deleteProfessorFromGroups.bind(this);
     this.exportProfessorsFile = this.exportProfessorsFile.bind(this);
     this.exportStudentsFile = this.exportStudentsFile.bind(this);
@@ -270,7 +285,7 @@ export default class MainController {
    * Deletes a professor from the database.
    * @param id The id of the professor to delete.
    */
-  public deleteProfessor(id: number) {
+  public deleteProfessor(id: number): void {
     this.professorController.deleteProfessor(id);
   }
 
@@ -364,7 +379,7 @@ export default class MainController {
    * Deletes a student from the database.
    * @param id The id of the student to delete.
    */
-  public deleteStudent(id: number) {
+  public deleteStudent(id: number): void {
     this.studentController.deleteStudent(id);
   }
 
@@ -388,7 +403,7 @@ export default class MainController {
     students: StudentInterface[],
     professors: ProfessorInterface[],
     moderator: ProfessorInterface | null,
-  ): { success: boolean; error?: any } {
+  ): { success: boolean } {
     return this.groupController.addGroup(
       groupNumber,
       classroom || null,
@@ -501,7 +516,7 @@ export default class MainController {
     students: StudentInterface[],
     professors: ProfessorInterface[],
     moderator: ProfessorInterface | null,
-  ): { success: boolean; error?: any } {
+  ): { success: boolean } {
     return this.groupController.updateGroup(
       new Group(
         id,
@@ -548,7 +563,7 @@ export default class MainController {
     this.groupController.deleteGroup(id);
   }
 
-  public deleteGroups(): { success: boolean; error?: any } {
+  public deleteGroups(): { success: boolean } {
     return this.groupController.deleteGroups();
   }
   /**
@@ -754,6 +769,51 @@ export default class MainController {
    */
   public deleteActivity(activityId: number): void {
     return this.professorController.deleteActivity(activityId);
+  }
+
+  /**
+   * Gets all students and their professors.
+   * @returns An array of StudentProfessor objects.
+   */
+  public getStudentsProfessors(): StudentProfessorInterface[] {
+    return this.studentProfessorController
+      .getStudentsProfessors()
+      .map((sp) => sp.asObject());
+  }
+
+  public generateRandomProfessorsAssigments(): void {
+    return this.studentProfessorController.generateRandomProfessorsAssigments();
+  }
+
+  public deleteProfessorsAssigments(): void {
+    return this.studentProfessorController.deleteProfessorsAssigments();
+  }
+
+  public gatherStatistics(): {
+    title: string;
+    values: { label: string; value: number }[];
+  }[] {
+    const result: {
+      title: string;
+      values: { label: string; value: number }[];
+    }[] = [];
+
+    result.push({
+      title: "Estudiantes activos e inactivos",
+      values: this.studentController.getAmountOfActiveStudents(),
+    });
+
+    result.push({
+      title: "Estudiantes por profesor",
+      values: this.professorController.getStudentsDistribution(),
+    });
+
+    result.push({
+      title: "Cargas de trabajo por profesor",
+      values: this.professorController.getWorkloadStats(),
+    });
+
+    return result;
   }
 
   /**

@@ -12,6 +12,25 @@ interface StudentRow {
 
 export default class StudentDao {
   /**
+   *
+   * @param tableName table to be cleaned on database, record are deleted and primary key sequence is reset
+   */
+  cleanTable(tableName: string): void {
+    try {
+      database.transaction(() => {
+        database.prepare(`DELETE FROM ${tableName};`).run();
+
+        database
+          .prepare(`DELETE FROM sqlite_sequence WHERE name=?;`)
+          .run(tableName);
+      })();
+    } catch (error) {
+      console.error(`Failed to clean the table ${tableName}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Adds a student to the database.
    * Throws an error if the student could not be added.
    * @param student The student to be added.
@@ -56,15 +75,18 @@ export default class StudentDao {
     const successfulInserts: Student[] = [];
     const errors: Student[] = [];
 
-    const clearQuery = database.prepare(`DELETE FROM Students;`);
-
+    const clearActivity = `UPDATE Activities SET students = 0, load = 0 WHERE suggestedStudents IS NOT NULL`;
     const insertQuery = database.prepare(`
     INSERT INTO Students (name, phoneNumber, email, universityId, isEnabled) VALUES (?, ?, ?, ?, ?);`);
 
     database.transaction(() => {
       if (shouldClearList) {
-        clearQuery.run();
+        this.cleanTable("GroupStudents");
+        this.cleanTable("StudentProfessors");
+        this.cleanTable("Students");
       }
+
+      database.prepare(clearActivity).run();
 
       list.forEach((student) => {
         try {
@@ -176,5 +198,20 @@ export default class StudentDao {
     if (result.changes === 0) {
       throw new Error(`No student found with ID ${id} to delete.`);
     }
+  }
+
+  getAmountOfActiveStudents(): { label: string; value: number }[] {
+    const query = `
+    SELECT 
+      COALESCE(SUM(CASE WHEN isEnabled = 1 THEN 1 ELSE 0 END),0) AS Activos,
+      COALESCE(SUM(CASE WHEN isEnabled = 0 THEN 1 ELSE 0 END),0)AS Inactivos
+    FROM Students;`;
+
+    const readQuery = database.prepare(query);
+    const row = readQuery.get() as { Activos: number; Inactivos: number };
+    return [
+      { label: "Activos", value: row.Activos },
+      { label: "Inactivos", value: row.Inactivos },
+    ];
   }
 }

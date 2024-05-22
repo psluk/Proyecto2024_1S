@@ -24,6 +24,9 @@ import EditGroupStudents from "./pages/admin/pfg/EditGroupStudents";
 import AddCourseActivity from "./pages/admin/AddCourseActivity";
 import AddTFGActivity from "./pages/admin/AddTFGActivity";
 import AddOtherActivity from "./pages/admin/AddOtherActivity";
+import ManageAdvisors from "./pages/admin/pfg/ManageAdvisors";
+import ManagePresentations from "./pages/admin/pfg/ManagePresentations";
+import Statistics from "./pages/admin/Statistics";
 import ExportFiles from "./pages/admin/ExportFiles";
 
 function App(): JSX.Element {
@@ -74,6 +77,15 @@ function App(): JSX.Element {
             path="/admin/manageTheses/students"
             element={<ManageStudents />}
           />
+          <Route
+            path="/admin/manageTheses/advisors"
+            element={<ManageAdvisors />}
+          />
+          <Route
+            path="/admin/manageTheses/presentations"
+            element={<ManagePresentations />}
+          />
+          <Route path="/admin/statistics" element={<Statistics />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

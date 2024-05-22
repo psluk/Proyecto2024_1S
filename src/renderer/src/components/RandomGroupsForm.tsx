@@ -1,12 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
 
 type Props = {
   handleConfirm: () => void;
   handleCancel: () => void;
   show: boolean;
-  setFilter: (filter: { filter: string }) => void;
   setAmount: (amount: number) => void;
   professorAmount: number;
   studentAmount: number;
@@ -16,14 +14,13 @@ type Props = {
 export default function RandomGroupsForm({
   handleConfirm,
   handleCancel,
-  setFilter,
   setAmount,
   show,
   professorAmount,
   studentAmount,
   selectedAmount,
-}: Props): JSX.Element {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+}: Props): React.ReactElement {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     handleConfirm();
   };
@@ -77,7 +74,7 @@ export default function RandomGroupsForm({
               </div>
             </div>
             <p>
-              Con la cantidad seleccionada se crearan{" "}
+              Con la cantidad seleccionada se crearán{" "}
               <span className="font-bold underline">
                 {Math.floor(
                   selectedAmount > 0 ? professorAmount / selectedAmount : 0,

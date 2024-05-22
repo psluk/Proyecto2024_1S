@@ -26,7 +26,7 @@ export default class GroupController {
     students: Student[],
     professors: Professor[],
     moderator: Professor | null,
-  ): { success: boolean; error?: any } {
+  ): { success: boolean } {
     const group = new Group(
       null,
       groupNumber,
@@ -68,7 +68,7 @@ export default class GroupController {
    * @param group The group to update.
    * @returns The group that was updated.
    */
-  public updateGroup(group: Group): { success: boolean; error?: any } {
+  public updateGroup(group: Group): { success: boolean } {
     return this.groupDao.updateGroup(group);
   }
 
@@ -77,11 +77,11 @@ export default class GroupController {
    * Throws an error if the group could not be deleted.
    * @param id The id of the group to delete.
    */
-  public deleteGroup(id: number): { success: boolean; error?: any } {
+  public deleteGroup(id: number): { success: boolean } {
     return this.groupDao.deleteGroup(id);
   }
 
-  public deleteGroups(): { success: boolean; error?: any } {
+  public deleteGroups(): { success: boolean } {
     return this.groupDao.deleteGroups();
   }
   /**
@@ -94,7 +94,6 @@ export default class GroupController {
 
   public deleteProfessorFromGroups(professorId: number): {
     success: boolean;
-    error?: any;
   } {
     return this.groupDao.deleteProfessorFromGroups(professorId);
   }
