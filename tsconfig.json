@@ -4,10 +4,16 @@
     { "path": "./tsconfig.node.json" },
     { "path": "./tsconfig.web.json" }
   ],
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "tests/**/*", "vitest-setup.ts"],
   "compilerOptions": {
     "esModuleInterop": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "target": "ESNext",
+    "module": "NodeNext",
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "moduleResolution": "NodeNext"
   }
 }

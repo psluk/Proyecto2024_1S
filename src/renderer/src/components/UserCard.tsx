@@ -1,4 +1,4 @@
-import { SessionContext } from "@renderer/context/SessionContext";
+import { SessionContext } from "../context/SessionContext";
 import { getNameInitials } from "../utils/NameFormatter";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";

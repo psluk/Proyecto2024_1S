@@ -7,7 +7,7 @@ import {
   faHouse,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
-import { ShowLogin } from "@renderer/global/ShowLogin";
+import { ShowLogin } from "../global/ShowLogin";
 
 export const adminOptions = [
   {

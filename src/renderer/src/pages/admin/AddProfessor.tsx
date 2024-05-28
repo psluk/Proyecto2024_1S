@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import DialogAlert from "@renderer/components/DialogAlert";
+import DialogAlert from "../../components/DialogAlert";
 import { useState, useEffect } from "react";
 
 export default function AddProfessor() {

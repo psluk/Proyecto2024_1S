@@ -1,6 +1,6 @@
-import FileSelector from "@renderer/components/FileSelector";
+import FileSelector from "../../components/FileSelector";
 import { useState, useEffect } from "react";
-import DialogAlert from "@renderer/components/DialogAlert";
+import DialogAlert from "../../components/DialogAlert";
 
 export default function UploadFiles(): JSX.Element {
   const [professorsFile, setProfessorsFile] = useState<File | null>(null);
@@ -117,6 +117,7 @@ export default function UploadFiles(): JSX.Element {
 
           <button
             type="button"
+            id="upload-professors-button"
             disabled={!professorsFile}
             className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700  focus:outline-none focus:ring-4 focus:ring-sky-300  ${
               !professorsFile
@@ -140,6 +141,7 @@ export default function UploadFiles(): JSX.Element {
           </div>
 
           <button
+          id="upload-students-button"
             type="button"
             disabled={!studentsFile}
             className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700  focus:outline-none focus:ring-4 focus:ring-sky-300 ${

@@ -8,7 +8,7 @@ import {
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import DialogConfirm from "../../components/DialogConfirm";
-import DialogAlert from "@renderer/components/DialogAlert";
+import DialogAlert from "../../components/DialogAlert";
 
 export default function ManageStudents(): JSX.Element {
   const [students, setStudents] = useState<Student[]>([]);

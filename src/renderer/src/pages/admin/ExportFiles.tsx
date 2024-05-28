@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import DialogAlert from "@renderer/components/DialogAlert";
+import DialogAlert from "../../components/DialogAlert";
 
 export default function ExportFiles(): JSX.Element {
   const [showDialog, setShowDialog] = useState<boolean>(false);

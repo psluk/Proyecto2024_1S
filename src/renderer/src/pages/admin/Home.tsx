@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import UserCard from "@renderer/components/UserCard";
-import { adminOptions } from "@renderer/constants/AdminOptions";
-import { ShowLogin } from "@renderer/global/ShowLogin";
+import UserCard from "../../components/UserCard";
+import { adminOptions } from "../../constants/AdminOptions";
+import { ShowLogin } from "../../global/ShowLogin";
 import { Link, useLocation } from "react-router-dom";
 export default function AdminHome(): JSX.Element {
   const location = useLocation();

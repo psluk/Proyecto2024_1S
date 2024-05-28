@@ -8,7 +8,7 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import DialogConfirm from "../../../components/DialogConfirm";
-import DialogAlert from "@renderer/components/DialogAlert";
+import DialogAlert from "../../../components/DialogAlert";
 import { Link } from "react-router-dom";
 
 export default function ManageAdvisors(): React.ReactElement {
