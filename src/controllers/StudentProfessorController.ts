@@ -373,4 +373,12 @@ export default class StudentProfessorController {
 
     return { resolved, unresolved };
   }
+
+  /**
+   * Deletes a presentation
+   * @param presentationId The presentation ID.
+   */
+  deletePresentation(presentationId: number): void {
+    this.studentProfessorDao.deletePresentation(presentationId);
+  }
 }

@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
-import {
-  convertApiDateToHtmlAttribute,
-} from "../../../utils/DateFormatters";
+import { convertApiDateToHtmlAttribute } from "../../../utils/DateFormatters";
 import { Classroom } from "../../../../../interfaces/PresentationGeneration";
 import { PresentationInterface } from "../../../../../models/Presentation";
 import DialogAlert from "../../../components/DialogAlert";
@@ -331,6 +329,19 @@ export default function ManagePresentations(): React.ReactElement {
     setGroupedPresentations(groupedPresentations);
   }, [presentations]);
 
+  const deletePresentation = (id: number): void => {
+    setConfirmationDialogParams({
+      title: "Eliminar presentación",
+      message: "¿Está seguro de que desea eliminar esta presentación?",
+      handleConfirm: () => {
+        window.mainController.deletePresentation(id);
+        reloadPresentations();
+        setShowDialogConfirm(false);
+      },
+    });
+    setShowDialogConfirm(true);
+  };
+
   return (
     <main className="gap-10">
       <h1 className="text-3xl font-bold">Administrar presentaciones</h1>
@@ -436,6 +447,7 @@ export default function ManagePresentations(): React.ReactElement {
                         <th>Fecha</th>
                         <th>Inicio</th>
                         <th>Fin</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -495,6 +507,16 @@ export default function ManagePresentations(): React.ReactElement {
                                   "endTime",
                                   e.target.value,
                                 )
+                              }
+                            />
+                          </td>
+                          <td>
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              className="me-1 ms-2 cursor-pointer text-red-500"
+                              title="Eliminar"
+                              onClick={() =>
+                                removeSchedule(index, scheduleIndex)
                               }
                             />
                           </td>

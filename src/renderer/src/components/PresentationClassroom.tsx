@@ -10,6 +10,7 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons";
 export default function PresentationClassroom(props): React.ReactElement {
   const classroom = props.classroom as string;
   const presentations = props.presentations as PresentationInterface[];
+  const onDelete = props.onDelete as (id: number) => void;
   const [expandedDays, setExpandedDays] = React.useState<string[]>([]);
   const [groupedPresentations, setGroupedPresentations] = React.useState<
     {
@@ -90,6 +91,7 @@ export default function PresentationClassroom(props): React.ReactElement {
                       <th className="w-1/3 px-2">Hora</th>
                       <th className="w-1/3 px-2">Estudiante</th>
                       <th className="w-1/3 px-2">Profesores</th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody className="[&>tr:nth-child(2n)]:bg-gray-200">
@@ -132,6 +134,14 @@ export default function PresentationClassroom(props): React.ReactElement {
                                 ),
                               )}
                             </ol>
+                          </td>
+                          <td>
+                            <FontAwesomeIcon
+                              icon={faXmark}
+                              onClick={() => onDelete(presentation.id)}
+                              title="Eliminar presentación"
+                              className="cursor-pointer p-2 text-red-500 hover:text-red-400"
+                            />
                           </td>
                         </tr>
                       );

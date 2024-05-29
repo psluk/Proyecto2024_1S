@@ -97,6 +97,7 @@ export default class MainController {
 
     this.getPresentations = this.getPresentations.bind(this);
     this.generatePresentations = this.generatePresentations.bind(this);
+    this.deletePresentation = this.deletePresentation.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -943,5 +944,13 @@ export default class MainController {
       resolved: resolved.map((presentation) => presentation.asObject()),
       unresolved,
     };
+  }
+
+  /**
+   * Deletes a presentation
+   * @param presentationId The presentation ID.
+   */
+  deletePresentation(presentationId: number): void {
+    this.studentProfessorController.deletePresentation(presentationId);
   }
 }

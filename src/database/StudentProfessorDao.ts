@@ -247,6 +247,20 @@ export default class StudentProfessorDao {
   }
 
   /**
+   * Deletes a presentation
+   * @param presentationId The presentation ID.
+   */
+  deletePresentation(presentationId: number): void {
+    const query = `DELETE
+                   FROM Presentations
+                   WHERE presentationId = ?;`;
+    const result = database.prepare(query).run(presentationId);
+    if (result.changes === 0) {
+      console.error(`No presentation found with ID ${presentationId}.`);
+    }
+  }
+
+  /**
    * Deletes all student-professor assignments.
    */
   deleteProfessorsAssigments(): void {
@@ -318,9 +332,9 @@ export default class StudentProfessorDao {
    * @param newAdvisorId
    */
   updateActivityAdvisor(oldAdvisorId: number, newAdvisorId: number): void {
-    const query1 = `UPDATE Activities 
-SET students = students - 1 
-WHERE name = 'Proyecto Final de Graduación' 
+    const query1 = `UPDATE Activities
+SET students = students - 1
+WHERE name = 'Proyecto Final de Graduación'
 AND workloadTypeId = 1
 AND professorId = ?;`;
     const result1 = database.prepare(query1).run(oldAdvisorId);
@@ -328,9 +342,9 @@ AND professorId = ?;`;
       console.error(`Problem with update of activity advisor.`);
     }
 
-    const query2 = `UPDATE Activities 
-SET students = students + 1 
-WHERE name = 'Proyecto Final de Graduación' 
+    const query2 = `UPDATE Activities
+SET students = students + 1
+WHERE name = 'Proyecto Final de Graduación'
 AND workloadTypeId = 1
 AND professorId = ?;`;
     const result2 = database.prepare(query2).run(newAdvisorId);
@@ -345,9 +359,9 @@ AND professorId = ?;`;
    * @param newLectorId
    */
   updateActivityLector(oldLectorId: number, newLectorId: number): void {
-    const query1 = `UPDATE Activities 
-SET students = students - 1 
-WHERE name = 'Proyecto de Graduación (tribunal)' 
+    const query1 = `UPDATE Activities
+SET students = students - 1
+WHERE name = 'Proyecto de Graduación (tribunal)'
 AND workloadTypeId = 1
 AND professorId = ?;`;
     const result1 = database.prepare(query1).run(oldLectorId);
@@ -355,9 +369,9 @@ AND professorId = ?;`;
       console.error(`Problem with update of activity lector.`);
     }
 
-    const query2 = `UPDATE Activities 
-SET students = students + 1 
-WHERE name = 'Proyecto de Graduación (tribunal)' 
+    const query2 = `UPDATE Activities
+SET students = students + 1
+WHERE name = 'Proyecto de Graduación (tribunal)'
 AND workloadTypeId = 1
 AND professorId = ?;`;
     const result2 = database.prepare(query2).run(newLectorId);
