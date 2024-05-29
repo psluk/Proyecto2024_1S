@@ -42,7 +42,7 @@ export default function TitleBar(): JSX.Element {
 
   return (
     <div
-      className="absolute top-0 flex w-full flex-row items-center bg-slate-700 text-white"
+      className="absolute top-0 z-10 flex w-full flex-row items-center bg-slate-700 text-white"
       id="title-bar"
     >
       <span

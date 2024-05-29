@@ -3,13 +3,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import {
   convertApiDateToHtmlAttribute,
-  convertApiDateToLocalString,
-  convertApiTimeToLocalString,
 } from "../../../utils/DateFormatters";
 import { Classroom } from "../../../../../interfaces/PresentationGeneration";
 import { PresentationInterface } from "../../../../../models/Presentation";
 import DialogAlert from "../../../components/DialogAlert";
 import DialogConfirm from "../../../components/DialogConfirm";
+import PresentationClassroom from "../../../components/PresentationClassroom";
 
 const calculateNumberOfPresentations = (
   classrooms: Classroom[],
@@ -287,7 +286,6 @@ export default function ManagePresentations(): React.ReactElement {
         type: "success",
       });
     } catch (error) {
-      console.error(error);
       setAlertDialogParams({
         title: "Error",
         message: "Error al generar las presentaciones.",
@@ -299,8 +297,12 @@ export default function ManagePresentations(): React.ReactElement {
     }
   };
 
-  useEffect(() => {
+  const reloadPresentations = (): void => {
     setPresentations(window.mainController.getPresentations());
+  };
+
+  useEffect(() => {
+    reloadPresentations();
   }, []);
 
   useEffect(() => {
@@ -326,8 +328,6 @@ export default function ManagePresentations(): React.ReactElement {
         presentations: classroomPresentations,
       });
     });
-
-    console.log(groupedPresentations);
     setGroupedPresentations(groupedPresentations);
   }, [presentations]);
 
@@ -436,7 +436,6 @@ export default function ManagePresentations(): React.ReactElement {
                         <th>Fecha</th>
                         <th>Inicio</th>
                         <th>Fin</th>
-                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -499,16 +498,6 @@ export default function ManagePresentations(): React.ReactElement {
                               }
                             />
                           </td>
-                          <td>
-                            <FontAwesomeIcon
-                              icon={faTrash}
-                              className="me-1 ms-2 cursor-pointer text-red-500"
-                              title="Eliminar"
-                              onClick={() =>
-                                removeSchedule(index, scheduleIndex)
-                              }
-                            />
-                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -563,75 +552,25 @@ export default function ManagePresentations(): React.ReactElement {
           </button>
         </div>
       )}
-      <h2 className="mb-2 mt-10 text-3xl font-bold">Lista de presentaciones</h2>
+      <div className="flex flex-col items-center">
+        <h2 className="mb-2 mt-10 text-3xl font-bold">
+          Lista de presentaciones
+        </h2>
+        <p className="text-center">
+          Puede ver las presentaciones haciendo clic en cada fecha.
+        </p>
+        <p className="text-center">
+          Además, puede arrastrar una presentación a otra para intercambiar sus
+          horarios.
+        </p>
+      </div>
       {presentations.length > 0 ? (
         groupedPresentations.map((classroom) => (
-          <article
+          <PresentationClassroom
             key={classroom.classroom}
-            className="w-full max-w-7xl overflow-hidden rounded-lg bg-white shadow-md [&:nth-child(2n)>h3]:bg-blue-500 [&>h3]:bg-purple-500"
-          >
-            <h3 className="px-4 py-2 text-2xl font-semibold text-white">
-              {classroom.classroom}
-            </h3>
-            <table className="mt-2 w-full table-auto">
-              <thead className="bg-slate-400">
-                <tr>
-                  <th>Día</th>
-                  <th>Hora</th>
-                  <th>Estudiante</th>
-                  <th>Profesores</th>
-                </tr>
-              </thead>
-              <tbody className="[&>tr:nth-child(2n)]:bg-gray-200">
-                {classroom.presentations.map((presentation) => {
-                  const endTime = new Date(presentation.startTime);
-                  endTime.setMinutes(
-                    endTime.getMinutes() + presentation.minuteDuration,
-                  );
-
-                  return (
-                    <tr key={presentation.id} className="[&>td]:p-2">
-                      <td>
-                        {convertApiDateToLocalString(
-                          presentation.startTime,
-                          "full",
-                        )}
-                      </td>
-                      <td>
-                        De{" "}
-                        {convertApiTimeToLocalString(
-                          presentation.startTime,
-                          "short",
-                        )}{" "}
-                        a{" "}
-                        {convertApiTimeToLocalString(
-                          endTime.toISOString(),
-                          "short",
-                        )}
-                      </td>
-                      <td>{presentation.attendees.student.name}</td>
-                      <td>
-                        <ol className="list-decimal">
-                          {presentation.attendees.professors.map(
-                            (professor) => (
-                              <li key={professor.id}>
-                                {professor.name}{" "}
-                                {professor.isAdvisor && (
-                                  <span className="text-sm font-bold">
-                                    (guía)
-                                  </span>
-                                )}
-                              </li>
-                            ),
-                          )}
-                        </ol>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </article>
+            onDelete={deletePresentation}
+            {...classroom}
+          />
         ))
       ) : (
         <p>Aún no hay presentaciones generadas.</p>
