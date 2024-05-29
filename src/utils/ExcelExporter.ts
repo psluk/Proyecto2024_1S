@@ -6,6 +6,15 @@ import Course from "src/models/Course";
 import StudentDao from "../database/StudentDao";
 import GroupDao from "../database/GroupDao";
 import StudentProfessorDao from "../database/StudentProfessorDao";
+import fs from "fs";
+import path from "path";
+
+interface FileResult {
+  success: boolean;
+  fileBuffer?: Buffer; // Buffer es el tipo de Node.js para datos binarios
+  fileName?: string;
+  message?: string;
+}
 
 interface SolidFill {
   type: "pattern";
@@ -65,8 +74,29 @@ export default class ExcelExporter {
     this.studentProfessorDao = new StudentProfessorDao();
   }
 
-  public exportProfessorsFile(): void {
+  public getSavedFile(type: string): FileResult {
+    const hiddenDataPath = path.join(__dirname, "..", `.hidden_data/${type}`);
+    if (!fs.existsSync(hiddenDataPath)) {
+      fs.mkdirSync(hiddenDataPath);
+    }
+
+    const files = fs.readdirSync(hiddenDataPath);
+    if (files.length > 0) {
+      const fileName = files[0];
+      const filePath = path.join(hiddenDataPath, fileName);
+      const fileBuffer = fs.readFileSync(filePath);
+      return { success: true, fileBuffer, fileName };
+    } else {
+      return { success: false, message: "No files found" };
+    }
+  }
+
+  public async exportProfessorsFile(): Promise<void> {
+    const existingFile = this.getSavedFile("professorsFile");
     const workbook = new ExcelJS.Workbook();
+    if (existingFile.success) {
+      await workbook.xlsx.load(existingFile.fileBuffer!);
+    }
     this.exportProfessorsSheet(workbook);
     this.exportWorkloadSheet(workbook);
     this.exportCourseHoursSheet(workbook);
@@ -78,7 +108,7 @@ export default class ExcelExporter {
       const url = window.URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = "Cargas_academicas_x_semestre_202x.xlsx";
+      anchor.download = existingFile.fileName!;
       anchor.click();
 
       window.URL.revokeObjectURL(url);
@@ -95,6 +125,11 @@ export default class ExcelExporter {
       };
       return typeMapping[type] || type;
     };
+
+    const existingSheet = ExcelFile.getWorksheet("horasCurso");
+    if (existingSheet) {
+      ExcelFile.removeWorksheet(existingSheet.id);
+    }
 
     const courseList = this.professorDao.getCourses();
     const sheet = ExcelFile.addWorksheet("horasCurso");
@@ -145,8 +180,11 @@ export default class ExcelExporter {
       });
     });
   }
-
   private exportProfessorsSheet(ExcelFile: Workbook): void {
+    const existingSheet = ExcelFile.getWorksheet("profesores");
+    if (existingSheet) {
+      ExcelFile.removeWorksheet(existingSheet.id);
+    }
     const sheet = ExcelFile.addWorksheet("profesores");
     const professors: Professor[] = this.professorDao.getProfessors();
     const permanentProfessors = professors.filter(
@@ -225,11 +263,21 @@ export default class ExcelExporter {
         if (rowNumber === 1) {
           cell.font = { name: "Times New Roman", size: 11, bold: true };
         }
+
+        // Asegúrate de que la celda B1 esté vacía y sin bordes
+        if (cell.address === "B1") {
+          cell.value = "";
+          cell.border = {};
+        }
       });
     });
   }
 
   public exportWorkloadSheet(ExcelFile: ExcelJS.Workbook): void {
+    const existingSheet = ExcelFile.getWorksheet("cargasProf");
+    if (existingSheet) {
+      ExcelFile.removeWorksheet(existingSheet.id);
+    }
     const professors = this.professorDao.getProfessors();
     const sheet = ExcelFile.addWorksheet("cargasProf");
 
@@ -561,8 +609,12 @@ export default class ExcelExporter {
    *                                                        STUDENTS FILE
    */
 
-  public exportStudentsFile(): void {
+  public async exportStudentsFile(): Promise<void> {
+    const existingFile = this.getSavedFile("studentsFile");
     const workbook = new ExcelJS.Workbook();
+    if (existingFile.success) {
+      await workbook.xlsx.load(existingFile.fileBuffer!);
+    }
     this.exportStudentListSheet(workbook);
     this.exportGroupsSheet(workbook);
     this.exportAdvisorsSheet(workbook);
@@ -575,7 +627,7 @@ export default class ExcelExporter {
       const url = window.URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = "PFG I Semestre 202x.xlsx";
+      anchor.download = existingFile.fileName!;
       anchor.click();
 
       window.URL.revokeObjectURL(url);
@@ -583,6 +635,10 @@ export default class ExcelExporter {
   }
 
   private exportStudentListSheet(ExcelFile: Workbook): void {
+    const existingSheet = ExcelFile.getWorksheet("Lista de estidiantes");
+    if (existingSheet) {
+      ExcelFile.removeWorksheet(existingSheet.id);
+    }
     const sheet = ExcelFile.addWorksheet("Lista de estidiantes");
     const studentList = this.studentDao.getStudents();
 
@@ -671,6 +727,10 @@ export default class ExcelExporter {
   }
 
   private exportGroupsSheet(ExcelFile: Workbook): void {
+    const existingSheet = ExcelFile.getWorksheet("Grupos");
+    if (existingSheet) {
+      ExcelFile.removeWorksheet(existingSheet.id);
+    }
     const sheet = ExcelFile.addWorksheet("Grupos");
     const groupList = this.groupDao.getGroups();
 
@@ -914,6 +974,10 @@ export default class ExcelExporter {
   }
 
   public exportAdvisorsSheet(ExcelFile: ExcelJS.Workbook): void {
+    const existingSheet = ExcelFile.getWorksheet("Profesores");
+    if (existingSheet) {
+      ExcelFile.removeWorksheet(existingSheet.id);
+    }
     const sheet = ExcelFile.addWorksheet("Profesores");
     const studentProfesorList =
       this.studentProfessorDao.getStudentsProfessors();
@@ -1027,6 +1091,10 @@ export default class ExcelExporter {
   }
 
   public exportPresentationsSheet(ExcelFile: ExcelJS.Workbook): void {
+    const existingSheet = ExcelFile.getWorksheet("Presentaciones");
+    if (existingSheet) {
+      ExcelFile.removeWorksheet(existingSheet.id);
+    }
     const sheet = ExcelFile.addWorksheet("Presentaciones");
     const presentationsList = this.studentProfessorDao.getPresentations();
     const studentList = this.studentDao.getStudents();

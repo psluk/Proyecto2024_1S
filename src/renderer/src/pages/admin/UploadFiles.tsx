@@ -10,13 +10,14 @@ export default function UploadFiles(): JSX.Element {
   const [message, setMessage] = useState<string>("");
   const [type, setType] = useState<"success" | "error">("success");
 
-  const handleProfessorsFile = async () => {
+  const handleProfessorsFile = async (): Promise<void> => {
     if (!professorsFile) {
       return;
     }
 
     try {
       const result = await window.mainController.importProfessors(
+        professorsFile.name,
         await professorsFile.arrayBuffer(),
       );
       let newMessage = "";
@@ -49,13 +50,14 @@ export default function UploadFiles(): JSX.Element {
     }
   };
 
-  const handleStudentsFile = async () => {
+  const handleStudentsFile = async (): Promise<void> => {
     if (!studentsFile) {
       return;
     }
 
     try {
       const result = await window.mainController.importStudents(
+        studentsFile.name,
         await studentsFile.arrayBuffer(),
       );
       let newMessage = "";
@@ -87,7 +89,6 @@ export default function UploadFiles(): JSX.Element {
       setShowDialog(true);
     }
   };
-
 
   useEffect(() => {
     if (message !== "") {

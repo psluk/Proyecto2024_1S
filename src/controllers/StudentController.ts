@@ -35,12 +35,17 @@ export default class StudentController {
   /**
    * Imports a list of students from an Excel file.
    * @param fileBuffer The Excel file's array buffer.
+   * @param fileName The file name it has when uploaded
    * @returns An object containing two arrays: one for the students added successfully, and another for errors.
    */
-  public importStudents(fileBuffer: ArrayBuffer): {
+  public importStudents(
+    fileName: string,
+    fileBuffer: ArrayBuffer,
+  ): {
     successfulInserts: Student[];
     errors: Student[];
   } {
+    this.excelDao.saveFile(fileName, fileBuffer, "studentsFile");
     const students = this.excelDao.getStudents(fileBuffer);
     return this.studentDao.addStudents(students, true);
   }

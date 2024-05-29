@@ -226,15 +226,22 @@ export default class MainController {
   /**
    * Imports a list of professors from an Excel file.
    * @param fileBuffer The Excel file's array buffer.
+   * @param fileName The file name it has when uploaded
    * @returns An object containing two arrays: one for the professors added successfully, and another for errors.
    */
-  public async importProfessors(fileBuffer: ArrayBuffer): Promise<{
+  public async importProfessors(
+    fileName: string,
+    fileBuffer: ArrayBuffer,
+  ): Promise<{
     successfulInserts: ProfessorInterface[];
     errors: ProfessorInterface[];
   }> {
+    console.log("9");
     const { successfulInserts, errors } =
-      this.professorController.importProfessors(fileBuffer);
+      this.professorController.importProfessors(fileName, fileBuffer);
+    console.log("8");
     await this.professorController.importCourses(fileBuffer);
+    console.log("7");
     return {
       successfulInserts: successfulInserts.map((professor) =>
         professor.asObject(),
@@ -330,12 +337,17 @@ export default class MainController {
    * @param fileBuffer The Excel file's array buffer.
    * @returns An object containing two arrays: one for the students added successfully, and another for errors.
    */
-  public importStudents(fileBuffer: ArrayBuffer): {
+  public importStudents(
+    fileName: string,
+    fileBuffer: ArrayBuffer,
+  ): {
     successfulInserts: StudentInterface[];
     errors: StudentInterface[];
   } {
-    const { successfulInserts, errors } =
-      this.studentController.importStudents(fileBuffer);
+    const { successfulInserts, errors } = this.studentController.importStudents(
+      fileName,
+      fileBuffer,
+    );
     return {
       successfulInserts: successfulInserts.map((student) => student.asObject()),
       errors: errors.map((student) => student.asObject()),
@@ -829,14 +841,14 @@ export default class MainController {
   /**
    * Exports the data in the database to an Excel file with a specific format
    */
-  public exportProfessorsFile(): void {
+  public exportProfessorsFile(): Promise<void> {
     return this.excelExporter.exportProfessorsFile();
   }
 
   /**
    * Exports the data in the database to an Excel file with a specific format
    */
-  public exportStudentsFile(): void {
+  public exportStudentsFile(): Promise<void> {
     return this.excelExporter.exportStudentsFile();
   }
 

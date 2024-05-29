@@ -44,13 +44,20 @@ export default class ProfessorController {
   /**
    * Imports a list of professors from an Excel file.
    * @param fileBuffer The Excel file's array buffer.
+   * @param fileName The file name it has when uploaded
    * @returns An object containing two arrays: one for the professors added successfully, and another for errors.
    */
-  public importProfessors(fileBuffer: ArrayBuffer): {
+  public importProfessors(
+    fileName: string,
+    fileBuffer: ArrayBuffer,
+  ): {
     successfulInserts: Professor[];
     errors: Professor[];
   } {
+    this.excelDao.saveFile(fileName, fileBuffer, "professorsFile");
+    console.log("a");
     const professors = this.excelDao.getProfessors(fileBuffer);
+    console.log("b");
     return this.professorDao.addProfessors(professors, true);
   }
 

@@ -1,4 +1,6 @@
 import * as XLSX from "xlsx";
+import fs from "fs";
+import path from "path";
 import ExcelJS from "exceljs";
 import Professor from "../models/Professor";
 import Student from "../models/Student";
@@ -10,6 +12,35 @@ import CourseSchedule, {
 import ImportedWorkload from "../models/ImportedWorkload";
 
 export default class ExcelDao {
+  /**
+   * Saves a file into internal storage to persist it
+   * @param fileName The file's name to save it internally.
+   * @param fileBuffer The Excel file's array buffer.
+   * @param type The type of file to categorize it in a specific folder.
+   * @returns Success status of saving the file.
+   */
+  saveFile = (fileName, fileBuffer, type): { success: boolean } => {
+    const hiddenDataPath = path.join(__dirname, "..", `.hidden_data/${type}`);
+
+    if (!fs.existsSync(hiddenDataPath)) {
+      fs.mkdirSync(hiddenDataPath, { recursive: true });
+    }
+
+    try {
+      const existingFiles = fs.readdirSync(hiddenDataPath);
+      for (const file of existingFiles) {
+        fs.unlinkSync(path.join(hiddenDataPath, file));
+      }
+
+      const filePath = path.join(hiddenDataPath, fileName);
+      fs.writeFileSync(filePath, Buffer.from(fileBuffer));
+      return { success: true };
+    } catch (error) {
+      console.error("Error saving file:", error);
+      return { success: false };
+    }
+  };
+
   /**
    * Gets a list of professors from an Excel file.
    * @param fileBuffer The Excel file's array buffer.
@@ -31,6 +62,10 @@ export default class ExcelDao {
         if (professor["__EMPTY"]) {
           type = professor.__EMPTY;
         }
+        if (professor["_1"]) {
+          type = professor._1;
+        }
+
         type = mapType(type);
         const newProfessor = new Professor(
           null,
@@ -47,9 +82,14 @@ export default class ExcelDao {
     const sheetIndex = workbook.SheetNames.findIndex(
       (name) => name === "profesores",
     );
+    console.log("1");
     const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
+    console.log("2");
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    console.log("3");
+    console.log(jsonData);
     const result = jsonToProfessorList(jsonData);
+    console.log("4");
     return result;
   }
 
@@ -194,13 +234,16 @@ export default class ExcelDao {
     ): "normal" | "extended" | "double" | "overload" | "adHonorem" => {
       let type: "normal" | "extended" | "double" | "overload" | "adHonorem" =
         "normal";
+      console.log("Color de celda: ", cellColor);
       switch (cellColor) {
         case 0.3999755851924192:
+        case "FFFFBFAF":
           // Ampliación
           type = "extended";
           break;
 
         case 0.5999938962981048:
+        case "8DB4E2":
           // Doble ampliación
           type = "double";
           break;
@@ -211,6 +254,7 @@ export default class ExcelDao {
           break;
 
         case -0.3499862666707358:
+        case "FFA6A6A6":
           // Ad honorem
           type = "adHonorem";
           break;
