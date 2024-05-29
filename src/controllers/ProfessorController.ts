@@ -55,9 +55,7 @@ export default class ProfessorController {
     errors: Professor[];
   } {
     this.excelDao.saveFile(fileName, fileBuffer, "professorsFile");
-    console.log("a");
     const professors = this.excelDao.getProfessors(fileBuffer);
-    console.log("b");
     return this.professorDao.addProfessors(professors, true);
   }
 

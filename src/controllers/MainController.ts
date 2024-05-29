@@ -236,12 +236,9 @@ export default class MainController {
     successfulInserts: ProfessorInterface[];
     errors: ProfessorInterface[];
   }> {
-    console.log("9");
     const { successfulInserts, errors } =
       this.professorController.importProfessors(fileName, fileBuffer);
-    console.log("8");
     await this.professorController.importCourses(fileBuffer);
-    console.log("7");
     return {
       successfulInserts: successfulInserts.map((professor) =>
         professor.asObject(),

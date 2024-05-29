@@ -82,14 +82,10 @@ export default class ExcelDao {
     const sheetIndex = workbook.SheetNames.findIndex(
       (name) => name === "profesores",
     );
-    console.log("1");
     const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
-    console.log("2");
     const jsonData = XLSX.utils.sheet_to_json(worksheet);
-    console.log("3");
     console.log(jsonData);
     const result = jsonToProfessorList(jsonData);
-    console.log("4");
     return result;
   }
 
@@ -234,7 +230,6 @@ export default class ExcelDao {
     ): "normal" | "extended" | "double" | "overload" | "adHonorem" => {
       let type: "normal" | "extended" | "double" | "overload" | "adHonorem" =
         "normal";
-      console.log("Color de celda: ", cellColor);
       switch (cellColor) {
         case 0.3999755851924192:
         case "FFFFBFAF":
