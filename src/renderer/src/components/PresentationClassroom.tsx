@@ -68,7 +68,8 @@ export default function PresentationClassroom(props): React.ReactElement {
         <h3 className="relative px-4 py-2 text-2xl font-semibold text-white">
           {classroom}
           <span className="absolute end-4 top-1/2 -translate-y-1/2 text-base">
-            {presentations.length} presentaciones
+            {presentations.length}{" "}
+            {presentations.length === 1 ? "presentación" : "presentaciones"}
           </span>
         </h3>
         {groupedPresentations.map((group, index) => {
@@ -85,7 +86,10 @@ export default function PresentationClassroom(props): React.ReactElement {
               >
                 {group.day}
                 <span className="absolute end-2 top-1/2 -translate-y-1/2 text-sm">
-                  {group.presentations.length} presentaciones
+                  {group.presentations.length}{" "}
+                  {group.presentations.length === 1
+                    ? "presentación"
+                    : "presentaciones"}
                 </span>
               </h4>
               <div className="overflow-hidden">
@@ -206,8 +210,8 @@ export default function PresentationClassroom(props): React.ReactElement {
           .includes(presentationSwapContext.swappingPresentation) && (
           <div className="absolute bottom-5 start-5 z-[5] max-w-96 animate-pulse overflow-hidden rounded-md border border-slate-200 bg-slate-500 p-2 text-xl text-white shadow-md">
             <p>
-              Haga clic la presentación con la que quiere intercambiar la
-              seleccionada
+              Haga clic en la presentación con la que quiere intercambiar la que
+              está seleccionada
             </p>
           </div>
         )}

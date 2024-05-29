@@ -39,7 +39,7 @@ export default function AddPresentation(): React.ReactElement {
 
       setEndDate(convertApiDateToHtmlAttribute(end.toISOString()));
     } catch (e) {
-      setEndDate("");
+      setEndDate(endDate ?? "");
     }
   };
 
@@ -63,9 +63,6 @@ export default function AddPresentation(): React.ReactElement {
         duration,
         classroom,
       );
-
-    console.log(clashingProfessors)
-    console.log(clashingPresentations)
 
     if (clashingProfessors.length > 0) {
       if (clashingPresentations.length > 0) {
@@ -125,7 +122,7 @@ export default function AddPresentation(): React.ReactElement {
         </table>
       </div>
       <form
-        className="flex w-full max-w-7xl flex-col items-center gap-5 rounded-lg bg-white p-2 pt-10 shadow-md [&_input]:rounded-md [&_input]:shadow-sm"
+        className="flex w-full max-w-7xl flex-col items-center gap-5 rounded-lg bg-white p-2 py-10 shadow-md [&_input]:rounded-md [&_input]:shadow-sm"
         onSubmit={handleSubmit}
       >
         <div className="flex w-full max-w-md flex-col items-start">
@@ -189,7 +186,11 @@ export default function AddPresentation(): React.ReactElement {
           <FontAwesomeIcon icon={faCheck} className="me-2 size-5" />
           Añadir
         </button>
-        {errorMessage && <p className="w-full bg-red-100 p-5 text-red-800 rounded-md">{errorMessage}</p>}
+        {errorMessage && (
+          <p className="-mb-5 w-full rounded-md bg-red-100 p-5 text-red-800">
+            {errorMessage}
+          </p>
+        )}
       </form>
     </main>
   );

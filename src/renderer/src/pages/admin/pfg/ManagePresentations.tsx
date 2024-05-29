@@ -1,6 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowRightArrowLeft,
+  faCheck,
+  faPlus,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import { convertApiDateToHtmlAttribute } from "../../../utils/DateFormatters";
 import { Classroom } from "../../../../../interfaces/PresentationGeneration";
 import { PresentationInterface } from "../../../../../models/Presentation";
@@ -605,8 +610,14 @@ export default function ManagePresentations(): React.ReactElement {
           Puede ver las presentaciones haciendo clic en cada fecha.
         </p>
         <p className="text-center">
-          Además, puede arrastrar una presentación a otra para intercambiar sus
-          horarios.
+          Además, puede intercambiar los horarios de dos presentaciones con el
+          botón{" "}
+          <FontAwesomeIcon
+            icon={faArrowRightArrowLeft}
+            title="Intercambiar con otra presentación"
+            className="rotate-90 px-1 text-cyan-500"
+          />{" "}
+          a la derecha.
         </p>
       </div>
       {presentations.length > 0 ? (
@@ -667,7 +678,9 @@ export default function ManagePresentations(): React.ReactElement {
                       <FontAwesomeIcon
                         icon={faPlus}
                         onClick={() =>
-                          navigate(`/admin/manageTheses/presentations/add/${studentProfessor.student.id}`)
+                          navigate(
+                            `/admin/manageTheses/presentations/add/${studentProfessor.student.id}`,
+                          )
                         }
                         title="Asignar"
                         className="rotate-90 cursor-pointer p-2 text-green-600 hover:text-green-500"
