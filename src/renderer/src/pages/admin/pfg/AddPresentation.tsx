@@ -67,11 +67,11 @@ export default function AddPresentation(): React.ReactElement {
     if (clashingProfessors.length > 0) {
       if (clashingPresentations.length > 0) {
         setErrorMessage(
-          `El profesor guía o los profesores lectores seleccionados ya tienen una presentación en ese horario.\nAdemás, el aula ${classroom} ya está ocupada en ese horario.`,
+          `El profesor guía o los profesores lectores del estudiante ya tienen una presentación en ese horario. Además, el aula ${classroom} ya está ocupada en ese horario.`,
         );
       } else {
         setErrorMessage(
-          `El profesor guía o los profesores lectores seleccionados ya tienen una presentación en ese horario.`,
+          `El profesor guía o los profesores lectores del estudiante ya tienen una presentación en ese horario.`,
         );
       }
     } else {
