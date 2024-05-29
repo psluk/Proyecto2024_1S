@@ -247,6 +247,31 @@ export default class StudentProfessorDao {
   }
 
   /**
+   * Swaps two presentations.
+   * @param presentationId1 The first presentation ID.
+   * @param presentationId2 The second presentation ID.
+   */
+  swapPresentations(presentationId1: number, presentationId2: number): void {
+    // Retrieve each studentId
+    const query1 = `SELECT studentId FROM Presentations WHERE presentationId = ?;`;
+
+    const studentId1 = (
+      database.prepare(query1).get(presentationId1) as { studentId: number }
+    ).studentId;
+    const studentId2 = (
+      database.prepare(query1).get(presentationId2) as { studentId: number }
+    ).studentId;
+
+    // Update the student in each presentation
+    const query2 = `UPDATE Presentations SET studentId = ? WHERE presentationId = ?;`;
+
+    database.transaction(() => {
+      database.prepare(query2).run(studentId2, presentationId1);
+      database.prepare(query2).run(studentId1, presentationId2);
+    })();
+  }
+
+  /**
    * Deletes a presentation
    * @param presentationId The presentation ID.
    */

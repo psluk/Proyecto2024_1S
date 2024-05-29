@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { convertApiDateToHtmlAttribute } from "../../../utils/DateFormatters";
@@ -7,6 +7,7 @@ import { PresentationInterface } from "../../../../../models/Presentation";
 import DialogAlert from "../../../components/DialogAlert";
 import DialogConfirm from "../../../components/DialogConfirm";
 import PresentationClassroom from "../../../components/PresentationClassroom";
+import { PresentationSwapContext } from "../../../context/PresentationSwapContext";
 
 const calculateNumberOfPresentations = (
   classrooms: Classroom[],
@@ -99,6 +100,7 @@ export default function ManagePresentations(): React.ReactElement {
   });
   const [showConfirmationDialog, setShowDialogConfirm] =
     useState<boolean>(false);
+  const presentationSwapContext = useContext(PresentationSwapContext);
 
   const toggleGenerationParameters = (): void => {
     setShowGenerationParameters(!showGenerationParameters);
@@ -283,6 +285,7 @@ export default function ManagePresentations(): React.ReactElement {
             : ""),
         type: "success",
       });
+      presentationSwapContext.cancelSwappingPresentation();
     } catch (error) {
       setAlertDialogParams({
         title: "Error",
@@ -591,6 +594,7 @@ export default function ManagePresentations(): React.ReactElement {
           <PresentationClassroom
             key={classroom.classroom}
             onDelete={deletePresentation}
+            reload={reloadPresentations}
             {...classroom}
           />
         ))

@@ -97,6 +97,9 @@ export default class MainController {
 
     this.getPresentations = this.getPresentations.bind(this);
     this.generatePresentations = this.generatePresentations.bind(this);
+    this.checkProfessorClashesWhenSwapping =
+      this.checkProfessorClashesWhenSwapping.bind(this);
+    this.swapPresentations = this.swapPresentations.bind(this);
     this.deletePresentation = this.deletePresentation.bind(this);
   }
 
@@ -944,6 +947,31 @@ export default class MainController {
       resolved: resolved.map((presentation) => presentation.asObject()),
       unresolved,
     };
+  }
+
+  /**
+   * Checks if there are any clashes between professors when swapping presentations.
+   * @param presentationId1 The first presentation ID.
+   * @param presentationId2 The second presentation ID.
+   * @returns An array of clashing professors.
+   */
+  checkProfessorClashesWhenSwapping(
+    presentationId1: number,
+    presentationId2: number,
+  ): string[][] {
+    return this.studentProfessorController.checkProfessorClashesWhenSwapping(
+      presentationId1,
+      presentationId2,
+    );
+  }
+
+  /**
+   * Swaps two presentations.
+   * @param presentationId1 The first presentation ID.
+   * @param presentationId2 The second presentation ID.
+   */
+  swapPresentations(presentationId1: number, presentationId2: number): void {
+    this.studentProfessorController.swapPresentations(presentationId1, presentationId2);
   }
 
   /**

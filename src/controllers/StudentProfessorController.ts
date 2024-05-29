@@ -375,6 +375,99 @@ export default class StudentProfessorController {
   }
 
   /**
+   * Checks if there are any clashes between professors when swapping presentations.
+   * @param presentationId1 The first presentation ID.
+   * @param presentationId2 The second presentation ID.
+   * @returns An array of clashing professors.
+   */
+  checkProfessorClashesWhenSwapping(
+    presentationId1: number,
+    presentationId2: number,
+  ): string[][] {
+    // Current presentations
+    const currentPresentations = this.studentProfessorDao.getPresentations();
+
+    // Check clashes for each swapped presentation
+    return [presentationId1, presentationId2]
+      .map((presentationId) => {
+        // Check professors with clashing presentations
+        const clashingProfessors: string[] = [];
+
+        // Get presentation start time and end time
+        let presentation = currentPresentations.find(
+          (presentation) => presentation.getId() === presentationId,
+        );
+
+        const toBeSwappedWith = currentPresentations.find(
+          // Get the other presentation in the array (as if they were swapped)
+          (presentation) =>
+            [presentationId1, presentationId2].includes(presentation.getId()) &&
+            presentation.getId() !== presentationId,
+        );
+
+        if (!presentation || !toBeSwappedWith) return [];
+
+        presentation = Presentation.reinstantiate({
+          ...presentation.asObject(),
+          startTime: toBeSwappedWith.getStartTime(),
+          classroom: toBeSwappedWith.getClassroom(),
+        });
+
+        const startTime = new Date(presentation.getStartTime());
+        const endTime = new Date(startTime);
+        endTime.setMinutes(
+          endTime.getMinutes() + presentation.getMinuteDuration(),
+        );
+
+        currentPresentations.forEach((otherPresentation) => {
+          // Get start time and end time
+          const otherStartTime = new Date(otherPresentation.getStartTime());
+          const otherEndTime = new Date(otherStartTime);
+          otherEndTime.setMinutes(
+            otherEndTime.getMinutes() + otherPresentation.getMinuteDuration(),
+          );
+
+          if (
+            otherPresentation.getId() === presentationId1 ||
+            otherPresentation.getId() === presentationId2
+          )
+            return;
+
+          otherPresentation
+            .getAttendees()
+            .getProfessors()
+            .forEach((professor) => {
+              if (
+                presentation
+                  .getAttendees()
+                  .getProfessors()
+                  .map((professor) => professor.name)
+                  .includes(professor.name) &&
+                doDatesOverlap(startTime, endTime, otherStartTime, otherEndTime)
+              ) {
+                clashingProfessors.push(professor.name);
+              }
+            });
+        });
+
+        return clashingProfessors;
+      })
+      .filter((p) => p.length > 0);
+  }
+
+  /**
+   * Swaps two presentations.
+   * @param presentationId1 The first presentation ID.
+   * @param presentationId2 The second presentation ID.
+   */
+  swapPresentations(presentationId1: number, presentationId2: number): void {
+    this.studentProfessorDao.swapPresentations(
+      presentationId1,
+      presentationId2,
+    );
+  }
+
+  /**
    * Deletes a presentation
    * @param presentationId The presentation ID.
    */
