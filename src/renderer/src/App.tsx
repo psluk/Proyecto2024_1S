@@ -30,6 +30,7 @@ import Statistics from "./pages/admin/Statistics";
 import ExportFiles from "./pages/admin/ExportFiles";
 import EditStudentProfessor from "./pages/admin/EditStudentProfessor";
 import { PresentationSwapContextProvider } from "./context/PresentationSwapContext";
+import AddPresentation from "./pages/admin/pfg/AddPresentation";
 
 function App(): JSX.Element {
   return (
@@ -90,6 +91,10 @@ function App(): JSX.Element {
                 <ManagePresentations />
               </PresentationSwapContextProvider>
             }
+          />
+          <Route
+            path="/admin/manageTheses/presentations/add/:id"
+            element={<AddPresentation />}
           />
           <Route path="/admin/statistics" element={<Statistics />} />
           <Route

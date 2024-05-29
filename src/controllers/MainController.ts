@@ -97,6 +97,7 @@ export default class MainController {
 
     this.getPresentations = this.getPresentations.bind(this);
     this.generatePresentations = this.generatePresentations.bind(this);
+    this.addPresentation = this.addPresentation.bind(this);
     this.checkProfessorClashesWhenSwapping =
       this.checkProfessorClashesWhenSwapping.bind(this);
     this.swapPresentations = this.swapPresentations.bind(this);
@@ -950,6 +951,38 @@ export default class MainController {
   }
 
   /**
+   * Adds a presentation to the database.
+   * @param studentId The student ID.
+   * @param startTime The start time of the presentation.
+   * @param duration The duration of the presentation.
+   * @param classroom The classroom of the presentation.
+   * @returns An object with the clashing professors and presentations, if any.
+   */
+  addPresentation(
+    studentId: number,
+    startTime: Date,
+    duration: number,
+    classroom: string,
+  ): {
+    clashingProfessors: string[];
+    clashingPresentations: PresentationInterface[];
+  } {
+    const { clashingProfessors, clashingPresentations } =
+      this.studentProfessorController.addPresentation(
+        studentId,
+        startTime,
+        duration,
+        classroom,
+      );
+    return {
+      clashingProfessors,
+      clashingPresentations: clashingPresentations.map((presentation) =>
+        presentation.asObject(),
+      ),
+    };
+  }
+
+  /**
    * Checks if there are any clashes between professors when swapping presentations.
    * @param presentationId1 The first presentation ID.
    * @param presentationId2 The second presentation ID.
@@ -971,7 +1004,10 @@ export default class MainController {
    * @param presentationId2 The second presentation ID.
    */
   swapPresentations(presentationId1: number, presentationId2: number): void {
-    this.studentProfessorController.swapPresentations(presentationId1, presentationId2);
+    this.studentProfessorController.swapPresentations(
+      presentationId1,
+      presentationId2,
+    );
   }
 
   /**

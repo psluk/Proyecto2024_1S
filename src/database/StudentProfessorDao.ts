@@ -175,6 +175,21 @@ export default class StudentProfessorDao {
   }
 
   /**
+   * Adds a presentation to the database.
+   * @param studentId The student ID.
+   * @param startTime The start time of the presentation.
+   * @param duration The duration of the presentation.
+   * @param classroom The classroom of the presentation.
+   */
+  addPresentation(studentId: number, startTime: Date, duration: number, classroom: string): void {
+    const query = `
+      INSERT INTO Presentations (startTime, minuteDuration, classroom, studentId)
+      VALUES (?, ?, ?, ?);`;
+
+    database.prepare(query).run(startTime.toISOString(), duration, classroom, studentId);
+  }
+
+  /**
    * Retrieves presentations from the database.
    * @returns An array of Presentation objects.
    */

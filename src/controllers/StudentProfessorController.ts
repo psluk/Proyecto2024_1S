@@ -375,6 +375,96 @@ export default class StudentProfessorController {
   }
 
   /**
+   * Adds a presentation to the database.
+   * @param studentId The student ID.
+   * @param startTime The start time of the presentation.
+   * @param duration The duration of the presentation.
+   * @param classroom The classroom of the presentation.
+   * @returns An object with the clashing professors and presentations, if any.
+   */
+  addPresentation(
+    studentId: number,
+    startTime: Date,
+    duration: number,
+    classroom: string,
+  ): { clashingProfessors: string[]; clashingPresentations: Presentation[] } {
+    // Check if there are clashes
+    const currentPresentations = this.studentProfessorDao.getPresentations();
+
+    // Get student professors
+    const studentProfessors = this.studentProfessorDao
+      .getStudentsProfessors()
+      .find(
+        (studentProfessor) => studentProfessor.getStudentId() === studentId,
+      );
+
+    if (!studentProfessors) {
+      return { clashingProfessors: [], clashingPresentations: [] };
+    }
+
+    const startTimeDate = new Date(startTime);
+    const endTime = new Date(startTimeDate);
+    endTime.setMinutes(startTimeDate.getMinutes() + duration);
+
+    const clashingProfessors: string[] = [];
+
+    const clashingPresentations = currentPresentations.filter(
+      (presentation) => {
+        const presentationStartTime = new Date(presentation.getStartTime());
+        const presentationEndTime = new Date(presentationStartTime);
+        presentationEndTime.setMinutes(
+          presentationEndTime.getMinutes() + presentation.getMinuteDuration(),
+        );
+
+        if (
+          doDatesOverlap(
+            startTimeDate,
+            endTime,
+            presentationStartTime,
+            presentationEndTime,
+          )
+        ) {
+          presentation
+            .getAttendees()
+            .getProfessors()
+            .forEach((professor) => {
+              if (
+                studentProfessors
+                  .getProfessors()
+                  .map((p) => p.name)
+                  .includes(professor.name) &&
+                !clashingProfessors.includes(professor.name)
+              ) {
+                clashingProfessors.push(professor.name);
+              }
+            });
+
+          return (
+            presentation.getClassroom().toLowerCase() ===
+            classroom.toLowerCase()
+          );
+        }
+
+        return false;
+      },
+    );
+
+    if (clashingProfessors.length > 0 || clashingPresentations.length > 0) {
+      return { clashingProfessors, clashingPresentations };
+    }
+
+    // Add the presentation
+    this.studentProfessorDao.addPresentation(
+      studentId,
+      startTime,
+      duration,
+      classroom,
+    );
+
+    return { clashingProfessors, clashingPresentations };
+  }
+
+  /**
    * Checks if there are any clashes between professors when swapping presentations.
    * @param presentationId1 The first presentation ID.
    * @param presentationId2 The second presentation ID.

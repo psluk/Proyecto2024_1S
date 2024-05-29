@@ -8,6 +8,8 @@ import DialogAlert from "../../../components/DialogAlert";
 import DialogConfirm from "../../../components/DialogConfirm";
 import PresentationClassroom from "../../../components/PresentationClassroom";
 import { PresentationSwapContext } from "../../../context/PresentationSwapContext";
+import { StudentProfessorInterface } from "../../../../../models/StudentProfessor";
+import { useNavigate } from "react-router-dom";
 
 const calculateNumberOfPresentations = (
   classrooms: Classroom[],
@@ -62,6 +64,7 @@ const calculateNumberOfPresentations = (
 };
 
 export default function ManagePresentations(): React.ReactElement {
+  const navigate = useNavigate();
   const [showGenerationParameters, setShowGenerationParameters] =
     useState<boolean>(false);
   const [presentationInterval, setPresentationInterval] = useState<number>(90);
@@ -100,6 +103,9 @@ export default function ManagePresentations(): React.ReactElement {
   });
   const [showConfirmationDialog, setShowDialogConfirm] =
     useState<boolean>(false);
+  const [unassignedStudents, setUnassignedStudents] = useState<
+    StudentProfessorInterface[]
+  >([]);
   const presentationSwapContext = useContext(PresentationSwapContext);
 
   const toggleGenerationParameters = (): void => {
@@ -268,7 +274,7 @@ export default function ManagePresentations(): React.ReactElement {
             endTime: lunchBreakEnd,
           },
         );
-      setPresentations(resolved);
+      reloadPresentations();
 
       const numberOfPresentations = calculateNumberOfPresentations(
         classrooms,
@@ -299,7 +305,21 @@ export default function ManagePresentations(): React.ReactElement {
   };
 
   const reloadPresentations = (): void => {
-    setPresentations(window.mainController.getPresentations());
+    const presentations = window.mainController.getPresentations();
+    setPresentations(presentations);
+
+    const assignedStudents = presentations.map(
+      (presentation) => presentation.attendees.student.id,
+    );
+
+    const loadedStudents = window.mainController.getStudentsProfessors();
+    setUnassignedStudents(
+      loadedStudents.filter(
+        (student) =>
+          student.professors.length > 0 &&
+          !assignedStudents.includes(student.student.id),
+      ),
+    );
   };
 
   useEffect(() => {
@@ -601,6 +621,65 @@ export default function ManagePresentations(): React.ReactElement {
       ) : (
         <p>Aún no hay presentaciones generadas.</p>
       )}
+      <div className="flex flex-col items-center">
+        <h2 className="mb-2 mt-10 text-3xl font-bold">
+          Estudiantes sin hora de defensa
+        </h2>
+        <p className="text-center">
+          A los siguientes estudiantes no se les ha asignado una hora de
+          defensa.
+        </p>
+      </div>
+      <div className="w-full max-w-7xl overflow-hidden rounded-lg shadow-md">
+        <table className="w-full table-auto bg-white">
+          <thead className="bg-slate-500 text-white [&_th]:px-2">
+            <tr>
+              <th className="w-1/3">Estudiante</th>
+              <th className="w-1/3">Profesor guía</th>
+              <th className="w-1/3">Profesores lectores</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody className="[&>tr:nth-child(2n)]:bg-gray-200 [&_td]:p-2">
+            {unassignedStudents.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="text-center font-bold italic">
+                  No hay
+                </td>
+              </tr>
+            ) : (
+              unassignedStudents.map((studentProfessor) => (
+                <tr key={studentProfessor.student.id}>
+                  <td>{studentProfessor.student.name}</td>
+                  <td>
+                    {studentProfessor.professors[0]
+                      ? studentProfessor.professors[0].name
+                      : "Sin asignar"}
+                  </td>
+                  <td>
+                    {studentProfessor.professors
+                      .slice(1)
+                      .map((professor) => professor.name)
+                      .join(", ") || "Sin asignar"}
+                  </td>
+                  <td>
+                    <div className="flex w-6 flex-col items-center">
+                      <FontAwesomeIcon
+                        icon={faPlus}
+                        onClick={() =>
+                          navigate(`/admin/manageTheses/presentations/add/${studentProfessor.student.id}`)
+                        }
+                        title="Asignar"
+                        className="rotate-90 cursor-pointer p-2 text-green-600 hover:text-green-500"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
       <DialogAlert
         title={alertDialogParams.title}
         message={alertDialogParams.message}
