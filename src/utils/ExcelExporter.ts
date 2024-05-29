@@ -11,7 +11,7 @@ import path from "path";
 
 interface FileResult {
   success: boolean;
-  fileBuffer?: Buffer; // Buffer es el tipo de Node.js para datos binarios
+  fileBuffer?: Buffer;
   fileName?: string;
   message?: string;
 }
@@ -74,6 +74,11 @@ export default class ExcelExporter {
     this.studentProfessorDao = new StudentProfessorDao();
   }
 
+  /**
+   * Gets a file from the internal file folder to export data.
+   * @param type type of file to export (professorsFile | studentsFile)
+   * @returns returns a success status. In case of finding a file, returns the buffer and name of such file
+   */
   public getSavedFile(type: string): FileResult {
     const hiddenDataPath = path.join(__dirname, "..", `.hidden_data/${type}`);
     if (!fs.existsSync(hiddenDataPath)) {
@@ -91,6 +96,9 @@ export default class ExcelExporter {
     }
   }
 
+  /**
+   * Exports the professors Excel file for the user to save it.
+   */
   public async exportProfessorsFile(): Promise<void> {
     const existingFile = this.getSavedFile("professorsFile");
     const workbook = new ExcelJS.Workbook();
@@ -114,7 +122,10 @@ export default class ExcelExporter {
       window.URL.revokeObjectURL(url);
     });
   }
-
+  /**
+   *Exports the courses hours sheet for the professors Excel file
+   * @param ExcelFile The Excel file to export to.
+   */
   private exportCourseHoursSheet(ExcelFile: Workbook): void {
     const mapType = (type: string): string => {
       const typeMapping: { [key: string]: string } = {
@@ -180,6 +191,10 @@ export default class ExcelExporter {
       });
     });
   }
+  /**
+   *Exports the professors information sheet for the professors Excel file
+   * @param ExcelFile The Excel file to export to.
+   */
   private exportProfessorsSheet(ExcelFile: Workbook): void {
     const existingSheet = ExcelFile.getWorksheet("profesores");
     if (existingSheet) {
@@ -273,6 +288,10 @@ export default class ExcelExporter {
     });
   }
 
+  /**
+   *Exports the workload of each professor sheet for the professors Excel file
+   * @param ExcelFile The Excel file to export to.
+   */
   public exportWorkloadSheet(ExcelFile: ExcelJS.Workbook): void {
     const existingSheet = ExcelFile.getWorksheet("cargasProf");
     if (existingSheet) {
@@ -609,6 +628,9 @@ export default class ExcelExporter {
    *                                                        STUDENTS FILE
    */
 
+  /**
+   *Exports the full students file with all the necessary sheets of data.
+   */
   public async exportStudentsFile(): Promise<void> {
     const existingFile = this.getSavedFile("studentsFile");
     const workbook = new ExcelJS.Workbook();
@@ -634,6 +656,10 @@ export default class ExcelExporter {
     });
   }
 
+  /**
+   *Exports the students information sheet for the students Excel file
+   * @param ExcelFile The Excel file to export to.
+   */
   private exportStudentListSheet(ExcelFile: Workbook): void {
     const existingSheet = ExcelFile.getWorksheet("Lista de estidiantes");
     if (existingSheet) {
@@ -700,11 +726,19 @@ export default class ExcelExporter {
       row.getCell(4).value = student.getPhoneNum();
       row.getCell(5).value = student.getUniversityId();
 
-      row.getCell(2).fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FFEBF1DE" },
-      };
+      if (student.getIsEnabled()) {
+        row.getCell(2).fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFEBF1DE" },
+        };
+      } else {
+        row.getCell(2).fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFFFC7CE" },
+        };
+      }
 
       row.eachCell((cell, colNumber) => {
         if (colNumber > 1) {
@@ -726,6 +760,10 @@ export default class ExcelExporter {
     });
   }
 
+  /**
+   *Exports the groups sheet for the students Excel file
+   * @param ExcelFile The Excel file to export to.
+   */
   private exportGroupsSheet(ExcelFile: Workbook): void {
     const existingSheet = ExcelFile.getWorksheet("Grupos");
     if (existingSheet) {
@@ -973,6 +1011,10 @@ export default class ExcelExporter {
     });
   }
 
+  /**
+   *Exports the advisor professors sheet for the students Excel file
+   * @param ExcelFile The Excel file to export to.
+   */
   public exportAdvisorsSheet(ExcelFile: ExcelJS.Workbook): void {
     const existingSheet = ExcelFile.getWorksheet("Profesores");
     if (existingSheet) {
@@ -1090,6 +1132,10 @@ export default class ExcelExporter {
     });
   }
 
+  /**
+   *Exports the presentations sheet for the students Excel file
+   * @param ExcelFile The Excel file to export to.
+   */
   public exportPresentationsSheet(ExcelFile: ExcelJS.Workbook): void {
     const existingSheet = ExcelFile.getWorksheet("Presentaciones");
     if (existingSheet) {
