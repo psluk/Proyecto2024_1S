@@ -20,7 +20,7 @@ export default function DialogAlert({
   const colorIcon = type === "success" ? "text-sky-600" : "text-red-600";
   return (
     <div
-      className={`absolute top-0 left-0 z-0 h-full w-full items-center justify-center bg-gray-600/40 ${show ? "flex" : "hidden"}`}
+      className={`absolute left-0 top-0 z-0 h-full w-full items-center justify-center bg-gray-600/40 ${show ? "flex" : "hidden"}`}
       onClick={handleConfirm}
     >
       <div className="relative">

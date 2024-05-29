@@ -16,7 +16,7 @@ interface ProfessorsGroup {
   groups: Group[] | null;
 }
 
-const EditGroupProfessors = () => {
+const EditGroupProfessors = (): React.ReactElement => {
   const { id } = useParams();
   const [group, setGroup] = useState<Group | null>(null);
   const [professors, setProfessors] = useState<ProfessorsGroup[]>([]);
@@ -31,16 +31,16 @@ const EditGroupProfessors = () => {
     null,
   );
 
-  const handleDragStart = (e, index) => {
+  const handleDragStart = (e, index): void => {
     setDraggedIndex(index);
     e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e): void => {
     e.preventDefault();
   };
 
-  const handleDrop = (e, index) => {
+  const handleDrop = (e, index): void => {
     e.preventDefault();
     if (draggedIndex === null) return;
 
@@ -53,7 +53,7 @@ const EditGroupProfessors = () => {
     // Update group with new professors list and set the first professor as the moderator
     setGroup((prevGroup) => {
       if (prevGroup) {
-       const newGroup = new Group(
+        const newGroup = new Group(
           prevGroup.getId(),
           prevGroup.getGroupNumber(),
           prevGroup.getClassroom(),
@@ -71,7 +71,7 @@ const EditGroupProfessors = () => {
     setDraggedIndex(null);
   };
 
-  const updateGroup = (groupToUpdate: Group) => {
+  const updateGroup = (groupToUpdate: Group): void => {
     if (!groupToUpdate) return;
 
     window.mainController.updateGroup(
@@ -84,11 +84,11 @@ const EditGroupProfessors = () => {
     );
   };
 
-  const handleSave = () => {
+  const handleSave = (): void => {
     Navigate("/admin/manageTheses/groups");
   };
 
-  const handleDelete = (professor: Professor) => {
+  const handleDelete = (professor: Professor): void => {
     if (!group) {
       return;
     }
@@ -119,7 +119,7 @@ const EditGroupProfessors = () => {
     });
   };
 
-  const handleAdd = (professor: ProfessorsGroup) => {
+  const handleAdd = (professor: ProfessorsGroup): void => {
     if (!group) {
       return;
     }
@@ -132,7 +132,7 @@ const EditGroupProfessors = () => {
     }
   };
 
-  const addProfessorToGroup = (professor: Professor) => {
+  const addProfessorToGroup = (professor: Professor): void => {
     const professors = Array.from(group!.getProfessors());
     professors.push(professor);
     setGroup((prevGroup) => {
@@ -176,11 +176,11 @@ const EditGroupProfessors = () => {
     });
   };
 
-  const deleteProfessorFromGroups = (professor: Professor) => {
+  const deleteProfessorFromGroups = (professor: Professor): void => {
     window.mainController.deleteProfessorFromGroups(professor.getId());
   };
 
-  const fetchData = (group) => {
+  const fetchData = (group): void => {
     const groups = window.mainController
       .getGroups()
       .map((group) => Group.reinstantiate(group));
@@ -448,7 +448,9 @@ const EditGroupProfessors = () => {
               </div>
             </div>
           ) : (
-            <p className="w-full text-center text-xl">No hay profesores disponibles</p>
+            <p className="w-full text-center text-xl">
+              No hay profesores disponibles
+            </p>
           )}
         </div>
       ) : (

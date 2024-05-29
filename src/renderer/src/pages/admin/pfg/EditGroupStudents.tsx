@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Group from "../../../../../models/Group";
 import Student from "../../../../../models/Student";
@@ -10,8 +10,7 @@ import {
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 
-
-const EditGroupStudents = () => {
+const EditGroupStudents = (): ReactElement => {
   const { id } = useParams();
   const [group, setGroup] = useState<Group | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
@@ -19,7 +18,7 @@ const EditGroupStudents = () => {
   const [filteredStudents, setfilteredStudents] = useState<Student[]>([]);
   const Navigate = useNavigate();
 
-  const handleSave = () => {
+  const handleSave = (): void => {
     if (!group) {
       return;
     }
@@ -36,29 +35,31 @@ const EditGroupStudents = () => {
     Navigate("/admin/manageTheses/groups");
   };
 
-  const handleAddStudent = (student: Student) => {
+  const handleAddStudent = (student: Student): void => {
     if (!group) {
       return;
     }
 
     group.addStudent(student);
     setGroup(group);
-  
-    setStudents(students.filter((s) => s.getId() !== student.getId()));
-    setfilteredStudents(filteredStudents.filter((s) => s.getId() !== student.getId()));
-  }
 
-    const handleRemoveStudent = (student: Student) => {
-        if (!group) {
-        return;
-        }
-    
-        group.removeStudent(student);
-        setGroup(group);
-    
-        setStudents([...students, student]);
-        setfilteredStudents([...filteredStudents, student]);
+    setStudents(students.filter((s) => s.getId() !== student.getId()));
+    setfilteredStudents(
+      filteredStudents.filter((s) => s.getId() !== student.getId()),
+    );
+  };
+
+  const handleRemoveStudent = (student: Student): void => {
+    if (!group) {
+      return;
     }
+
+    group.removeStudent(student);
+    setGroup(group);
+
+    setStudents([...students, student]);
+    setfilteredStudents([...filteredStudents, student]);
+  };
 
   useEffect(() => {
     if (!id) {
@@ -87,7 +88,7 @@ const EditGroupStudents = () => {
     if (search === "") {
       setfilteredStudents(students);
     } else {
-        setfilteredStudents(
+      setfilteredStudents(
         students.filter((student) =>
           student.getName().toLowerCase().includes(search.toLowerCase()),
         ),
@@ -232,7 +233,9 @@ const EditGroupStudents = () => {
               </div>
             </div>
           ) : (
-            <p className="w-full text-center text-xl">No hay estudiantes disponibles</p>
+            <p className="w-full text-center text-xl">
+              No hay estudiantes disponibles
+            </p>
           )}
         </div>
       ) : (

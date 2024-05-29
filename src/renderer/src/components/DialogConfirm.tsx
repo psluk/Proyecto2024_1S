@@ -24,8 +24,8 @@ export default function DialogConfirm({
 }: Props): JSX.Element {
   return (
     <div
-      className={`absolute top-0 left-0 z-0 h-full w-full items-center justify-center bg-gray-600/40 ${show ? "flex" : "hidden"}`}
-      onClick={setShow ? () => setShow(false) : handleCancel}
+      className={`absolute left-0 top-0 z-0 h-full w-full items-center justify-center bg-gray-600/40 ${show ? "flex" : "hidden"}`}
+      onClick={setShow ? (): void => setShow(false) : handleCancel}
     >
       <div className="relative max-w-2xl">
         <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/3 transform rounded-full bg-white p-4">
@@ -41,13 +41,13 @@ export default function DialogConfirm({
           </div>
           <div className="flex gap-4">
             <button
-              className="h-8 rounded-md bg-sky-600 px-4 font-semibold text-white shadow-sm z-20"
+              className="z-20 h-8 rounded-md bg-sky-600 px-4 font-semibold text-white shadow-sm"
               onClick={handleConfirm}
             >
               {confirmText}
             </button>
             <button
-              className="h-8 rounded-md bg-red-600 px-4 font-semibold text-white shadow-sm z-20"
+              className="z-20 h-8 rounded-md bg-red-600 px-4 font-semibold text-white shadow-sm"
               onClick={handleCancel}
             >
               {cancelText}
