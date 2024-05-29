@@ -181,12 +181,19 @@ export default class StudentProfessorDao {
    * @param duration The duration of the presentation.
    * @param classroom The classroom of the presentation.
    */
-  addPresentation(studentId: number, startTime: Date, duration: number, classroom: string): void {
+  addPresentation(
+    studentId: number,
+    startTime: Date,
+    duration: number,
+    classroom: string,
+  ): void {
     const query = `
       INSERT INTO Presentations (startTime, minuteDuration, classroom, studentId)
       VALUES (?, ?, ?, ?);`;
 
-    database.prepare(query).run(startTime.toISOString(), duration, classroom, studentId);
+    database
+      .prepare(query)
+      .run(startTime.toISOString(), duration, classroom, studentId);
   }
 
   /**
@@ -259,6 +266,103 @@ export default class StudentProfessorDao {
         },
       );
     });
+  }
+
+  /**
+   * Retrieves a presentation from the database.
+   * @param id The presentation ID.
+   * @returns A Presentation object.
+   */
+  getPresentation(id: number): Presentation {
+    const query = `
+      SELECT presentationId                                                       AS id,
+             startTime,
+             minuteDuration,
+             classroom,
+             SP.studentProfessorId                                                AS studentProfessorId,
+             S.studentId                                                          AS studentId,
+             S.name                                                               AS studentName,
+             S.email                                                              AS studentEmail,
+             json_group_array(json_object(
+               'id', Pr.professorId,
+               'name', Pr.name,
+               'email', Pr.email,
+               'isAdvisor', SP.isAdvisor
+                              )) AS professors
+      FROM Presentations P
+             INNER JOIN Students S ON P.studentId = S.studentId
+             INNER JOIN StudentProfessors SP ON S.studentId = SP.studentId
+             INNER JOIN Professors Pr ON SP.professorId = Pr.professorId
+      WHERE P.presentationId = ?
+      GROUP BY P.classroom, P.startTime, P.presentationId
+      ORDER BY P.classroom, P.startTime;`;
+
+    const row = database.prepare(query).get(id) as {
+      id: number;
+      startTime: string;
+      minuteDuration: number;
+      classroom: string;
+      studentProfessorId: number;
+      studentId: number;
+      studentName: string;
+      studentEmail: string;
+      professors: string;
+    };
+
+    const professors = JSON.parse(row.professors) as {
+      id: number;
+      name: string;
+      email: string;
+      isAdvisor: number;
+    }[];
+
+    const attendees = professors.map((professor) => ({
+      id: professor.id,
+      name: professor.name,
+      email: professor.email,
+      isAdvisor: professor.isAdvisor !== 0,
+    }));
+
+    return new Presentation(
+      row.id,
+      row.startTime,
+      row.minuteDuration,
+      row.classroom,
+      {
+        id: row.studentProfessorId,
+        student: {
+          id: row.studentId,
+          name: row.studentName,
+          email: row.studentEmail,
+        },
+        professors: attendees,
+      },
+    );
+  }
+
+  /**
+   * Updates a presentation in the database.
+   * @param presentationId The presentation ID.
+   * @param startTime The start time of the presentation.
+   * @param duration The duration of the presentation.
+   * @param classroom The classroom of the presentation.
+   */
+  updatePresentation(
+    presentationId: number,
+    startTime: Date,
+    duration: number,
+    classroom: string,
+  ): void {
+    const query = `
+      UPDATE Presentations
+      SET startTime = ?,
+          minuteDuration = ?,
+          classroom = ?
+      WHERE presentationId = ?;`;
+
+    database
+      .prepare(query)
+      .run(startTime.toISOString(), duration, classroom, presentationId);
   }
 
   /**

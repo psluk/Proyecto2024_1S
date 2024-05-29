@@ -176,6 +176,15 @@ export default class StudentProfessorController {
   }
 
   /**
+   * Retrieves a presentation from the database.
+   * @param id The presentation ID.
+   * @returns A Presentation object.
+   */
+  getPresentation(id: number): Presentation {
+    return this.studentProfessorDao.getPresentation(id);
+  }
+
+  /**
    * Generates presentations for students.
    * @param classrooms The list of classrooms
    * @param presentationInterval The interval between presentations in minutes
@@ -456,6 +465,104 @@ export default class StudentProfessorController {
     // Add the presentation
     this.studentProfessorDao.addPresentation(
       studentId,
+      startTime,
+      duration,
+      classroom,
+    );
+
+    return { clashingProfessors, clashingPresentations };
+  }
+
+  /**
+   * Updates a presentation in the database.
+   * @param presentationId The presentation ID.
+   * @param startTime The start time of the presentation.
+   * @param duration The duration of the presentation.
+   * @param classroom The classroom of the presentation.
+   * @returns An object with the clashing professors and presentations, if any.
+   */
+  updatePresentation(
+    presentationId: number,
+    startTime: Date,
+    duration: number,
+    classroom: string,
+  ): {
+    clashingProfessors: string[];
+    clashingPresentations: Presentation[];
+  } {
+    // Check if there are clashes
+    const currentPresentations = this.studentProfessorDao.getPresentations();
+
+    // Get student professors
+    const presentation = currentPresentations.find(
+      (presentation) => presentation.getId() === presentationId,
+    );
+
+    if (!presentation) {
+      return { clashingProfessors: [], clashingPresentations: [] };
+    }
+
+    const startTimeDate = new Date(startTime);
+    const endTime = new Date(startTimeDate);
+    endTime.setMinutes(startTimeDate.getMinutes() + duration);
+
+    const clashingProfessors: string[] = [];
+
+    const clashingPresentations = currentPresentations.filter(
+      (otherPresentation) => {
+        if (otherPresentation.getId() === presentationId) return false;
+
+        const presentationStartTime = new Date(
+          otherPresentation.getStartTime(),
+        );
+        const presentationEndTime = new Date(presentationStartTime);
+        presentationEndTime.setMinutes(
+          presentationEndTime.getMinutes() +
+            otherPresentation.getMinuteDuration(),
+        );
+
+        if (
+          otherPresentation.getId() !== presentationId &&
+          doDatesOverlap(
+            startTimeDate,
+            endTime,
+            presentationStartTime,
+            presentationEndTime,
+          )
+        ) {
+          otherPresentation
+            .getAttendees()
+            .getProfessors()
+            .forEach((professor) => {
+              if (
+                presentation
+                  .getAttendees()
+                  .getProfessors()
+                  .map((p) => p.name)
+                  .includes(professor.name) &&
+                !clashingProfessors.includes(professor.name)
+              ) {
+                clashingProfessors.push(professor.name);
+              }
+            });
+
+          return (
+            otherPresentation.getClassroom().toLowerCase() ===
+            classroom.toLowerCase()
+          );
+        }
+
+        return false;
+      },
+    );
+
+    if (clashingProfessors.length > 0 || clashingPresentations.length > 0) {
+      return { clashingProfessors, clashingPresentations };
+    }
+
+    // Update the presentation
+    this.studentProfessorDao.updatePresentation(
+      presentationId,
       startTime,
       duration,
       classroom,

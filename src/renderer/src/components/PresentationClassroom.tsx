@@ -8,11 +8,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRightArrowLeft,
   faBan,
+  faPencil,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { PresentationSwapContext } from "../context/PresentationSwapContext";
+import { useNavigate } from "react-router-dom";
 
 export default function PresentationClassroom(props): React.ReactElement {
+  const navigate = useNavigate();
   const classroom = props.classroom as string;
   const presentations = props.presentations as PresentationInterface[];
   const onDelete = props.onDelete as (id: number) => void;
@@ -157,7 +160,7 @@ export default function PresentationClassroom(props): React.ReactElement {
                               </ol>
                             </td>
                             <td>
-                              <div className="flex w-6 flex-col items-center">
+                              <div className="flex h-[6rem] w-6 flex-col items-center justify-center">
                                 {presentationSwapContext.swappingPresentation !==
                                 null ? (
                                   presentationSwapContext.swappingPresentation ===
@@ -168,11 +171,21 @@ export default function PresentationClassroom(props): React.ReactElement {
                                         presentationSwapContext.cancelSwappingPresentation()
                                       }
                                       title="Cancelar intercambio"
-                                      className="rotate-90 cursor-pointer p-2 text-cyan-500 hover:text-cyan-400"
+                                      className="cursor-pointer p-2 text-cyan-500 hover:text-cyan-400"
                                     />
                                   )
                                 ) : (
                                   <>
+                                    <FontAwesomeIcon
+                                      icon={faPencil}
+                                      onClick={() =>
+                                        navigate(
+                                          `/admin/manageTheses/presentations/edit/${presentation.id}`,
+                                        )
+                                      }
+                                      title="Editar"
+                                      className="cursor-pointer p-2 text-emerald-500 hover:text-emerald-400"
+                                    />
                                     <FontAwesomeIcon
                                       icon={faArrowRightArrowLeft}
                                       onClick={() =>
