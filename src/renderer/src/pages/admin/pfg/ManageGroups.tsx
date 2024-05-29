@@ -7,7 +7,7 @@ import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import DialogAlert from "@renderer/components/DialogAlert";
 import Student from "../../../../../models/Student";
 import Professor from "../../../../../models/Professor";
-
+import { shuffleArray } from "../../../../../utils/Shuffle";
 import RandomGroupsForm from "@renderer/components/RandomGroupsForm";
 const ManageGroups = (): React.ReactElement => {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -87,13 +87,6 @@ const ManageGroups = (): React.ReactElement => {
     fetchGroups();
   };
 
-  function shuffleArray<T>(array: T[]): T[] {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
   const generateRandomGroups = (): void => {
     if (groups.length > 0) {
       window.mainController.deleteGroups();

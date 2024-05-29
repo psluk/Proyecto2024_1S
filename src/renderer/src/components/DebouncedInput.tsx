@@ -6,8 +6,11 @@ type Props = {
   id: number | null;
 };
 
-
-function DebouncedInput({ initialValue, onChange, id }: Props) {
+function DebouncedInput({
+  initialValue,
+  onChange,
+  id,
+}: Props): React.ReactElement {
   const [value, setValue] = useState<string | null>(initialValue);
 
   useEffect(() => {
