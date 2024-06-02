@@ -2,7 +2,12 @@ import {
   faWindowMaximize,
   faWindowRestore,
 } from "@fortawesome/free-regular-svg-icons";
-import { faBars, faMinus, faXmark } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowLeft,
+  faBars,
+  faMinus,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { adminOptions } from "@renderer/constants/AdminOptions";
 import { SessionContext } from "@renderer/context/SessionContext";
@@ -51,8 +56,24 @@ export default function TitleBar(): JSX.Element {
           if (routesWithoutMenu.includes(pathname)) setIsMenuOpen(false);
           else setIsMenuOpen(!isMenuOpen);
         }}
+        title={routesWithoutMenu.includes(pathname) ? "" : "Menú"}
       >
         <FontAwesomeIcon className="size-3" icon={faBars} />
+      </span>
+      <span
+        className={`ms-2 flex size-6 items-center justify-center rounded-full bg-white text-slate-700 transition hover:bg-slate-300 ${routesWithoutMenu.includes(pathname) ? "opacity-0" : "cursor-pointer"} transition-opacity duration-300`}
+        onClick={() => {
+          if (!routesWithoutMenu.includes(pathname)) {
+            try {
+              navigate(-1);
+            } catch (error) {
+              /* don't do anything */
+            }
+          }
+        }}
+        title={routesWithoutMenu.includes(pathname) ? "" : "Regresar"}
+      >
+        <FontAwesomeIcon className="size-3" icon={faArrowLeft} />
       </span>
       <div
         className={`absolute ${!routesWithoutMenu.includes(pathname) && isMenuOpen ? "left-0" : "-left-full"} w-screen bg-slate-800/50 transition-[left]`}
