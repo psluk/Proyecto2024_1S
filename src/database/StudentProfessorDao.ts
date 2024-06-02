@@ -405,6 +405,14 @@ export default class StudentProfessorDao {
   }
 
   /**
+   * Deletes all presentations.
+   */
+  deletePresentations(): void {
+    const query = `DELETE FROM Presentations;`;
+    database.prepare(query).run();
+  }
+
+  /**
    * Deletes all student-professor assignments.
    */
   deleteProfessorsAssigments(): void {

@@ -462,7 +462,7 @@ export default function ManagePresentations(): React.ReactElement {
         message:
           `Se generaron ${generated} citas${unassignedStudents.length > 0 ? " nuevas" : ""}${numberOfPresentations > generated ? ` de ${numberOfPresentations} posibles` : ""}.` +
           (numberOfPresentations > generated
-            ? ` No se pudieron generar ${numberOfPresentations - generated} citas automáticamente.`
+            ? ` No se pudieron generar ${numberOfPresentations - generated} citas automáticamente, por choque de horarios. Intente agregar nuevos horarios.`
             : ""),
         type: numberOfPresentations > generated ? "error" : "success",
       });
@@ -540,6 +540,20 @@ export default function ManagePresentations(): React.ReactElement {
     setShowDialogConfirm(true);
   };
 
+  const handleDeleteAll = (): void => {
+    setConfirmationDialogParams({
+      title: "Eliminar todas las presentaciones",
+      message:
+        "¿Está seguro de que desea eliminar todas las presentaciones? Esta acción no se puede deshacer.",
+      handleConfirm: () => {
+        window.mainController.deletePresentations();
+        reloadPresentations();
+        setShowDialogConfirm(false);
+      },
+    });
+    setShowDialogConfirm(true);
+  };
+
   return (
     <main className="gap-10">
       <h1 className="text-3xl font-bold">Administrar presentaciones</h1>
@@ -552,6 +566,13 @@ export default function ManagePresentations(): React.ReactElement {
           {showGenerationParameters
             ? "Cerrar generación"
             : "Generar aleatoriamente"}
+        </button>
+        <button
+          className="h-8 rounded-md bg-red-500 px-4 font-semibold text-white shadow-md transition-colors hover:bg-red-600"
+          type="button"
+          onClick={handleDeleteAll}
+        >
+          Eliminar todas las citas
         </button>
       </div>
       {showGenerationParameters && (

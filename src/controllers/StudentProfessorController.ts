@@ -11,6 +11,8 @@ import { convertApiDateToHtmlAttribute } from "../renderer/src/utils/DateFormatt
 import { shuffleArray } from "../utils/Shuffle";
 import { doDatesOverlap } from "../utils/DateOverlap";
 
+const MAX_ATTEMPTS: number = 10;
+
 interface ProfessorCapacity {
   name: string;
   capacity: number;
@@ -198,266 +200,286 @@ export default class StudentProfessorController {
       endTime: string;
     },
   ): { resolved: Presentation[]; unresolved: StudentProfessorInterface[] } {
-    // Array for the presentation slots
-    const presentationSlots: {
-      startTime: Date;
-      endTime: Date;
-      classrooms: string[];
-    }[] = [];
+    let resolved: Presentation[] = [];
+    let unresolved: StudentProfessorInterface[] = [];
 
-    // Array for every presentation once they're generated
-    const schedule: PresentationInterface[] = [];
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      // Array for the presentation slots
+      const presentationSlots: {
+        startTime: Date;
+        endTime: Date;
+        classrooms: string[];
+      }[] = [];
 
-    // Load existing presentations
-    const existingPresentations = this.getPresentations();
+      // Array for every presentation once they're generated
+      const schedule: PresentationInterface[] = [];
 
-    // Retrieve the list of students and their professors
-    const originalStudentProfessors = this.studentProfessorDao
-      .getStudentsProfessors()
-      .map((studentProfessor) => studentProfessor.asObject());
+      // Load existing presentations
+      const existingPresentations = this.getPresentations();
 
-    // If not all students have a presentation, insert the existing ones into their respective slots
-    if (existingPresentations.length < originalStudentProfessors.length) {
-      existingPresentations.forEach((presentation) => {
-        const existingStudentProfessor = originalStudentProfessors.find(
-          (sp) => sp.student.id === presentation.getAttendees().getStudent().id,
-        );
+      // Retrieve the list of students and their professors
+      const originalStudentProfessors = this.studentProfessorDao
+        .getStudentsProfessors()
+        .map((studentProfessor) => studentProfessor.asObject());
 
-        if (existingStudentProfessor) {
-          const currentStartTime = new Date(presentation.getStartTime());
-          const currentEndTime = new Date(currentStartTime);
-          currentEndTime.setMinutes(
-            currentEndTime.getMinutes() + presentation.getMinuteDuration(),
-          );
-          const currentClassroom = presentation.getClassroom();
-
-          const existingSlot = presentationSlots.find(
-            (slot) =>
-              slot.startTime.getTime() === currentStartTime.getTime() &&
-              slot.endTime.getTime() === currentEndTime.getTime(),
+      // If not all students have a presentation, insert the existing ones into their respective slots
+      if (existingPresentations.length < originalStudentProfessors.length) {
+        existingPresentations.forEach((presentation) => {
+          const existingStudentProfessor = originalStudentProfessors.find(
+            (sp) =>
+              sp.student.id === presentation.getAttendees().getStudent().id,
           );
 
-          if (existingSlot) {
-            if (!existingSlot.classrooms.includes(currentClassroom)) {
-              existingSlot.classrooms.push(currentClassroom);
+          if (existingStudentProfessor) {
+            const currentStartTime = new Date(presentation.getStartTime());
+            const currentEndTime = new Date(currentStartTime);
+            currentEndTime.setMinutes(
+              currentEndTime.getMinutes() + presentation.getMinuteDuration(),
+            );
+            const currentClassroom = presentation.getClassroom();
+
+            const existingSlot = presentationSlots.find(
+              (slot) =>
+                slot.startTime.getTime() === currentStartTime.getTime() &&
+                slot.endTime.getTime() === currentEndTime.getTime(),
+            );
+
+            if (existingSlot) {
+              if (!existingSlot.classrooms.includes(currentClassroom)) {
+                existingSlot.classrooms.push(currentClassroom);
+              }
+            } else {
+              presentationSlots.push({
+                startTime: currentStartTime,
+                endTime: currentEndTime,
+                classrooms: [currentClassroom],
+              });
             }
-          } else {
-            presentationSlots.push({
+
+            schedule.push({
+              id: existingStudentProfessor.id,
+              student: existingStudentProfessor.student,
+              professors: existingStudentProfessor.professors,
               startTime: currentStartTime,
               endTime: currentEndTime,
-              classrooms: [currentClassroom],
+              classroom: currentClassroom,
             });
           }
-
-          schedule.push({
-            id: existingStudentProfessor.id,
-            student: existingStudentProfessor.student,
-            professors: existingStudentProfessor.professors,
-            startTime: currentStartTime,
-            endTime: currentEndTime,
-            classroom: currentClassroom,
-          });
-        }
-      });
-    }
-
-    classrooms.forEach((classroom) => {
-      classroom.schedule.forEach((schedule) => {
-        const startTime = new Date(schedule.startTime);
-        const endTime = new Date(schedule.endTime);
-
-        // Create instances of the start and end of the lunch break
-        const lunchBreakStart = new Date(
-          convertApiDateToHtmlAttribute(schedule.startTime).split("T")[0] +
-            "T" +
-            lunchBreak.startTime,
-        );
-        const lunchBreakEnd = new Date(
-          convertApiDateToHtmlAttribute(schedule.startTime).split("T")[0] +
-            "T" +
-            lunchBreak.endTime,
-        );
-
-        let presentationsBeforeLunch: number;
-        let presentationsAfterLunch: number;
-
-        // If the lunch starts and ends at the same time, it means there is no lunch break
-        if (lunchBreakStart.getTime() === lunchBreakEnd.getTime()) {
-          presentationsBeforeLunch = Math.floor(
-            (endTime.getTime() - startTime.getTime()) /
-              (presentationInterval * 60000),
-          );
-          presentationsAfterLunch = 0;
-        } else {
-          // Calculate presentations before and after lunch break
-          presentationsBeforeLunch = Math.max(
-            Math.floor(
-              (Math.min(lunchBreakStart.getTime(), endTime.getTime()) -
-                startTime.getTime()) /
-                (presentationInterval * 60000),
-            ),
-            0,
-          );
-          presentationsAfterLunch = Math.max(
-            Math.floor(
-              (endTime.getTime() -
-                Math.max(lunchBreakEnd.getTime(), startTime.getTime())) /
-                (presentationInterval * 60000),
-            ),
-            0,
-          );
-        }
-
-        // Generate presentations before lunch break
-        for (let i = 0; i < presentationsBeforeLunch; i++) {
-          const presentationStartTime = new Date(
-            startTime.getTime() + i * presentationInterval * 60000,
-          );
-          const presentationEndTime = new Date(
-            presentationStartTime.getTime() + presentationInterval * 60000,
-          );
-
-          const existingPresentation = presentationSlots.find(
-            (p) =>
-              p.startTime.getTime() === presentationStartTime.getTime() &&
-              p.endTime.getTime() === presentationEndTime.getTime(),
-          );
-
-          if (existingPresentation) {
-            if (
-              !existingPresentation.classrooms.find(
-                (c) =>
-                  c
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .toLowerCase() ===
-                  classroom.name
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .toLowerCase(),
-              )
-            ) {
-              existingPresentation.classrooms.push(classroom.name);
-            }
-          } else {
-            presentationSlots.push({
-              startTime: presentationStartTime,
-              endTime: presentationEndTime,
-              classrooms: [classroom.name],
-            });
-          }
-        }
-
-        // Generate presentations after lunch break
-        for (let i = 0; i < presentationsAfterLunch; i++) {
-          const presentationStartTime = new Date(
-            Math.max(lunchBreakEnd.getTime(), startTime.getTime()) +
-              i * presentationInterval * 60000,
-          );
-          const presentationEndTime = new Date(
-            presentationStartTime.getTime() + presentationInterval * 60000,
-          );
-          const existingPresentation = presentationSlots.find(
-            (p) =>
-              p.startTime.getTime() === presentationStartTime.getTime() &&
-              p.endTime.getTime() === presentationEndTime.getTime(),
-          );
-
-          if (existingPresentation) {
-            if (
-              !existingPresentation.classrooms.find(
-                (c) =>
-                  c
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .toLowerCase() ===
-                  classroom.name
-                    .normalize("NFD")
-                    .replace(/[\u0300-\u036f]/g, "")
-                    .toLowerCase(),
-              )
-            ) {
-              existingPresentation.classrooms.push(classroom.name);
-            }
-          } else {
-            presentationSlots.push({
-              startTime: presentationStartTime,
-              endTime: presentationEndTime,
-              classrooms: [classroom.name],
-            });
-          }
-        }
-      });
-    });
-
-    // Randomize the list of students
-    const studentProfessors = shuffleArray(
-      originalStudentProfessors.filter(
-        (sp) => !schedule.some((p) => p.student.id === sp.student.id),
-      ),
-    );
-
-    for (const studentProfessor of studentProfessors) {
-      for (const slot of presentationSlots) {
-        const availableClassroom = slot.classrooms.find((classroom) => {
-          // A room that is free
-          const isRoomFree = !schedule.some(
-            (presentation) =>
-              presentation.classroom === classroom &&
-              doDatesOverlap(
-                slot.startTime,
-                slot.endTime,
-                presentation.startTime,
-                presentation.endTime,
-              ),
-          );
-
-          // No professors are in a different presentation at the same time
-          const areProfessorsFree = !schedule.some((presentation) =>
-            presentation.professors.some((professor) =>
-              studentProfessor.professors.some(
-                (p) =>
-                  p.id === professor.id &&
-                  doDatesOverlap(
-                    slot.startTime,
-                    slot.endTime,
-                    presentation.startTime,
-                    presentation.endTime,
-                  ),
-              ),
-            ),
-          );
-
-          return isRoomFree && areProfessorsFree;
         });
+      }
 
-        if (availableClassroom) {
-          schedule.push({
-            id: studentProfessor.id,
-            student: studentProfessor.student,
-            professors: studentProfessor.professors,
-            startTime: slot.startTime,
-            endTime: slot.endTime,
-            classroom: availableClassroom,
+      classrooms.forEach((classroom) => {
+        classroom.schedule.forEach((schedule) => {
+          const startTime = new Date(schedule.startTime);
+          const endTime = new Date(schedule.endTime);
+
+          // Create instances of the start and end of the lunch break
+          const lunchBreakStart = new Date(
+            convertApiDateToHtmlAttribute(schedule.startTime).split("T")[0] +
+              "T" +
+              lunchBreak.startTime,
+          );
+          const lunchBreakEnd = new Date(
+            convertApiDateToHtmlAttribute(schedule.startTime).split("T")[0] +
+              "T" +
+              lunchBreak.endTime,
+          );
+
+          let presentationsBeforeLunch: number;
+          let presentationsAfterLunch: number;
+
+          // If the lunch starts and ends at the same time, it means there is no lunch break
+          if (lunchBreakStart.getTime() === lunchBreakEnd.getTime()) {
+            presentationsBeforeLunch = Math.floor(
+              (endTime.getTime() - startTime.getTime()) /
+                (presentationInterval * 60000),
+            );
+            presentationsAfterLunch = 0;
+          } else {
+            // Calculate presentations before and after lunch break
+            presentationsBeforeLunch = Math.max(
+              Math.floor(
+                (Math.min(lunchBreakStart.getTime(), endTime.getTime()) -
+                  startTime.getTime()) /
+                  (presentationInterval * 60000),
+              ),
+              0,
+            );
+            presentationsAfterLunch = Math.max(
+              Math.floor(
+                (endTime.getTime() -
+                  Math.max(lunchBreakEnd.getTime(), startTime.getTime())) /
+                  (presentationInterval * 60000),
+              ),
+              0,
+            );
+          }
+
+          // Generate presentations before lunch break
+          for (let i = 0; i < presentationsBeforeLunch; i++) {
+            const presentationStartTime = new Date(
+              startTime.getTime() + i * presentationInterval * 60000,
+            );
+            const presentationEndTime = new Date(
+              presentationStartTime.getTime() + presentationInterval * 60000,
+            );
+
+            const existingPresentation = presentationSlots.find(
+              (p) =>
+                p.startTime.getTime() === presentationStartTime.getTime() &&
+                p.endTime.getTime() === presentationEndTime.getTime(),
+            );
+
+            if (existingPresentation) {
+              if (
+                !existingPresentation.classrooms.find(
+                  (c) =>
+                    c
+                      .normalize("NFD")
+                      .replace(/[\u0300-\u036f]/g, "")
+                      .toLowerCase() ===
+                    classroom.name
+                      .normalize("NFD")
+                      .replace(/[\u0300-\u036f]/g, "")
+                      .toLowerCase(),
+                )
+              ) {
+                existingPresentation.classrooms.push(classroom.name);
+              }
+            } else {
+              presentationSlots.push({
+                startTime: presentationStartTime,
+                endTime: presentationEndTime,
+                classrooms: [classroom.name],
+              });
+            }
+          }
+
+          // Generate presentations after lunch break
+          for (let i = 0; i < presentationsAfterLunch; i++) {
+            const presentationStartTime = new Date(
+              Math.max(lunchBreakEnd.getTime(), startTime.getTime()) +
+                i * presentationInterval * 60000,
+            );
+            const presentationEndTime = new Date(
+              presentationStartTime.getTime() + presentationInterval * 60000,
+            );
+            const existingPresentation = presentationSlots.find(
+              (p) =>
+                p.startTime.getTime() === presentationStartTime.getTime() &&
+                p.endTime.getTime() === presentationEndTime.getTime(),
+            );
+
+            if (existingPresentation) {
+              if (
+                !existingPresentation.classrooms.find(
+                  (c) =>
+                    c
+                      .normalize("NFD")
+                      .replace(/[\u0300-\u036f]/g, "")
+                      .toLowerCase() ===
+                    classroom.name
+                      .normalize("NFD")
+                      .replace(/[\u0300-\u036f]/g, "")
+                      .toLowerCase(),
+                )
+              ) {
+                existingPresentation.classrooms.push(classroom.name);
+              }
+            } else {
+              presentationSlots.push({
+                startTime: presentationStartTime,
+                endTime: presentationEndTime,
+                classrooms: [classroom.name],
+              });
+            }
+          }
+        });
+      });
+
+      // Randomize the list of students
+      const studentProfessors = shuffleArray(
+        originalStudentProfessors.filter(
+          (sp) => !schedule.some((p) => p.student.id === sp.student.id),
+        ),
+      );
+
+      for (const studentProfessor of studentProfessors) {
+        for (const slot of presentationSlots) {
+          const availableClassroom = slot.classrooms.find((classroom) => {
+            // A room that is free
+            const isRoomFree = !schedule.some(
+              (presentation) =>
+                presentation.classroom === classroom &&
+                doDatesOverlap(
+                  slot.startTime,
+                  slot.endTime,
+                  presentation.startTime,
+                  presentation.endTime,
+                ),
+            );
+
+            // No professors are in a different presentation at the same time
+            const areProfessorsFree = !schedule.some((presentation) =>
+              presentation.professors.some((professor) =>
+                studentProfessor.professors.some(
+                  (p) =>
+                    p.id === professor.id &&
+                    doDatesOverlap(
+                      slot.startTime,
+                      slot.endTime,
+                      presentation.startTime,
+                      presentation.endTime,
+                    ),
+                ),
+              ),
+            );
+
+            return isRoomFree && areProfessorsFree;
           });
 
-          slot.classrooms = slot.classrooms.filter(
-            (classroom) => classroom !== availableClassroom,
-          );
-          break;
+          if (availableClassroom) {
+            schedule.push({
+              id: studentProfessor.id,
+              student: studentProfessor.student,
+              professors: studentProfessor.professors,
+              startTime: slot.startTime,
+              endTime: slot.endTime,
+              classroom: availableClassroom,
+            });
+
+            slot.classrooms = slot.classrooms.filter(
+              (classroom) => classroom !== availableClassroom,
+            );
+            break;
+          }
         }
       }
+
+      // If not all students have a presentation, try again
+      if (
+        schedule.length <
+          presentationSlots.reduce(
+            (acc, slot) => acc + slot.classrooms.length,
+            0,
+          ) &&
+        attempt < MAX_ATTEMPTS - 1
+      ) {
+        continue;
+      }
+
+      // Add the presentations to the database
+      this.studentProfessorDao.addPresentations(schedule, true);
+
+      // Get the resolved presentations
+      resolved = this.studentProfessorDao.getPresentations();
+
+      unresolved = studentProfessors.filter(
+        (sp) => !schedule.some((p) => p.student.id === sp.student.id),
+      );
+
+      break;
     }
-
-    // Add the presentations to the database
-    this.studentProfessorDao.addPresentations(schedule, true);
-
-    // Get the resolved presentations
-    const resolved = this.studentProfessorDao.getPresentations();
-
-    const unresolved = studentProfessors.filter(
-      (sp) => !schedule.some((p) => p.student.id === sp.student.id),
-    );
 
     return { resolved, unresolved };
   }
@@ -749,5 +771,12 @@ export default class StudentProfessorController {
    */
   deletePresentation(presentationId: number): void {
     this.studentProfessorDao.deletePresentation(presentationId);
+  }
+
+  /**
+   * Deletes all presentations
+   */
+  deletePresentations(): void {
+    this.studentProfessorDao.deletePresentations();
   }
 }

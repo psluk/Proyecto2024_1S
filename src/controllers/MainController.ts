@@ -104,6 +104,7 @@ export default class MainController {
       this.checkProfessorClashesWhenSwapping.bind(this);
     this.swapPresentations = this.swapPresentations.bind(this);
     this.deletePresentation = this.deletePresentation.bind(this);
+    this.deletePresentations = this.deletePresentations.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -1059,5 +1060,12 @@ export default class MainController {
    */
   deletePresentation(presentationId: number): void {
     this.studentProfessorController.deletePresentation(presentationId);
+  }
+
+  /**
+   * Deletes all presentations
+   */
+  deletePresentations(): void {
+    this.studentProfessorController.deletePresentations();
   }
 }
