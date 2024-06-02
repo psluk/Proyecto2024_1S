@@ -15,6 +15,7 @@ import PresentationClassroom from "../../../components/PresentationClassroom";
 import { PresentationSwapContext } from "../../../context/PresentationSwapContext";
 import { StudentProfessorInterface } from "../../../../../models/StudentProfessor";
 import { useNavigate } from "react-router-dom";
+import { doDatesOverlap } from "../../../utils/DateOverlap";
 
 const calculateNumberOfPresentations = (
   classrooms: Classroom[],
@@ -23,8 +24,15 @@ const calculateNumberOfPresentations = (
     startTime: string;
     endTime: string;
   },
+  presentations: PresentationInterface[] = [],
+  clearCurrentList: boolean = false,
 ): number => {
-  let totalPresentations = 0;
+  // Array for the presentation slots
+  const presentationSlots: {
+    startTime: Date;
+    endTime: Date;
+    classrooms: string[];
+  }[] = [];
 
   classrooms.forEach((classroom) => {
     classroom.schedule.forEach((schedule) => {
@@ -43,29 +51,157 @@ const calculateNumberOfPresentations = (
           lunchBreak.endTime,
       );
 
-      // Calculate presentations before and after lunch break
-      const presentationsBeforeLunch = Math.max(
-        Math.floor(
-          (Math.min(lunchBreakStart.getTime(), endTime.getTime()) -
-            startTime.getTime()) /
-            (presentationInterval * 60000),
-        ),
-        0,
-      );
-      const presentationsAfterLunch = Math.max(
-        Math.floor(
-          (endTime.getTime() -
-            Math.max(lunchBreakEnd.getTime(), startTime.getTime())) /
-            (presentationInterval * 60000),
-        ),
-        0,
-      );
+      let presentationsBeforeLunch: number;
+      let presentationsAfterLunch: number;
 
-      totalPresentations += presentationsBeforeLunch + presentationsAfterLunch;
+      // If the lunch starts and ends at the same time, it means there is no lunch break
+      if (lunchBreakStart.getTime() === lunchBreakEnd.getTime()) {
+        presentationsBeforeLunch = Math.floor(
+          (endTime.getTime() - startTime.getTime()) /
+            (presentationInterval * 60000),
+        );
+        presentationsAfterLunch = 0;
+      } else {
+        // Calculate presentations before and after lunch break
+        presentationsBeforeLunch = Math.max(
+          Math.floor(
+            (Math.min(lunchBreakStart.getTime(), endTime.getTime()) -
+              startTime.getTime()) /
+              (presentationInterval * 60000),
+          ),
+          0,
+        );
+        presentationsAfterLunch = Math.max(
+          Math.floor(
+            (endTime.getTime() -
+              Math.max(lunchBreakEnd.getTime(), startTime.getTime())) /
+              (presentationInterval * 60000),
+          ),
+          0,
+        );
+      }
+
+      // Generate presentations before lunch break
+      for (let i = 0; i < presentationsBeforeLunch; i++) {
+        const presentationStartTime = new Date(
+          startTime.getTime() + i * presentationInterval * 60000,
+        );
+        const presentationEndTime = new Date(
+          presentationStartTime.getTime() + presentationInterval * 60000,
+        );
+
+        const existingPresentation = presentationSlots.find(
+          (p) =>
+            p.startTime.getTime() === presentationStartTime.getTime() &&
+            p.endTime.getTime() === presentationEndTime.getTime(),
+        );
+
+        if (existingPresentation) {
+          if (
+            !existingPresentation.classrooms.find(
+              (c) =>
+                c
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .toLowerCase() ===
+                classroom.name
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .toLowerCase(),
+            )
+          ) {
+            existingPresentation.classrooms.push(classroom.name);
+          }
+        } else {
+          presentationSlots.push({
+            startTime: presentationStartTime,
+            endTime: presentationEndTime,
+            classrooms: [classroom.name],
+          });
+        }
+      }
+
+      // Generate presentations after lunch break
+      for (let i = 0; i < presentationsAfterLunch; i++) {
+        const presentationStartTime = new Date(
+          Math.max(lunchBreakEnd.getTime(), startTime.getTime()) +
+            i * presentationInterval * 60000,
+        );
+        const presentationEndTime = new Date(
+          presentationStartTime.getTime() + presentationInterval * 60000,
+        );
+        const existingPresentation = presentationSlots.find(
+          (p) =>
+            p.startTime.getTime() === presentationStartTime.getTime() &&
+            p.endTime.getTime() === presentationEndTime.getTime(),
+        );
+
+        if (existingPresentation) {
+          if (
+            !existingPresentation.classrooms.find(
+              (c) =>
+                c
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .toLowerCase() ===
+                classroom.name
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .toLowerCase(),
+            )
+          ) {
+            existingPresentation.classrooms.push(classroom.name);
+          }
+        } else {
+          presentationSlots.push({
+            startTime: presentationStartTime,
+            endTime: presentationEndTime,
+            classrooms: [classroom.name],
+          });
+        }
+      }
     });
   });
 
-  return totalPresentations;
+  // If the list is not to be cleared, remove overlapping slots
+  if (!clearCurrentList) {
+    presentations.forEach((presentation) => {
+      const currentStartTime = new Date(presentation.startTime);
+      const currentEndTime = new Date(currentStartTime);
+      currentEndTime.setMinutes(
+        currentEndTime.getMinutes() + presentation.minuteDuration,
+      );
+      const currentClassroom = presentation.classroom;
+
+      presentationSlots.forEach((slot) => {
+        const slotStartTime = slot.startTime;
+        const slotEndTime = slot.endTime;
+        const slotClassrooms = slot.classrooms;
+
+        if (
+          doDatesOverlap(
+            currentStartTime,
+            currentEndTime,
+            slotStartTime,
+            slotEndTime,
+          ) &&
+          slotClassrooms.includes(currentClassroom)
+        ) {
+          // Remove the classroom from the slot
+          const classroomIndex = slotClassrooms.indexOf(currentClassroom);
+
+          if (classroomIndex !== -1) {
+            slotClassrooms.splice(classroomIndex, 1);
+          }
+        }
+      });
+    });
+  }
+
+  return presentationSlots.reduce(
+    (acc, slot) => acc + slot.classrooms.length,
+    0,
+  );
 };
 
 export default function ManagePresentations(): React.ReactElement {
@@ -244,8 +380,32 @@ export default function ManagePresentations(): React.ReactElement {
   };
 
   const handleSubmit = (): void => {
-    // Warn if there are already presentations
-    if (presentations.length > 0) {
+    // Check if there are duplicate names
+    const classroomNames = classrooms.map((classroom) =>
+      classroom.name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase(),
+    );
+    const uniqueClassroomNames = new Set(classroomNames);
+
+    if (uniqueClassroomNames.size !== classroomNames.length) {
+      // Warn about duplicate names
+      setConfirmationDialogParams({
+        title: "Advertencia",
+        message:
+          "Hay aulas con nombres duplicados. Si continúa, se tomarán como si fueran la misma.",
+        handleConfirm: () => {
+          generatePresentations();
+          setShowDialogConfirm(false);
+        },
+      });
+      setShowDialogConfirm(true);
+      return;
+    }
+
+    // Warn if all presentations have been generated
+    if (unassignedStudents.length === 0) {
       setConfirmationDialogParams({
         title: "Advertencia",
         message: "Ya se han generado presentaciones. ¿Desea sobreescribirlas?",
@@ -270,31 +430,41 @@ export default function ManagePresentations(): React.ReactElement {
       .split("T")[1];
 
     try {
-      const { resolved, unresolved } =
-        window.mainController.generatePresentations(
-          classrooms,
-          presentationInterval,
-          {
-            startTime: lunchBreakStart,
-            endTime: lunchBreakEnd,
-          },
-        );
-      reloadPresentations();
-
-      const numberOfPresentations = calculateNumberOfPresentations(
+      const { resolved } = window.mainController.generatePresentations(
         classrooms,
         presentationInterval,
-        lunchBreak,
+        {
+          startTime: lunchBreakStart,
+          endTime: lunchBreakEnd,
+        },
+      );
+      reloadPresentations();
+
+      const numberOfPresentations = Math.min(
+        calculateNumberOfPresentations(
+          classrooms,
+          presentationInterval,
+          lunchBreak,
+          presentations,
+          unassignedStudents.length === 0,
+        ),
+        unassignedStudents.length > 0
+          ? unassignedStudents.length
+          : presentations.length,
       );
 
+      const generated =
+        resolved.length -
+        (unassignedStudents.length > 0 ? presentations.length : 0);
+
       setAlertDialogParams({
-        title: "Éxito",
+        title: numberOfPresentations > generated ? "Advertencia" : "Éxito",
         message:
-          `Se generaron ${resolved.length} presentaciones de ${numberOfPresentations} posibles.` +
-          (unresolved.length > 0
-            ? ` No se pudieron generar ${unresolved.length} presentaciones.`
+          `Se generaron ${generated} citas${unassignedStudents.length > 0 ? " nuevas" : ""}${numberOfPresentations > generated ? ` de ${numberOfPresentations} posibles` : ""}.` +
+          (numberOfPresentations > generated
+            ? ` No se pudieron generar ${numberOfPresentations - generated} citas automáticamente.`
             : ""),
-        type: "success",
+        type: numberOfPresentations > generated ? "error" : "success",
       });
       presentationSwapContext.cancelSwappingPresentation();
     } catch (error) {
@@ -571,8 +741,26 @@ export default function ManagePresentations(): React.ReactElement {
             </button>
           </div>
           <p className="mt-10 text-center">
-            Hay <span className="font-bold">{numberOfStudents}</span>{" "}
-            estudiantes con profesor asignado para su defensa.
+            Hay {numberOfStudents} estudiantes con profesor asignado para su
+            defensa.
+            {unassignedStudents.length > 0 ? (
+              <>
+                {" "}
+                De ellos,{" "}
+                <span className="font-bold">
+                  {unassignedStudents.length}
+                </span>{" "}
+                no tienen su cita de defensa asignada.
+              </>
+            ) : (
+              <>
+                {" "}
+                Todos ellos tienen su cita asignada.{" "}
+                <span className="font-bold text-red-500">
+                  Si las genera de nuevo, las sobrescribirá.
+                </span>
+              </>
+            )}
             {numberOfStudents === 0 && (
               <>
                 <br />
@@ -589,9 +777,12 @@ export default function ManagePresentations(): React.ReactElement {
                 classrooms,
                 presentationInterval,
                 lunchBreak,
+                presentations,
+                unassignedStudents.length === 0,
               )}
             </span>{" "}
-            defensas.
+            citas de defensa
+            {unassignedStudents.length > 0 && <> nuevas</>}.
           </p>
           <button
             className="mt-2 max-w-full rounded-lg bg-green-600 px-4 py-1 text-xl font-bold text-white shadow-md transition-colors hover:bg-green-500"

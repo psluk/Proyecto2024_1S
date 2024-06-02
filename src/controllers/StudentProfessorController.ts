@@ -198,12 +198,68 @@ export default class StudentProfessorController {
       endTime: string;
     },
   ): { resolved: Presentation[]; unresolved: StudentProfessorInterface[] } {
-    // Generate presentation slots
+    // Array for the presentation slots
     const presentationSlots: {
       startTime: Date;
       endTime: Date;
       classrooms: string[];
     }[] = [];
+
+    // Array for every presentation once they're generated
+    const schedule: PresentationInterface[] = [];
+
+    // Load existing presentations
+    const existingPresentations = this.getPresentations();
+
+    // Retrieve the list of students and their professors
+    const originalStudentProfessors = this.studentProfessorDao
+      .getStudentsProfessors()
+      .map((studentProfessor) => studentProfessor.asObject());
+
+    // If not all students have a presentation, insert the existing ones into their respective slots
+    if (existingPresentations.length < originalStudentProfessors.length) {
+      existingPresentations.forEach((presentation) => {
+        const existingStudentProfessor = originalStudentProfessors.find(
+          (sp) => sp.student.id === presentation.getAttendees().getStudent().id,
+        );
+
+        if (existingStudentProfessor) {
+          const currentStartTime = new Date(presentation.getStartTime());
+          const currentEndTime = new Date(currentStartTime);
+          currentEndTime.setMinutes(
+            currentEndTime.getMinutes() + presentation.getMinuteDuration(),
+          );
+          const currentClassroom = presentation.getClassroom();
+
+          const existingSlot = presentationSlots.find(
+            (slot) =>
+              slot.startTime.getTime() === currentStartTime.getTime() &&
+              slot.endTime.getTime() === currentEndTime.getTime(),
+          );
+
+          if (existingSlot) {
+            if (!existingSlot.classrooms.includes(currentClassroom)) {
+              existingSlot.classrooms.push(currentClassroom);
+            }
+          } else {
+            presentationSlots.push({
+              startTime: currentStartTime,
+              endTime: currentEndTime,
+              classrooms: [currentClassroom],
+            });
+          }
+
+          schedule.push({
+            id: existingStudentProfessor.id,
+            student: existingStudentProfessor.student,
+            professors: existingStudentProfessor.professors,
+            startTime: currentStartTime,
+            endTime: currentEndTime,
+            classroom: currentClassroom,
+          });
+        }
+      });
+    }
 
     classrooms.forEach((classroom) => {
       classroom.schedule.forEach((schedule) => {
@@ -268,7 +324,21 @@ export default class StudentProfessorController {
           );
 
           if (existingPresentation) {
-            existingPresentation.classrooms.push(classroom.name);
+            if (
+              !existingPresentation.classrooms.find(
+                (c) =>
+                  c
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase() ===
+                  classroom.name
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase(),
+              )
+            ) {
+              existingPresentation.classrooms.push(classroom.name);
+            }
           } else {
             presentationSlots.push({
               startTime: presentationStartTime,
@@ -294,7 +364,21 @@ export default class StudentProfessorController {
           );
 
           if (existingPresentation) {
-            existingPresentation.classrooms.push(classroom.name);
+            if (
+              !existingPresentation.classrooms.find(
+                (c) =>
+                  c
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase() ===
+                  classroom.name
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase(),
+              )
+            ) {
+              existingPresentation.classrooms.push(classroom.name);
+            }
           } else {
             presentationSlots.push({
               startTime: presentationStartTime,
@@ -306,17 +390,12 @@ export default class StudentProfessorController {
       });
     });
 
-    // Retrieve the list of students and their professors
-    const originalStudentProfessors = this.studentProfessorDao
-      .getStudentsProfessors()
-      .map((studentProfessor) => studentProfessor.asObject());
-
     // Randomize the list of students
-    const studentProfessors = shuffleArray(originalStudentProfessors);
-
-    // Assign presentations to classrooms
-
-    const schedule: PresentationInterface[] = [];
+    const studentProfessors = shuffleArray(
+      originalStudentProfessors.filter(
+        (sp) => !schedule.some((p) => p.student.id === sp.student.id),
+      ),
+    );
 
     for (const studentProfessor of studentProfessors) {
       for (const slot of presentationSlots) {
