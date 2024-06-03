@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { ReactElement, useEffect, useState, useRef } from "react";
 import DialogAlert from "@renderer/components/DialogAlert";
 import { StudentProfessorInterface } from "../../../../models/StudentProfessor";
 
@@ -23,7 +23,7 @@ interface ProfessorsSuggestionsRow {
   suggestedStudents: number;
 }
 
-export default function EditStudentProfessor() {
+export default function EditStudentProfessor(): ReactElement | null {
   const { id } = useParams();
   const [studentProfessorData, setStudentProfessorData] =
     useState<StudentProfessorData | null>(null);
@@ -49,7 +49,7 @@ export default function EditStudentProfessor() {
     const loadedStudentsProfessors: StudentProfessorInterface[] =
       window.mainController.getStudentsProfessors();
     const studentProfessor = loadedStudentsProfessors.find(
-      (sp) => sp.student.id === parseInt(id),
+      (sp) => sp.student.id === parseInt(id || "0"),
     );
     if (studentProfessor) {
       setStudentProfessorData({
@@ -93,7 +93,7 @@ export default function EditStudentProfessor() {
     setProfessorsSuggestions(sortedProfessorsSuggestions);
   }, []);
 
-  const handleUpdate = async (event: React.FormEvent) => {
+  const handleUpdate = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
     if (studentProfessorData) {
       const studentProfessor_actual = studentProfessorData;
@@ -135,15 +135,16 @@ export default function EditStudentProfessor() {
         setMessage("Tutoría modificada con éxito");
         setShowDialog(true);
       } catch (error) {
+        console.error(error);
         setTitle("Error");
         setTypeDialog("error");
-        setMessage("Error al modificar estudiante");
+        setMessage("Error al modificar tutoría");
         setShowDialog(true);
       }
     }
   };
 
-  const updateData = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const updateData = (event: React.ChangeEvent<HTMLSelectElement>): void => {
     const { id, value } = event.target;
     if (id === "profesorGuia") {
       setSelectedGuia(value);

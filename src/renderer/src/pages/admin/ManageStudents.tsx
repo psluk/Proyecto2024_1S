@@ -42,12 +42,12 @@ export default function ManageStudents(): JSX.Element {
     }
   }, [search, students]);
 
-  const deleteStudent = (id: number) => {
+  const deleteStudent = (id: number): void => {
     setStudentId(id);
     setShowDialog(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = (): void => {
     try {
       window.mainController.deleteStudent(studentId);
     } catch (error) {
