@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRightArrowLeft,
   faCheck,
+  faMagnifyingGlass,
   faPlus,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
@@ -206,6 +207,7 @@ const calculateNumberOfPresentations = (
 
 export default function ManagePresentations(): React.ReactElement {
   const navigate = useNavigate();
+  const [search, setSearch] = useState<string>("");
   const [showGenerationParameters, setShowGenerationParameters] =
     useState<boolean>(false);
   const [presentationInterval, setPresentationInterval] = useState<number>(90);
@@ -558,6 +560,20 @@ export default function ManagePresentations(): React.ReactElement {
     <main className="gap-10">
       <h1 className="text-3xl font-bold">Administrar presentaciones</h1>
       <div className="flex w-full max-w-7xl flex-col items-center justify-between gap-3 md:flex-row">
+        <div className="flex w-full max-w-sm items-center rounded-md border border-gray-300 bg-white">
+          <FontAwesomeIcon
+            icon={faMagnifyingGlass}
+            className="ml-4 text-gray-400"
+          />
+          <input
+            type="text"
+            placeholder="Buscar presentación"
+            className="h-8 flex-1 rounded-md border-none pl-4 pr-10 focus:outline-none focus:ring-0"
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
+          />
+        </div>
         <button
           className="h-8 rounded-md bg-blue-500 px-4 font-semibold text-white shadow-md transition-colors hover:bg-blue-600"
           type="button"
@@ -838,6 +854,7 @@ export default function ManagePresentations(): React.ReactElement {
             key={classroom.classroom}
             onDelete={deletePresentation}
             reload={reloadPresentations}
+            searchTerm={search}
             {...classroom}
           />
         ))
