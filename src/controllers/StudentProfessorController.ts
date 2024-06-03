@@ -210,6 +210,9 @@ export default class StudentProfessorController {
     let resolved: Presentation[] = [];
     let unresolved: StudentProfessorInterface[] = [];
 
+    // Save the best schedule (max. number of assignments)
+    let bestSchedule: PresentationInterface[] = [];
+
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
       // Array for the presentation slots
       const presentationSlots: {
@@ -276,18 +279,22 @@ export default class StudentProfessorController {
       }
 
       classrooms.forEach((classroom) => {
-        classroom.schedule.forEach((schedule) => {
-          const startTime = new Date(schedule.startTime);
-          const endTime = new Date(schedule.endTime);
+        classroom.schedule.forEach((classroomSchedule) => {
+          const startTime = new Date(classroomSchedule.startTime);
+          const endTime = new Date(classroomSchedule.endTime);
 
           // Create instances of the start and end of the lunch break
           const lunchBreakStart = new Date(
-            convertApiDateToHtmlAttribute(schedule.startTime).split("T")[0] +
+            convertApiDateToHtmlAttribute(classroomSchedule.startTime).split(
+              "T",
+            )[0] +
               "T" +
               lunchBreak.startTime,
           );
           const lunchBreakEnd = new Date(
-            convertApiDateToHtmlAttribute(schedule.startTime).split("T")[0] +
+            convertApiDateToHtmlAttribute(classroomSchedule.startTime).split(
+              "T",
+            )[0] +
               "T" +
               lunchBreak.endTime,
           );
@@ -337,6 +344,29 @@ export default class StudentProfessorController {
                 p.endTime.getTime() === presentationEndTime.getTime(),
             );
 
+            // If there is an overlapping presentation in the schedule, stop
+            if (
+              schedule.some(
+                (presentation) =>
+                  presentation.classroom
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase() ===
+                    classroom.name
+                      .normalize("NFD")
+                      .replace(/[\u0300-\u036f]/g, "")
+                      .toLowerCase() &&
+                  doDatesOverlap(
+                    presentation.startTime,
+                    presentation.endTime,
+                    presentationStartTime,
+                    presentationEndTime,
+                  ),
+              )
+            ) {
+              continue;
+            }
+
             if (existingPresentation) {
               if (
                 !existingPresentation.classrooms.find(
@@ -376,6 +406,29 @@ export default class StudentProfessorController {
                 p.startTime.getTime() === presentationStartTime.getTime() &&
                 p.endTime.getTime() === presentationEndTime.getTime(),
             );
+
+            // If there is an overlapping presentation in the schedule, stop
+            if (
+              schedule.some(
+                (presentation) =>
+                  presentation.classroom
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase() ===
+                    classroom.name
+                      .normalize("NFD")
+                      .replace(/[\u0300-\u036f]/g, "")
+                      .toLowerCase() &&
+                  doDatesOverlap(
+                    presentation.startTime,
+                    presentation.endTime,
+                    presentationStartTime,
+                    presentationEndTime,
+                  ),
+              )
+            ) {
+              continue;
+            }
 
             if (existingPresentation) {
               if (
@@ -464,19 +517,35 @@ export default class StudentProfessorController {
       }
 
       // If not all students have a presentation, try again
+      // (happens if there are free slots and unassigned students)
       if (
-        schedule.length <
-          presentationSlots.reduce(
-            (acc, slot) => acc + slot.classrooms.length,
-            0,
-          ) &&
+        presentationSlots.reduce(
+          (acc, presentation) => acc + presentation.classrooms.length,
+          0,
+        ) > 1 &&
+        originalStudentProfessors.some(
+          (sp) => !schedule.some((p) => p.student.id === sp.student.id),
+        ) &&
         attempt < MAX_ATTEMPTS - 1
       ) {
+        if (schedule.length > bestSchedule.length) {
+          bestSchedule = JSON.parse(JSON.stringify(schedule)).map((p) =>
+            // Re-instantiate Date objects
+            ({
+              ...p,
+              startTime: new Date(p.startTime),
+              endTime: new Date(p.endTime),
+            }),
+          );
+        }
         continue;
       }
 
       // Add the presentations to the database
-      this.studentProfessorDao.addPresentations(schedule, true);
+      this.studentProfessorDao.addPresentations(
+        schedule.length > bestSchedule.length ? schedule : bestSchedule,
+        true,
+      );
 
       // Get the resolved presentations
       resolved = this.studentProfessorDao.getPresentations();
