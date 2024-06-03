@@ -113,9 +113,6 @@ export default class MainController {
     this.deletePresentation = this.deletePresentation.bind(this);
     this.deletePresentations = this.deletePresentations.bind(this);
     this.getProfessorsSuggestions = this.getProfessorsSuggestions.bind(this);
-    this.getStudentsByProfessorId = this.getStudentsByProfessorId.bind(this);
-    this.getSuggestedStudentsByProfessorId =
-      this.getSuggestedStudentsByProfessorId.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -1086,27 +1083,5 @@ export default class MainController {
    */
   public getProfessorsSuggestions(): ProfessorsSuggestionsRow[] {
     return this.studentProfessorController.getProfessorsSuggestions();
-  }
-
-  /**
-   * Get the amount of students assigned to a professor.
-   * @param professorId
-   * @returns The amount of students assigned to the professor.
-   */
-  getStudentsByProfessorId(professorId: number): number | null {
-    return this.studentProfessorController.getStudentsByProfessorId(
-      professorId,
-    );
-  }
-
-  /**
-   * Get the amount of suggested students assigned to a professor.
-   * @param professorId
-   * @returns The amount of suggested students assigned to the professor.
-   */
-  getSuggestedStudentsByProfessorId(professorId: number): number | null {
-    return this.studentProfessorController.getSuggestedStudentsByProfessorId(
-      professorId,
-    );
   }
 }

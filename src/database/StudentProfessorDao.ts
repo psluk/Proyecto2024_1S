@@ -550,34 +550,4 @@ AND professorId = ?;`;
       console.error(`Problem with update of activity lector.`);
     }
   }
-
-  /**
-   * Get the amount of students assigned to a professor.
-   * @param professorId
-   * @returns The amount of students assigned to the professor.
-   */
-  getStudentsByProfessorId(professorId: number): number | null {
-    const query = `SELECT students FROM Activities WHERE name = 'Proyecto Final de Graduación' AND suggestedStudents IS NOT NULL AND professorId = ?;`;
-    const result = database.prepare(query).get(professorId);
-    if (typeof result === "number") {
-      return result;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Get the amount of suggested students assigned to a professor.
-   * @param professorId
-   * @returns The amount of suggested students assigned to the professor.
-   */
-  getSuggestedStudentsByProfessorId(professorId: number): number | null {
-    const query = `SELECT suggestedStudents FROM Activities WHERE name = "Proyecto Final de Graduación" AND suggestedStudents IS NOT NULL AND professorId = ?;`;
-    const result = database.prepare(query).get(professorId);
-    if (typeof result === "number") {
-      return result;
-    } else {
-      return null;
-    }
-  }
 }

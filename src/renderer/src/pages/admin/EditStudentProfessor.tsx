@@ -23,6 +23,25 @@ interface ProfessorsSuggestionsRow {
   suggestedStudents: number;
 }
 
+function hasReachedStudentLimit(professorId: number): boolean {
+  // Obtener el arreglo de sugerencias de profesores
+  const loadedProfessorsSuggestions =
+    window.mainController.getProfessorsSuggestions();
+
+  // Buscar el objeto cuyo atributo "professorId" sea igual al parámetro recibido
+  const professor = loadedProfessorsSuggestions.find(
+    (prof) => prof.professorId === professorId,
+  );
+
+  // Comparar los valores de "students" y "suggestedStudents"
+  if (professor) {
+    return professor.students >= professor.suggestedStudents;
+  }
+
+  // Si no se encuentra el profesor, retornar false
+  return false;
+}
+
 export default function EditStudentProfessor(): ReactElement | null {
   const { id } = useParams();
   const [studentProfessorData, setStudentProfessorData] =
@@ -43,8 +62,6 @@ export default function EditStudentProfessor(): ReactElement | null {
     ProfessorsSuggestionsRow[]
   >([]);
 
-  const [students, setStudents] = useState<number>(0);
-  const [suggestedStudents, setSuggestedStudents] = useState<number>(1);
   const [warning, setWarning] = useState<boolean>(false);
 
   const navigate = useNavigate();
@@ -98,17 +115,14 @@ export default function EditStudentProfessor(): ReactElement | null {
   }, []);
 
   useEffect(() => {
-    if (students >= suggestedStudents) {
-      setWarning(true);
-    } else {
-      setWarning(false);
+    if (selectedGuia) {
+      const warningState = hasReachedStudentLimit(parseInt(selectedGuia));
+      setWarning(warningState);
     }
-  }, []);
+  }, [selectedGuia]);
 
   const handleUpdate = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
-    setStudents(0);
-    setSuggestedStudents(1);
     if (studentProfessorData) {
       const studentProfessor_actual = studentProfessorData;
       const studentID = studentProfessor_actual.student.id;
@@ -225,8 +239,8 @@ export default function EditStudentProfessor(): ReactElement | null {
           {warning && (
             <div>
               <h1 className=" text-red-400">
-                El profesor ya ha alcanzado su número límite de estudiantes
-                sugeridos
+                El límite de estudiantes sugeridos para el profesor ya ha sido
+                alcanzado
               </h1>
             </div>
           )}

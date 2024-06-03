@@ -863,24 +863,4 @@ export default class StudentProfessorController {
   public getProfessorsSuggestions(): ProfessorsSuggestionsRow[] {
     return this.studentProfessorDao.getProfessorsSuggestions();
   }
-
-  /**
-   * Get the amount of students assigned to a professor.
-   * @param professorId
-   * @returns The amount of students assigned to the professor.
-   */
-  getStudentsByProfessorId(professorId: number): number | null {
-    return this.studentProfessorDao.getStudentsByProfessorId(professorId);
-  }
-
-  /**
-   * Get the amount of suggested students assigned to a professor.
-   * @param professorId
-   * @returns The amount of suggested students assigned to the professor.
-   */
-  getSuggestedStudentsByProfessorId(professorId: number): number | null {
-    return this.studentProfessorDao.getSuggestedStudentsByProfessorId(
-      professorId,
-    );
-  }
 }
