@@ -44,12 +44,12 @@ export default function ManageProfessors(): JSX.Element {
     }
   }, [search, professors]);
 
-  const deleteProfessor = (id: number) => {
+  const deleteProfessor = (id: number): void => {
     setProfessorId(id);
     setShowDialog(true);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = (): void => {
     try {
       window.mainController.deleteProfessor(professorId);
     } catch (error) {
@@ -174,9 +174,7 @@ export default function ManageProfessors(): JSX.Element {
 
       <DialogAlert
         title="Error"
-        message={
-          "Ocurrió un error al eliminar al profesor."
-        }
+        message={"Ocurrió un error al eliminar al profesor."}
         show={showDialogAlert}
         handleConfirm={() => {
           setShowDialogAlert(!showDialogAlert);

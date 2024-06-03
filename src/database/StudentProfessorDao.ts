@@ -557,7 +557,7 @@ AND professorId = ?;`;
    * @returns The amount of students assigned to the professor.
    */
   getStudentsByProfessorId(professorId: number): number | null {
-    const query = `SELECT students FROM Activities WHERE name = "Proyecto Final de Graduación" AND suggestedStudents IS NOT NULL AND professorId = ?;`;
+    const query = `SELECT students FROM Activities WHERE name = 'Proyecto Final de Graduación' AND suggestedStudents IS NOT NULL AND professorId = ?;`;
     const result = database.prepare(query).get(professorId);
     if (typeof result === "number") {
       return result;

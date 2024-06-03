@@ -43,6 +43,10 @@ export default function EditStudentProfessor(): ReactElement | null {
     ProfessorsSuggestionsRow[]
   >([]);
 
+  const [students, setStudents] = useState<number>(0);
+  const [suggestedStudents, setSuggestedStudents] = useState<number>(1);
+  const [warning, setWarning] = useState<boolean>(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -93,8 +97,18 @@ export default function EditStudentProfessor(): ReactElement | null {
     setProfessorsSuggestions(sortedProfessorsSuggestions);
   }, []);
 
+  useEffect(() => {
+    if (students >= suggestedStudents) {
+      setWarning(true);
+    } else {
+      setWarning(false);
+    }
+  }, []);
+
   const handleUpdate = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
+    setStudents(0);
+    setSuggestedStudents(1);
     if (studentProfessorData) {
       const studentProfessor_actual = studentProfessorData;
       const studentID = studentProfessor_actual.student.id;
@@ -208,6 +222,14 @@ export default function EditStudentProfessor(): ReactElement | null {
                 </option>
               ))}
           </select>
+          {warning && (
+            <div>
+              <h1 className=" text-red-400">
+                El profesor ya ha alcanzado su número límite de estudiantes
+                sugeridos
+              </h1>
+            </div>
+          )}
         </div>
         <div className="flex w-full flex-col gap-3">
           <label
