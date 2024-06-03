@@ -43,6 +43,8 @@ export default function PresentationClassroom({
     }[]
   >([]);
   const presentationSwapContext = useContext(PresentationSwapContext);
+  const [filteredPresentationCount, setFilteredPresentationCount] =
+    useState<number>(0);
 
   useEffect(() => {
     const groupedPresentations: {
@@ -80,6 +82,7 @@ export default function PresentationClassroom({
     // If the search term contains the classroom or is empty, don't filter the presentations
     if (searchTerm === "" || containsSearch(classroom, searchTerm)) {
       setGroupedPresentations(groupedPresentations);
+      setFilteredPresentationCount(presentations.length);
       return;
     }
 
@@ -108,6 +111,12 @@ export default function PresentationClassroom({
       );
 
     setGroupedPresentations(filteredGroupedPresentations);
+    setFilteredPresentationCount(
+      filteredGroupedPresentations.reduce(
+        (acc, group) => acc + group.presentations.length,
+        0,
+      ),
+    );
   }, [presentations, searchTerm]);
 
   const toggleDay = (day: string): void => {
@@ -126,6 +135,8 @@ export default function PresentationClassroom({
         <h3 className="relative px-4 py-2 text-2xl font-semibold text-white">
           {classroom}
           <span className="absolute end-4 top-1/2 -translate-y-1/2 text-base">
+            {filteredPresentationCount < presentations.length &&
+              `${filteredPresentationCount} de `}
             {presentations.length}{" "}
             {presentations.length === 1 ? "presentación" : "presentaciones"}
           </span>
@@ -158,9 +169,13 @@ export default function PresentationClassroom({
                   {group.day}
                   <span className="absolute end-2 top-1/2 -translate-y-1/2 text-sm">
                     {group.presentations.length}{" "}
-                    {group.presentations.length === 1
-                      ? "presentación"
-                      : "presentaciones"}
+                    {searchTerm === ""
+                      ? group.presentations.length === 1
+                        ? "presentación"
+                        : "presentaciones"
+                      : group.presentations.length === 1
+                        ? "resultado"
+                        : "resultados"}
                   </span>
                 </h4>
                 <div className="overflow-hidden">
