@@ -488,20 +488,39 @@ export default class StudentProfessorDao {
 SET students = students - 1
 WHERE name = 'Proyecto Final de Graduación'
 AND workloadTypeId = 1
+AND suggestedStudents IS NOT NULL
 AND professorId = ?;`;
     const result1 = database.prepare(query1).run(oldAdvisorId);
     if (result1.changes === 0) {
-      console.error(`Problem with update of activity advisor.`);
+      console.error(
+        `Problema de resta con la actualización del asesor de actividad.`,
+      );
     }
 
     const query2 = `UPDATE Activities
 SET students = students + 1
 WHERE name = 'Proyecto Final de Graduación'
 AND workloadTypeId = 1
+AND suggestedStudents IS NOT NULL
 AND professorId = ?;`;
     const result2 = database.prepare(query2).run(newAdvisorId);
     if (result2.changes === 0) {
-      console.error(`Problem with update of activity advisor.`);
+      console.error(
+        `Problema de suma con la actualización del asesor de actividad.`,
+      );
+    }
+
+    const query3 = `SELECT *
+FROM Activities
+WHERE professorId = ?
+AND students = suggestedStudents;`;
+    const result3 = database.prepare(query3).get(newAdvisorId);
+    if (result3) {
+      const query4 = `UPDATE Activities SET workloadTypeId = 5 WHERE professorId = ?;`;
+      const result4 = database.prepare(query4).run(newAdvisorId);
+      if (result4.changes === 0) {
+        console.error(`Problem with update workload type of advisor.`);
+      }
     }
   }
 

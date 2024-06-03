@@ -1,7 +1,6 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import DialogAlert from "@renderer/components/DialogAlert";
-import { ProfessorInterface } from "../../../../models/Professor";
 import { StudentProfessorInterface } from "../../../../models/StudentProfessor";
 
 interface StudentProfessorData {
@@ -17,11 +16,17 @@ interface StudentProfessorData {
   }[];
 }
 
+interface ProfessorsSuggestionsRow {
+  professorId: number;
+  name: string;
+  students: number;
+  suggestedStudents: number;
+}
+
 export default function EditStudentProfessor() {
-  const [studentProfessorData, setStudentProfessorData] = useState<
-    StudentProfessorData | undefined
-  >(undefined);
-  const [professors, setProfessors] = useState<ProfessorInterface[]>([]);
+  const { id } = useParams();
+  const [studentProfessorData, setStudentProfessorData] =
+    useState<StudentProfessorData | null>(null);
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [title, setTitle] = useState<string>("");
@@ -34,12 +39,18 @@ export default function EditStudentProfessor() {
   const initialSelectedLector1 = useRef<string>("");
   const initialSelectedLector2 = useRef<string>("");
 
+  const [professorsSuggestions, setProfessorsSuggestions] = useState<
+    ProfessorsSuggestionsRow[]
+  >([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const loadedStudentsProfessors: StudentProfessorInterface[] =
       window.mainController.getStudentsProfessors();
-    const studentProfessor = loadedStudentsProfessors[0]; // Selecciona el primer estudiante por defecto
+    const studentProfessor = loadedStudentsProfessors.find(
+      (sp) => sp.student.id === parseInt(id),
+    );
     if (studentProfessor) {
       setStudentProfessorData({
         id: studentProfessor.id,
@@ -49,12 +60,12 @@ export default function EditStudentProfessor() {
         },
         professors: studentProfessor.professors,
       });
-      // También establecemos los valores iniciales para los selectores
       const advisor = studentProfessor.professors.find((p) => p.isAdvisor);
       const nonAdvisorProfessors = studentProfessor.professors.filter(
         (p) => !p.isAdvisor,
       );
       const [professorLector1, professorLector2] = nonAdvisorProfessors;
+
       setSelectedGuia(advisor ? advisor.id.toString() : "");
       setSelectedLector1(
         professorLector1 ? professorLector1.id.toString() : "",
@@ -71,23 +82,16 @@ export default function EditStudentProfessor() {
         ? professorLector2.id.toString()
         : "";
     }
-  }, []);
+  }, [id]);
 
   useEffect(() => {
-    const loadedProfessors = window.mainController.getProfessors();
-    loadedProfessors.sort(sortByName); // Ordenar alfabéticamente
-    setProfessors(loadedProfessors);
+    const loadedProfessorsSuggestions =
+      window.mainController.getProfessorsSuggestions();
+    const sortedProfessorsSuggestions = loadedProfessorsSuggestions.sort(
+      (a, b) => a.name.localeCompare(b.name),
+    );
+    setProfessorsSuggestions(sortedProfessorsSuggestions);
   }, []);
-
-  const sortByName = (a: ProfessorInterface, b: ProfessorInterface) => {
-    return a.name.localeCompare(b.name);
-  };
-
-  useEffect(() => {
-    if (message !== "") {
-      setShowDialog(true);
-    }
-  }, [message]);
 
   const handleUpdate = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -105,14 +109,14 @@ export default function EditStudentProfessor() {
           profesorLector1,
           profesorLector2,
         );
-        /*
+
         if (initialSelectedGuia.current !== selectedGuia) {
-          console.log(initialSelectedGuia.current, selectedGuia);
           window.mainController.updateActivityAdvisor(
             parseInt(initialSelectedGuia.current),
             profesorGuia,
           );
         }
+
         if (initialSelectedLector1.current !== selectedLector1) {
           window.mainController.updateActivityLector(
             parseInt(initialSelectedLector1.current),
@@ -125,21 +129,21 @@ export default function EditStudentProfessor() {
             profesorLector2,
           );
         }
-        */
+
         setTitle("Éxito");
         setTypeDialog("success");
         setMessage("Tutoría modificada con éxito");
+        setShowDialog(true);
       } catch (error) {
         setTitle("Error");
         setTypeDialog("error");
         setMessage("Error al modificar estudiante");
+        setShowDialog(true);
       }
     }
   };
 
-  const updateData = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  const updateData = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const { id, value } = event.target;
     if (id === "profesorGuia") {
       setSelectedGuia(value);
@@ -187,11 +191,21 @@ export default function EditStudentProfessor() {
             onChange={updateData}
           >
             <option value="">Seleccionar</option>
-            {professors.map((professor) => (
-              <option key={professor.id} value={professor.id?.toString() ?? ""}>
-                {professor.name}
-              </option>
-            ))}
+            {professorsSuggestions
+              .filter(
+                (professor) =>
+                  professor.professorId !== parseInt(selectedLector1) &&
+                  professor.professorId !== parseInt(selectedLector2),
+              ) // Filtrar los nombres que ya están seleccionados en los otros selectores
+              .sort((a, b) => a.name.localeCompare(b.name)) // Ordenar alfabéticamente por nombre
+              .map((professor) => (
+                <option
+                  key={professor.professorId}
+                  value={professor.professorId.toString()}
+                >
+                  {professor.name}
+                </option>
+              ))}
           </select>
         </div>
         <div className="flex w-full flex-col gap-3">
@@ -209,11 +223,21 @@ export default function EditStudentProfessor() {
             onChange={updateData}
           >
             <option value="">Seleccionar</option>
-            {professors.map((professor) => (
-              <option key={professor.id} value={professor.id?.toString() ?? ""}>
-                {professor.name}
-              </option>
-            ))}
+            {professorsSuggestions
+              .filter(
+                (professor) =>
+                  professor.professorId !== parseInt(selectedGuia) &&
+                  professor.professorId !== parseInt(selectedLector2),
+              ) // Filtrar los nombres que ya están seleccionados en los otros selectores
+              .sort((a, b) => a.name.localeCompare(b.name)) // Ordenar alfabéticamente por nombre
+              .map((professor) => (
+                <option
+                  key={professor.professorId}
+                  value={professor.professorId.toString()}
+                >
+                  {professor.name}
+                </option>
+              ))}
           </select>
         </div>
         <div className="flex w-full flex-col gap-3">
@@ -231,11 +255,21 @@ export default function EditStudentProfessor() {
             onChange={updateData}
           >
             <option value="">Seleccionar</option>
-            {professors.map((professor) => (
-              <option key={professor.id} value={professor.id?.toString() ?? ""}>
-                {professor.name}
-              </option>
-            ))}
+            {professorsSuggestions
+              .filter(
+                (professor) =>
+                  professor.professorId !== parseInt(selectedGuia) &&
+                  professor.professorId !== parseInt(selectedLector1),
+              ) // Filtrar los nombres que ya están seleccionados en los otros selectores
+              .sort((a, b) => a.name.localeCompare(b.name)) // Ordenar alfabéticamente por nombre
+              .map((professor) => (
+                <option
+                  key={professor.professorId}
+                  value={professor.professorId.toString()}
+                >
+                  {professor.name}
+                </option>
+              ))}
           </select>
         </div>
 

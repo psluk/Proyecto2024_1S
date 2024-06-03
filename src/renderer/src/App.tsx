@@ -103,7 +103,7 @@ function App(): JSX.Element {
           />
           <Route path="/admin/statistics" element={<Statistics />} />
           <Route
-            path="/admin/manageTheses/editStudentProfessor"
+            path="/admin/manageTheses/editStudentProfessor/:id"
             element={<EditStudentProfessor />}
           />
           <Route path="*" element={<NotFound />} />

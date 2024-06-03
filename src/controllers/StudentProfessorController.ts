@@ -18,6 +18,13 @@ interface ProfessorCapacity {
   capacity: number;
 }
 
+interface ProfessorsSuggestionsRow {
+  professorId: number;
+  name: string;
+  students: number;
+  suggestedStudents: number;
+}
+
 export default class StudentProfessorController {
   private studentProfessorDao: StudentProfessorDao;
 
@@ -778,5 +785,13 @@ export default class StudentProfessorController {
    */
   deletePresentations(): void {
     this.studentProfessorDao.deletePresentations();
+  }
+
+  /**
+   * Gets the list of professors suggestions.
+   * @returns An array of ProfessorsSuggestionsRow objects.
+   */
+  public getProfessorsSuggestions(): ProfessorsSuggestionsRow[] {
+    return this.studentProfessorDao.getProfessorsSuggestions();
   }
 }

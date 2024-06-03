@@ -17,6 +17,13 @@ import { PresentationInterface } from "../models/Presentation";
 import { Classroom } from "../interfaces/PresentationGeneration";
 import ExcelExporter from "../utils/ExcelExporter";
 
+interface ProfessorsSuggestionsRow {
+  professorId: number;
+  name: string;
+  students: number;
+  suggestedStudents: number;
+}
+
 export default class MainController {
   private static instance: MainController;
   private userController: UserController;
@@ -105,6 +112,7 @@ export default class MainController {
     this.swapPresentations = this.swapPresentations.bind(this);
     this.deletePresentation = this.deletePresentation.bind(this);
     this.deletePresentations = this.deletePresentations.bind(this);
+    this.getProfessorsSuggestions = this.getProfessorsSuggestions.bind(this);
   }
 
   public static getInstance(): MainController {
@@ -1067,5 +1075,9 @@ export default class MainController {
    */
   deletePresentations(): void {
     this.studentProfessorController.deletePresentations();
+  }
+
+  public getProfessorsSuggestions(): ProfessorsSuggestionsRow[] {
+    return this.studentProfessorController.getProfessorsSuggestions();
   }
 }

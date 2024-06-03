@@ -165,7 +165,7 @@ export default function ManageAdvisors(): React.ReactElement {
                     </td>
                     <td className="space-x-3">
                       <Link
-                        to={`/admin/manageTheses/editStudentProfessor`}
+                        to={`/admin/manageTheses/editStudentProfessor/${studentProfessor.student.id}`}
                         className="text-sm font-semibold text-teal-800 hover:text-teal-600"
                         title="Editar"
                       >
