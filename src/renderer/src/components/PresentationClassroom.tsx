@@ -53,6 +53,13 @@ export default function PresentationClassroom(props): React.ReactElement {
     });
 
     setGroupedPresentations(groupedPresentations);
+
+    // If the only presentation of a day was removed, collapse that day
+    setExpandedDays(
+      expandedDays.filter((expandedDay) =>
+        groupedPresentations.some((group) => group.day === expandedDay),
+      ),
+    );
   }, [presentations]);
 
   const toggleDay = (day: string): void => {
