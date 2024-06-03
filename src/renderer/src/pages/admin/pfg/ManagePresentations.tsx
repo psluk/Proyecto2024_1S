@@ -574,22 +574,26 @@ export default function ManagePresentations(): React.ReactElement {
             }}
           />
         </div>
-        <button
-          className="h-8 rounded-md bg-blue-500 px-4 font-semibold text-white shadow-md transition-colors hover:bg-blue-600"
-          type="button"
-          onClick={() => toggleGenerationParameters()}
-        >
-          {showGenerationParameters
-            ? "Cerrar generación"
-            : "Generar aleatoriamente"}
-        </button>
-        <button
-          className="h-8 rounded-md bg-red-500 px-4 font-semibold text-white shadow-md transition-colors hover:bg-red-600"
-          type="button"
-          onClick={handleDeleteAll}
-        >
-          Eliminar todas las citas
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            className="rounded-md bg-blue-500 px-4 py-1 font-semibold text-white shadow-md transition-colors hover:bg-blue-600"
+            type="button"
+            onClick={() => toggleGenerationParameters()}
+          >
+            {showGenerationParameters
+              ? "Cerrar generación"
+              : "Generar aleatoriamente"}
+          </button>
+          <button
+            className="rounded-md bg-red-500 px-4 py-1 font-semibold text-white shadow-md transition-colors hover:bg-red-600 disabled:bg-gray-500 disabled:hover:bg-gray-500"
+            type="button"
+            onClick={handleDeleteAll}
+            disabled={presentations.length === 0}
+            title={presentations.length === 0 ? "No hay presentaciones" : ""}
+          >
+            Eliminar todas las citas
+          </button>
+        </div>
       </div>
       {showGenerationParameters && (
         <div className="flex w-full max-w-7xl flex-col items-center rounded-md bg-gray-100 p-10 shadow-md">
