@@ -251,7 +251,10 @@ export default function ManagePresentations(): React.ReactElement {
     StudentProfessorInterface[]
   >([]);
   const presentationSwapContext = useContext(PresentationSwapContext);
-  const [displayMode, setDisplayMode] = useState<"list" | "calendar">("list");
+  const [displayMode, setDisplayMode] = useState<"list" | "calendar">(
+    (localStorage.getItem("displayMode") as "list" | "calendar" | null) ||
+      "list",
+  );
 
   const toggleGenerationParameters = (): void => {
     setShowGenerationParameters(!showGenerationParameters);
@@ -558,6 +561,11 @@ export default function ManagePresentations(): React.ReactElement {
     setShowDialogConfirm(true);
   };
 
+  const handleDisplayModeChange = (mode: "list" | "calendar"): void => {
+    setDisplayMode(mode);
+    localStorage.setItem("displayMode", mode);
+  };
+
   return (
     <main className="gap-10">
       <h1 className="text-3xl font-bold">Administrar presentaciones</h1>
@@ -856,7 +864,9 @@ export default function ManagePresentations(): React.ReactElement {
         <button
           className="mt-5 rounded-lg bg-blue-500 px-4 py-1 font-bold text-white shadow-md transition-colors hover:bg-blue-600"
           onClick={() =>
-            setDisplayMode(displayMode === "list" ? "calendar" : "list")
+            handleDisplayModeChange(
+              displayMode === "list" ? "calendar" : "list",
+            )
           }
         >
           Ver como {displayMode === "list" ? "calendario" : "lista"}
