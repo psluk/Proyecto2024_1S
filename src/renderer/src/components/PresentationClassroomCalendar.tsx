@@ -2,24 +2,9 @@ import { PresentationInterface } from "../../../models/Presentation";
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { containsSearch } from "../utils/Search";
-import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-import format from "date-fns/format";
-import parse from "date-fns/parse";
-import startOfWeek from "date-fns/startOfWeek";
-import getDay from "date-fns/getDay";
-import { es } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import "../styles/CustomEventStyling.css"; // Override some styles
-
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales: {
-    es,
-  },
-});
+import "../styles/CustomEventStyling.css";
+import CustomCalendar from "./Calendar"; // Override some styles
 
 type Props = {
   classroom: string;
@@ -113,33 +98,10 @@ export default function PresentationClassroomCalendar({
           </span>
         </h3>
         <div className="w-full p-5">
-          <Calendar
-            localizer={localizer}
+          <CustomCalendar
             events={adaptedPresentations}
-            startAccessor="start"
-            endAccessor="end"
             style={{ height: 500 }}
-            culture="es"
             defaultView="week"
-            messages={{
-              date: "Fecha",
-              time: "Hora",
-              event: "Presentación",
-              allDay: "Todo el día",
-              week: "Semana",
-              work_week: "Semana laboral",
-              day: "Día",
-              month: "Mes",
-              previous: "←",
-              next: "→",
-              yesterday: "Ayer",
-              tomorrow: "Mañana",
-              today: "Hoy",
-              agenda: "Agenda",
-              noEventsInRange: "No hay presentaciones en estas fechas.",
-
-              showMore: (total) => `+${total} más`,
-            }}
             onSelectEvent={onSelectEvent}
             eventPropGetter={eventPropGetter}
             scrollToTime={new Date(2023, 0, 1, 8)} // Only the hour is important

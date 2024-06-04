@@ -104,6 +104,8 @@ export default class MainController {
 
     this.getPresentations = this.getPresentations.bind(this);
     this.getPresentation = this.getPresentation.bind(this);
+    this.getPresentationsByProfessorId = this.getPresentationsByProfessorId.bind(this);
+    this.getPresentationsByClassroom = this.getPresentationsByClassroom.bind(this);
     this.generatePresentations = this.generatePresentations.bind(this);
     this.addPresentation = this.addPresentation.bind(this);
     this.updatePresentation = this.updatePresentation.bind(this);
@@ -938,6 +940,28 @@ export default class MainController {
    */
   getPresentation(id: number): PresentationInterface {
     return this.studentProfessorController.getPresentation(id).asObject();
+  }
+
+  /**
+   * Retrieves the presentations of a professor.
+   * @param professorId The professor ID.
+   * @returns An array of Presentation objects.
+   */
+  getPresentationsByProfessorId(professorId: number): PresentationInterface[] {
+    return this.studentProfessorController
+      .getPresentationsByProfessorId(professorId)
+      .map((presentation) => presentation.asObject());
+  }
+
+  /**
+   * Retrieves the presentations of a student.
+   * @param classroom The classroom.
+   * @returns An array of Presentation objects.
+   */
+  getPresentationsByClassroom(classroom: string): PresentationInterface[] {
+    return this.studentProfessorController
+      .getPresentationsByClassroom(classroom)
+      .map((presentation) => presentation.asObject());
   }
 
   /**

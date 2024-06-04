@@ -341,6 +341,162 @@ export default class StudentProfessorDao {
   }
 
   /**
+   * Retrieves the presentations of a professor.
+   * @param professorId The professor ID.
+   * @returns An array of Presentation objects.
+   */
+  getPresentationsByProfessorId(professorId: number): Presentation[] {
+    const query = `
+      SELECT presentationId                                                       AS id,
+             startTime,
+             minuteDuration,
+             classroom,
+             SP.studentProfessorId                                                AS studentProfessorId,
+             S.studentId                                                          AS studentId,
+             S.name                                                               AS studentName,
+             S.email                                                              AS studentEmail,
+             json_group_array(json_object(
+               'id', Pr.professorId,
+               'name', Pr.name,
+               'email', Pr.email,
+               'isAdvisor', SP.isAdvisor
+                              )) AS professors
+      FROM Presentations P
+             INNER JOIN Students S ON P.studentId = S.studentId
+             INNER JOIN StudentProfessors SP ON S.studentId = SP.studentId
+             INNER JOIN Professors Pr ON SP.professorId = Pr.professorId
+      WHERE (
+              SELECT COUNT(P2.presentationId)
+              FROM Presentations P2
+                     INNER JOIN Students S2 ON P2.studentId = S2.studentId
+                     INNER JOIN StudentProfessors SP2  ON S2.studentId = SP2.studentId
+                     INNER JOIN Professors Pr2 ON SP2.professorId = Pr2.professorId
+              WHERE Pr2.professorId = ?
+                AND P2.presentationId = P.presentationId
+            ) > 0
+      GROUP BY P.classroom, P.startTime, P.presentationId
+      ORDER BY P.classroom, P.startTime;`;
+
+    const rows = database.prepare(query).all(professorId) as {
+      id: number;
+      startTime: string;
+      minuteDuration: number;
+      classroom: string;
+      studentProfessorId: number;
+      studentId: number;
+      studentName: string;
+      studentEmail: string;
+      professors: string;
+    }[];
+
+    return rows.map((row) => {
+      const professors = JSON.parse(row.professors) as {
+        id: number;
+        name: string;
+        email: string;
+        isAdvisor: number;
+      }[];
+
+      const attendees = professors.map((professor) => ({
+        id: professor.id,
+        name: professor.name,
+        email: professor.email,
+        isAdvisor: professor.isAdvisor !== 0,
+      }));
+
+      return new Presentation(
+        row.id,
+        row.startTime,
+        row.minuteDuration,
+        row.classroom,
+        {
+          id: row.studentProfessorId,
+          student: {
+            id: row.studentId,
+            name: row.studentName,
+            email: row.studentEmail,
+          },
+          professors: attendees,
+        },
+      );
+    });
+  }
+
+  /**
+   * Retrieves the presentations of a student.
+   * @param classroom The classroom.
+   * @returns An array of Presentation objects.
+   */
+  getPresentationsByClassroom(classroom: string): Presentation[] {
+    const query = `
+      SELECT presentationId                                                       AS id,
+             startTime,
+             minuteDuration,
+             classroom,
+             SP.studentProfessorId                                                AS studentProfessorId,
+             S.studentId                                                          AS studentId,
+             S.name                                                               AS studentName,
+             S.email                                                              AS studentEmail,
+             json_group_array(json_object(
+               'id', Pr.professorId,
+               'name', Pr.name,
+               'email', Pr.email,
+               'isAdvisor', SP.isAdvisor
+                              )) AS professors
+      FROM Presentations P
+             INNER JOIN Students S ON P.studentId = S.studentId
+             INNER JOIN StudentProfessors SP ON S.studentId = SP.studentId
+             INNER JOIN Professors Pr ON SP.professorId = Pr.professorId
+      WHERE P.classroom = ?
+      GROUP BY P.classroom, P.startTime, P.presentationId
+      ORDER BY P.classroom, P.startTime;`;
+
+    const rows = database.prepare(query).all(classroom) as {
+      id: number;
+      startTime: string;
+      minuteDuration: number;
+      classroom: string;
+      studentProfessorId: number;
+      studentId: number;
+      studentName: string;
+      studentEmail: string;
+      professors: string;
+    }[];
+
+    return rows.map((row) => {
+      const professors = JSON.parse(row.professors) as {
+        id: number;
+        name: string;
+        email: string;
+        isAdvisor: number;
+      }[];
+
+      const attendees = professors.map((professor) => ({
+        id: professor.id,
+        name: professor.name,
+        email: professor.email,
+        isAdvisor: professor.isAdvisor !== 0,
+      }));
+
+      return new Presentation(
+        row.id,
+        row.startTime,
+        row.minuteDuration,
+        row.classroom,
+        {
+          id: row.studentProfessorId,
+          student: {
+            id: row.studentId,
+            name: row.studentName,
+            email: row.studentEmail,
+          },
+          professors: attendees,
+        },
+      );
+    });
+  }
+
+  /**
    * Updates a presentation in the database.
    * @param presentationId The presentation ID.
    * @param startTime The start time of the presentation.

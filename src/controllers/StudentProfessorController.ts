@@ -194,6 +194,24 @@ export default class StudentProfessorController {
   }
 
   /**
+   * Retrieves the presentations of a professor.
+   * @param professorId The professor ID.
+   * @returns An array of Presentation objects.
+   */
+  getPresentationsByProfessorId(professorId: number): Presentation[] {
+    return this.studentProfessorDao.getPresentationsByProfessorId(professorId);
+  }
+
+  /**
+   * Retrieves the presentations of a student.
+   * @param classroom The classroom.
+   * @returns An array of Presentation objects.
+   */
+  getPresentationsByClassroom(classroom: string): Presentation[] {
+    return this.studentProfessorDao.getPresentationsByClassroom(classroom);
+  }
+
+  /**
    * Generates presentations for students.
    * @param classrooms The list of classrooms
    * @param presentationInterval The interval between presentations in minutes
