@@ -43,6 +43,7 @@ export default function PresentationClassroomCalendar({
 }: Props): React.ReactElement {
   const navigate = useNavigate();
   const [adaptedPresentations, setAdaptedPresentations] = useState<Event[]>([]);
+  const [earliestDate, setEarliestDate] = useState(new Date());
 
   useEffect(() => {
     setAdaptedPresentations(
@@ -63,6 +64,20 @@ export default function PresentationClassroomCalendar({
       }),
     );
   }, [presentations]);
+
+  useEffect(() => {
+    setEarliestDate(
+      adaptedPresentations.length > 0
+        ? adaptedPresentations.reduce(
+            (earliest, presentation) =>
+              presentation.start.getTime() < earliest.getTime()
+                ? presentation.start
+                : earliest,
+            adaptedPresentations[0].start,
+          )
+        : new Date(),
+    );
+  }, [adaptedPresentations]);
 
   const onSelectEvent = useCallback((calEvent: Event) => {
     navigate(`/admin/manageTheses/presentations/edit/${calEvent.id}`);
@@ -127,6 +142,8 @@ export default function PresentationClassroomCalendar({
             }}
             onSelectEvent={onSelectEvent}
             eventPropGetter={eventPropGetter}
+            scrollToTime={new Date(2023, 0, 1, 8)} // Only the hour is important
+            date={earliestDate}
           />
         </div>
       </article>
