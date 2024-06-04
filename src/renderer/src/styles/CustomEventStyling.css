@@ -1,0 +1,15 @@
+div.rbc-event {
+  @apply bg-sky-700;
+}
+
+div.rbc-day-slot .rbc-event {
+  @apply border-sky-800;
+}
+
+div.rbc-event.matchingEvent {
+  @apply bg-sky-600 border-sky-700;
+}
+
+tr.matchingEvent .rbc-agenda-event-cell {
+  @apply bg-sky-600 font-bold text-white;
+}

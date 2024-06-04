@@ -9,6 +9,7 @@ import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
 import { es } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import "../styles/CustomEventStyling.css"; // Override some styles
 
 const localizer = dateFnsLocalizer({
   format,
@@ -76,14 +77,12 @@ export default function PresentationClassroomCalendar({
             containsSearch(professor, searchTerm),
           )
           ? {
-              className: "!bg-sky-600 !border-sky-700",
+              className: "matchingEvent",
             }
           : {
-              className: "opacity-50 !bg-sky-700 !border-sky-800",
+              className: "opacity-50",
             }
-        : {
-            className: "!bg-sky-700 !border-sky-800",
-          }),
+        : {}),
     }),
     [searchTerm],
   );
