@@ -44,7 +44,7 @@ export default function PresentationClassroom({
   >([]);
   const presentationSwapContext = useContext(PresentationSwapContext);
   const [filteredPresentationCount, setFilteredPresentationCount] =
-    useState<number>(0);
+    useState<number>(presentations.length);
 
   useEffect(() => {
     const groupedPresentations: {

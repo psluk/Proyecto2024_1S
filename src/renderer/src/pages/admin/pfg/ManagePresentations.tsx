@@ -17,6 +17,7 @@ import { PresentationSwapContext } from "../../../context/PresentationSwapContex
 import { StudentProfessorInterface } from "../../../../../models/StudentProfessor";
 import { useNavigate } from "react-router-dom";
 import { doDatesOverlap } from "../../../utils/DateOverlap";
+import PresentationClassroomCalendar from "../../../components/PresentationClassroomCalendar";
 
 const calculateNumberOfPresentations = (
   classrooms: Classroom[],
@@ -250,6 +251,7 @@ export default function ManagePresentations(): React.ReactElement {
     StudentProfessorInterface[]
   >([]);
   const presentationSwapContext = useContext(PresentationSwapContext);
+  const [displayMode, setDisplayMode] = useState<"list" | "calendar">("list");
 
   const toggleGenerationParameters = (): void => {
     setShowGenerationParameters(!showGenerationParameters);
@@ -851,17 +853,33 @@ export default function ManagePresentations(): React.ReactElement {
           />{" "}
           a la derecha.
         </p>
+        <button
+          className="mt-5 rounded-lg bg-blue-500 px-4 py-1 font-bold text-white shadow-md transition-colors hover:bg-blue-600"
+          onClick={() =>
+            setDisplayMode(displayMode === "list" ? "calendar" : "list")
+          }
+        >
+          Ver como {displayMode === "list" ? "calendario" : "lista"}
+        </button>
       </div>
       {presentations.length > 0 ? (
-        groupedPresentations.map((classroom) => (
-          <PresentationClassroom
-            key={classroom.classroom}
-            onDelete={deletePresentation}
-            reload={reloadPresentations}
-            searchTerm={search}
-            {...classroom}
-          />
-        ))
+        groupedPresentations.map((classroom) =>
+          displayMode === "list" ? (
+            <PresentationClassroom
+              key={classroom.classroom}
+              onDelete={deletePresentation}
+              reload={reloadPresentations}
+              searchTerm={search}
+              {...classroom}
+            />
+          ) : (
+            <PresentationClassroomCalendar
+              key={classroom.classroom}
+              searchTerm={search}
+              {...classroom}
+            />
+          ),
+        )
       ) : (
         <p>Aún no hay presentaciones generadas.</p>
       )}
