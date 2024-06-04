@@ -323,7 +323,7 @@ export default function EditStudentProfessor(): ReactElement | null {
         show={showDialog}
         handleConfirm={() => {
           setShowDialog(false);
-          typeDialog === "success" && navigate("/admin/manageTheses/advisors");
+          typeDialog === "success" && navigate(-1);
         }}
         message={message}
         title={title}

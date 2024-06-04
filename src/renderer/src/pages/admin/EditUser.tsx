@@ -182,7 +182,7 @@ export default function EditUser(): JSX.Element {
         show={showDialog}
         handleConfirm={() => {
           setShowDialog(false);
-          typeDialog === "success" && navigate("/admin/manageUsers");
+          typeDialog === "success" && navigate(-1);
         }}
         type={typeDialog}
       />

@@ -121,7 +121,7 @@ export default function AddOtherActivity() {
         message={message}
         handleConfirm={() => {
           setShowDialog(false);
-          typeDialog === "success" && navigate("/admin/manageWorkloads");
+          typeDialog === "success" && navigate(-1);
         }}
       />
     </main>

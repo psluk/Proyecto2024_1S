@@ -26,7 +26,7 @@ const EditGroupProfessors = (): React.ReactElement => {
     ProfessorsGroup[]
   >([]);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
   const [professorToAdd, setProfessorToAdd] = useState<ProfessorsGroup | null>(
     null,
   );
@@ -85,7 +85,7 @@ const EditGroupProfessors = (): React.ReactElement => {
   };
 
   const handleSave = (): void => {
-    Navigate("/admin/manageTheses/groups");
+    navigate(-1);
   };
 
   const handleDelete = (professor: Professor): void => {

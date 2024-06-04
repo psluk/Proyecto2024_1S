@@ -16,7 +16,7 @@ const EditGroupStudents = (): ReactElement => {
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState<string>("");
   const [filteredStudents, setfilteredStudents] = useState<Student[]>([]);
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleSave = (): void => {
     if (!group) {
@@ -32,7 +32,7 @@ const EditGroupStudents = (): ReactElement => {
       group.getModerator()?.asObject() || null,
     );
 
-    Navigate("/admin/manageTheses/groups");
+    navigate(-1);
   };
 
   const handleAddStudent = (student: Student): void => {

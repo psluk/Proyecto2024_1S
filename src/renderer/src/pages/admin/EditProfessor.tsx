@@ -62,7 +62,7 @@ export default function EditProfessor() {
 
   useEffect(() => {
     if (!id) {
-      navigate("/admin/manageProfessors");
+      navigate(-1);
     }
     fetchData();
   }, []);
@@ -154,7 +154,7 @@ export default function EditProfessor() {
           show={showDialog}
           handleConfirm={() => {
             setShowDialog(false);
-            typeDialog === "success" && navigate("/admin/manageProfessors");
+            typeDialog === "success" && navigate(-1);
           }}
           message={message}
           title={title}

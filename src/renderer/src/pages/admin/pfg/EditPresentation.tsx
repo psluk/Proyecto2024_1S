@@ -170,7 +170,7 @@ export default function EditPresentation(): React.ReactElement {
       if (clashingPresentations.length > 0) {
         setErrorMessage(`El aula ${classroom} ya está ocupada en ese horario.`);
       } else {
-        navigate("/admin/manageTheses/presentations");
+        navigate(-1);
       }
     }
   };

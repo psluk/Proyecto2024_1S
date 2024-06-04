@@ -20,8 +20,6 @@ export default function AddStudent() {
     setIsEnabled(isChecked); // Actualiza el estado cuando cambia el toggle
   };
 
-  //--------------------------------------------------------------------------------
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
@@ -43,8 +41,6 @@ export default function AddStudent() {
       setMessage("Error al agregar estudiante");
     }
   };
-
-  //--------------------------------------------------------------------------------
 
   return (
     <main className="gap-10">
@@ -152,7 +148,7 @@ export default function AddStudent() {
         message={message}
         handleConfirm={() => {
           setShowDialog(false);
-          typeDialog === "success" && navigate("/admin/manageStudents");
+          typeDialog === "success" && navigate(-1);
         }}
       />
     </main>

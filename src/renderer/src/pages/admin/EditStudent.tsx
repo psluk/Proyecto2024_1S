@@ -88,7 +88,7 @@ export default function EditStudent(): ReactElement | null {
 
   useEffect(() => {
     if (!id) {
-      navigate("/admin/manageStudents");
+      navigate(-1);
     }
     fetchData();
   }, []);
@@ -214,7 +214,7 @@ export default function EditStudent(): ReactElement | null {
         show={showDialog}
         handleConfirm={() => {
           setShowDialog(false);
-          typeDialog === "success" && navigate("/admin/manageStudents");
+          typeDialog === "success" && navigate(-1);
         }}
         message={message}
         title={title}

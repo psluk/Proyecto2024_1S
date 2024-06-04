@@ -101,7 +101,7 @@ export default function AddProfessor() {
         message={message}
         handleConfirm={() => {
           setShowDialog(false);
-          typeDialog === "success" && navigate("/admin/manageProfessors");
+          typeDialog === "success" && navigate(-1);
         }}
       />
     </main>
