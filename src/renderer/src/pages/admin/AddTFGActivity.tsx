@@ -3,7 +3,7 @@ import DialogAlert from "@renderer/components/DialogAlert";
 import { useState, useEffect } from "react";
 import Course from "../../../../models/Course";
 
-export default function AddTFGActivity() {
+export default function AddTFGActivity(): React.ReactElement {
   const navigate = useNavigate();
   const location = useLocation();
   const { id, name } = location.state;
@@ -27,7 +27,9 @@ export default function AddTFGActivity() {
     }
   }, [message]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
     const courseJson = (form.elements.namedItem("course") as HTMLSelectElement)

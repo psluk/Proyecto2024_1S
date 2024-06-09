@@ -3,7 +3,6 @@ import {
   Dispatch,
   DragEvent,
   SetStateAction,
-  useEffect,
   useState,
 } from "react";
 import DialogAlert from "./DialogAlert";
@@ -16,7 +15,7 @@ export default function FileSelector({
   identifier,
   onFileChange,
 }: FileSelectorProps): JSX.Element {
-  const isValidFileType = (file: File) => {
+  const isValidFileType = (file: File): boolean => {
     return (
       file.type ===
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
@@ -26,7 +25,7 @@ export default function FileSelector({
 
   const [showDialog, setShowDialog] = useState<boolean>(false);
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const files = event.target.files;
     if (files !== null && files.length > 0) {
       const file = files[0];
@@ -38,11 +37,11 @@ export default function FileSelector({
     }
   };
 
-  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (event: DragEvent<HTMLDivElement>): void => {
     event.preventDefault();
   };
 
-  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+  const handleDrop = (event: DragEvent<HTMLDivElement>): void => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
     if (file && isValidFileType(file)) {

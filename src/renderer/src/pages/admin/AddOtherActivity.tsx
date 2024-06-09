@@ -3,7 +3,7 @@ import DialogAlert from "@renderer/components/DialogAlert";
 import React, { useState, useEffect } from "react";
 import { OtherActivity } from "src/database/ProfessorDao";
 
-export default function AddOtherActivity() {
+export default function AddOtherActivity(): React.ReactElement {
   const navigate = useNavigate();
   const location = useLocation();
   const { id, name, pageActivityType } = location.state;
@@ -26,7 +26,9 @@ export default function AddOtherActivity() {
     }
   }, [message]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
     const activityJson = (

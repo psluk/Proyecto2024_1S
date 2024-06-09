@@ -3,7 +3,7 @@ import DialogAlert from "@renderer/components/DialogAlert";
 import { useState, useEffect } from "react";
 import Course from "../../../../models/Course";
 
-export default function AddCourseActivity() {
+export default function AddCourseActivity(): React.ReactElement {
   const navigate = useNavigate();
   const location = useLocation();
   const { id, name } = location.state;
@@ -14,9 +14,10 @@ export default function AddCourseActivity() {
   const [courses, setCourses] = useState<Course[]>([]);
 
   useEffect(() => {
-    const loadedCourses = window.mainController.getCourses()
-      .filter(course => course.code !== 'CM5300' && course.code !== 'CM5331')
-      .map(course => Course.reinstantiate(course) as Course);
+    const loadedCourses = window.mainController
+      .getCourses()
+      .filter((course) => course.code !== "CM5300" && course.code !== "CM5331")
+      .map((course) => Course.reinstantiate(course) as Course);
     setCourses(loadedCourses);
   }, []);
 
@@ -26,7 +27,9 @@ export default function AddCourseActivity() {
     }
   }, [message]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
     const courseJson = (form.elements.namedItem("course") as HTMLSelectElement)

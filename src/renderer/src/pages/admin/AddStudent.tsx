@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import DialogAlert from "@renderer/components/DialogAlert";
 import { useState, useEffect } from "react";
 
-export default function AddStudent() {
+export default function AddStudent(): React.ReactElement {
   const navigate = useNavigate();
   const [message, setMessage] = useState<string>("");
   const [title, setTitle] = useState<string>("");
@@ -16,11 +16,13 @@ export default function AddStudent() {
     }
   }, [message]);
 
-  const handleToggleChange = (isChecked) => {
+  const handleToggleChange = (isChecked): void => {
     setIsEnabled(isChecked); // Actualiza el estado cuando cambia el toggle
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
     const name = (form.elements.namedItem("name") as HTMLInputElement).value;

@@ -5,7 +5,7 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 import WorkloadInfo from "@renderer/components/WorkloadInfo";
 
-export default function ManageWorkloads() {
+export default function ManageWorkloads(): React.ReactElement {
   const [professors, setProfessors] = useState<Professor[]>([]);
   const [search, setSearch] = useState<string>("");
   const [filteredProfessors, setFilteredProfessors] = useState<Professor[]>([]);

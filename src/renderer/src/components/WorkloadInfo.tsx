@@ -18,7 +18,15 @@ import {
 } from "../constants/WorkloadParameters";
 import DialogConfirm from "./DialogConfirm";
 
-export default function WorkloadInfo(props): JSX.Element {
+interface WorkloadProps {
+  id: number;
+  name: string;
+}
+
+export default function WorkloadInfo({
+  name,
+  id,
+}: WorkloadProps): React.ReactElement {
   const [showTables, setShowTables] = useState(false);
   const [workload, setWorkload] = useState<Workload[]>([]);
   const navigate = useNavigate();
@@ -64,7 +72,7 @@ export default function WorkloadInfo(props): JSX.Element {
   useEffect(() => {
     if (showTables) {
       const loadedWorkload = window.mainController
-        .getWorkloadByProfessorId(props.id as number)
+        .getWorkloadByProfessorId(id as number)
         .map(
           (workload) =>
             Workload.reinstantiate(workload as unknown as WorkloadInterface)!,
@@ -150,7 +158,7 @@ export default function WorkloadInfo(props): JSX.Element {
           : activityBeingEdited.students,
         activityBeingEdited.workload,
         activityBeingEdited.workloadType,
-        props.id,
+        id,
         activityBeingEdited.groupNumber,
         activityBeingEdited.suggestedStudents,
         activityBeingEdited.code,
@@ -180,13 +188,15 @@ export default function WorkloadInfo(props): JSX.Element {
             activityBeingEdited.hours,
             activityBeingEdited.experienceFactor,
             activityBeingEdited.groupNumber,
-            props.id,
+            id,
           );
           setActivityBeingEdited({
             ...activityBeingEdited,
             workload: newWorkload,
           });
-        } catch (error) {}
+        } catch (error) {
+          /* empty */
+        }
       }
     }
   }, [
@@ -203,7 +213,7 @@ export default function WorkloadInfo(props): JSX.Element {
           className="grow px-2 text-start font-bold text-blue-500 hover:text-blue-700"
           onClick={toggleTables}
         >
-          {props.name}
+          {name}
         </a>
       </div>
       {showTables && (
@@ -466,8 +476,8 @@ export default function WorkloadInfo(props): JSX.Element {
                       onClick={() =>
                         navigate("/admin/addCourseActivity", {
                           state: {
-                            id: props.id,
-                            name: props.name,
+                            id: id,
+                            name: name,
                           },
                         })
                       }
@@ -706,8 +716,8 @@ export default function WorkloadInfo(props): JSX.Element {
                       onClick={() =>
                         navigate("/admin/addTFGActivity", {
                           state: {
-                            id: props.id,
-                            name: props.name,
+                            id: id,
+                            name: name,
                           },
                         })
                       }
@@ -864,8 +874,8 @@ export default function WorkloadInfo(props): JSX.Element {
                       onClick={() =>
                         navigate("/admin/addOtherActivity", {
                           state: {
-                            id: props.id,
-                            name: props.name,
+                            id: id,
+                            name: name,
                             pageActivityType: 2,
                           },
                         })
@@ -1023,8 +1033,8 @@ export default function WorkloadInfo(props): JSX.Element {
                       onClick={() =>
                         navigate("/admin/addOtherActivity", {
                           state: {
-                            id: props.id,
-                            name: props.name,
+                            id: id,
+                            name: name,
                             pageActivityType: 3,
                           },
                         })
@@ -1183,8 +1193,8 @@ export default function WorkloadInfo(props): JSX.Element {
                       onClick={() =>
                         navigate("/admin/addOtherActivity", {
                           state: {
-                            id: props.id,
-                            name: props.name,
+                            id: id,
+                            name: name,
                             pageActivityType: 4,
                           },
                         })
@@ -1216,12 +1226,12 @@ export default function WorkloadInfo(props): JSX.Element {
                 <tbody>
                   {WorkloadTypes.filter(
                     (workloadType) => workloadType.value !== "overload",
-                  ).map((workloadType) => {
+                  ).map((workloadType, index) => {
                     const totalWorkload = workload
                       .filter((w) => w.getWorkloadType() === workloadType.value)
                       .reduce((acc, w) => acc + w.getWorkload(), 0);
                     return (
-                      <tr className={workloadType.color}>
+                      <tr key={index} className={workloadType.color}>
                         <td className="px-3 font-semibold">
                           {workloadType.label}
                         </td>

@@ -11,7 +11,7 @@ interface ProfessorData {
   email: string;
 }
 
-export default function EditProfessor() {
+export default function EditProfessor(): React.ReactElement | undefined {
   const { id } = useParams();
   const [professorData, setProfessorData] = useState<ProfessorData | undefined>(
     undefined,
@@ -22,7 +22,7 @@ export default function EditProfessor() {
   const [title, setTitle] = useState<string>("");
   const [typeDialog, setTypeDialog] = useState<"success" | "error">("success");
 
-  const handleUpdate = async (event: React.FormEvent) => {
+  const handleUpdate = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
     if (professorData) {
       const { id, name, email, type } = professorData;
@@ -46,7 +46,7 @@ export default function EditProfessor() {
     }
   };
 
-  const fetchData = () => {
+  const fetchData = (): void => {
     const professor = Professor.reinstantiate(
       window.mainController.getProfessorById(parseInt(id!)),
     );
@@ -71,12 +71,11 @@ export default function EditProfessor() {
     if (message !== "") {
       setShowDialog(true);
     }
-  }
-  , [message]);
+  }, [message]);
 
   const updateData = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  ): void => {
     setProfessorData({
       ...professorData!,
       [event.target.id]: event.target.value,

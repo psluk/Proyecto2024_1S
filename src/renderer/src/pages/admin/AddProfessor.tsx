@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import DialogAlert from "@renderer/components/DialogAlert";
 import { useState, useEffect } from "react";
+import React from "react";
 
-export default function AddProfessor() {
+export default function AddProfessor(): React.ReactElement {
   const navigate = useNavigate();
   const [message, setMessage] = useState<string>("");
   const [title, setTitle] = useState<string>("");
@@ -15,7 +16,9 @@ export default function AddProfessor() {
     }
   }, [message]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
     const name = (form.elements.namedItem("name") as HTMLInputElement).value;

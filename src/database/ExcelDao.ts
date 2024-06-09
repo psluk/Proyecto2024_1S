@@ -11,6 +11,15 @@ import CourseSchedule, {
 } from "../models/CourseSchedule";
 import ImportedWorkload from "../models/ImportedWorkload";
 
+interface JSONProfessorInterface {
+  id: number | null;
+  type: string;
+  name: string;
+  email: string | null;
+  _1: string | null;
+  __EMPTY: string | null;
+}
+
 export default class ExcelDao {
   /**
    * Saves a file into internal storage to persist it
@@ -55,22 +64,24 @@ export default class ExcelDao {
       return typeMapping[type.toLowerCase()] || type;
     };
 
-    const jsonToProfessorList = (jsonData: any): Professor[] => {
+    const jsonToProfessorList = (
+      jsonData: JSONProfessorInterface[],
+    ): Professor[] => {
       const professorList: Professor[] = [];
       let type: string;
-      jsonData.forEach((professor: any) => {
-        if (professor["__EMPTY"]) {
-          type = professor.__EMPTY;
+      jsonData.forEach((JSONProfessorInterface) => {
+        if (JSONProfessorInterface["__EMPTY"]) {
+          type = JSONProfessorInterface.__EMPTY;
         }
-        if (professor["_1"]) {
-          type = professor._1;
+        if (JSONProfessorInterface["_1"]) {
+          type = JSONProfessorInterface._1;
         }
 
         type = mapType(type);
         const newProfessor = new Professor(
           null,
           type,
-          toNormalCase(professor["nombre del profesor"]),
+          toNormalCase(JSONProfessorInterface["nombre del profesor"]),
           null,
         );
         professorList.push(newProfessor);
@@ -83,7 +94,8 @@ export default class ExcelDao {
       (name) => name === "profesores",
     );
     const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    const jsonData: JSONProfessorInterface[] =
+      XLSX.utils.sheet_to_json<JSONProfessorInterface>(worksheet);
     console.log(jsonData);
     const result = jsonToProfessorList(jsonData);
     return result;
@@ -190,10 +202,10 @@ export default class ExcelDao {
       return typeMapping[type.toLowerCase()] || type;
     };
 
-    const jsonToCourseList = (jsonData: any): Course[] => {
+    const jsonToCourseList = (jsonData: Course[]): Course[] => {
       const courseList: Course[] = [];
       let type: string;
-      jsonData.forEach((course: any) => {
+      jsonData.forEach((course) => {
         type = mapType(course["tipo"]);
         const newCourse = new Course(
           null,
@@ -212,7 +224,7 @@ export default class ExcelDao {
       (name) => name === "horasCurso",
     );
     const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    const jsonData = XLSX.utils.sheet_to_json<Course>(worksheet);
     const result = jsonToCourseList(jsonData);
     return result;
   }
@@ -410,10 +422,10 @@ export default class ExcelDao {
    * @returns A list of students.
    */
   getStudents(fileBuffer: ArrayBuffer): Student[] {
-    const jsonToStudentList = (jsonData: any): Student[] => {
-      let studentList: Student[] = [];
-      jsonData.forEach((student: any) => {
-        let newStudent = new Student(
+    const jsonToStudentList = (jsonData: Student[]): Student[] => {
+      const studentList: Student[] = [];
+      jsonData.forEach((student) => {
+        const newStudent = new Student(
           null,
           student["Nombre completo"],
           student["Teléfono celular"],
@@ -431,7 +443,7 @@ export default class ExcelDao {
       (name) => name === "Lista de estidiantes",
     );
     const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { range: 4 });
+    const jsonData = XLSX.utils.sheet_to_json<Student>(worksheet, { range: 4 });
     const result = jsonToStudentList(jsonData);
     return result;
   }

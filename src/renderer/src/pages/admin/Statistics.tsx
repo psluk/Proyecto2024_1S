@@ -63,7 +63,7 @@ const Statistics = (): React.ReactElement => {
   }, []);
 
   // Helper function to get contrast color (black or white)
-  const getContrastColor = (bgColor) => {
+  const getContrastColor = (bgColor): string => {
     const color = bgColor.match(/\d+/g).map(Number);
     const brightness = Math.round(
       (color[0] * 299 + color[1] * 587 + color[2] * 114) / 1000,
@@ -74,7 +74,7 @@ const Statistics = (): React.ReactElement => {
   // Custom plugin to draw percentages inside pie chart
   const drawPercentages = {
     id: "drawPercentages",
-    afterDraw: (chart) => {
+    afterDraw: (chart): void => {
       const ctx = chart.ctx;
       ctx.save();
       const dataset = chart.data.datasets[0];
