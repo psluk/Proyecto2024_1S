@@ -292,7 +292,7 @@ export default class ExcelExporter {
    *Exports the workload of each professor sheet for the professors Excel file
    * @param ExcelFile The Excel file to export to.
    */
-  public exportWorkloadSheet(ExcelFile: ExcelJS.Workbook): void {
+  exportWorkloadSheet(ExcelFile: ExcelJS.Workbook): void {
     const existingSheet = ExcelFile.getWorksheet("cargasProf");
     if (existingSheet) {
       ExcelFile.removeWorksheet(existingSheet.id);
@@ -300,6 +300,7 @@ export default class ExcelExporter {
     const professors = this.professorDao.getProfessors();
     const sheet = ExcelFile.addWorksheet("cargasProf");
 
+    // Configuración inicial de la hoja
     sheet.getColumn(1).width = 0.5; // Columna vacía A
     sheet.getColumn(2).width = 8; // Código
     sheet.getColumn(3).width = 56; // Labores docentes
@@ -318,6 +319,7 @@ export default class ExcelExporter {
 
     let currentRow = 1;
 
+    // Encabezados iniciales
     const TECCell = sheet.getCell(currentRow, 5);
     TECCell.value = "INSTITUTO TECNOLOGICO DE COSTA RICA";
     TECCell.font = { name: "Arial", size: 12, bold: true };
@@ -336,292 +338,343 @@ export default class ExcelExporter {
     LoadCell.alignment = { vertical: "middle" };
     currentRow += 2;
 
-    professors.forEach((professor) => {
-      const hourCell = sheet.getCell(currentRow, 12);
-      hourCell.value = "hrs";
-      hourCell.font = { name: "Arial", size: 9, bold: true };
-      hourCell.alignment = { vertical: "middle", horizontal: "center" };
+    // Separar los profesores en planta e interinos
+    const permanentProfessors = professors.filter(
+      (prof) => prof.getType() === "Permanent",
+    );
+    const temporaryProfessors = professors.filter(
+      (prof) => prof.getType() === "Temporary",
+    );
 
-      const percentageCell = sheet.getCell(currentRow, 13);
-      percentageCell.value = "%";
-      percentageCell.font = { name: "Arial", size: 9, bold: true };
-      percentageCell.alignment = { vertical: "middle", horizontal: "center" };
+    // Función para escribir la carga académica de los profesores
+    const writeProfessorsWorkload = (professors: Professor[]): void => {
+      professors.forEach((professor) => {
+        const hourCell = sheet.getCell(currentRow, 12);
+        hourCell.value = "hrs";
+        hourCell.font = { name: "Arial", size: 9, bold: true };
+        hourCell.alignment = { vertical: "middle", horizontal: "center" };
 
-      currentRow++;
+        const percentageCell = sheet.getCell(currentRow, 13);
+        percentageCell.value = "%";
+        percentageCell.font = { name: "Arial", size: 9, bold: true };
+        percentageCell.alignment = { vertical: "middle", horizontal: "center" };
 
-      const titleCell = sheet.getCell(currentRow, 2);
-      titleCell.value = "Profesor:";
-      titleCell.font = { name: "Arial", size: 9, bold: true };
-      titleCell.alignment = { vertical: "middle", horizontal: "center" };
-      titleCell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FFFFFF00" },
-      };
+        currentRow++;
 
-      const loadedWorkload = this.professorDao
-        .getWorkloadByProfessorId(professor.getId())
-        .map((workload) =>
-          Workload.reinstantiate(workload as unknown as WorkloadInterface),
-        )
-        .filter((workload): workload is Workload => workload !== null);
-
-      const workloadRows: { [key: string]: WorkloadData[] } = {
-        course: [],
-        research: [],
-        special: [],
-        administrative: [],
-      };
-
-      loadedWorkload.forEach((workload) => {
-        const workloadType = workload.getWorkloadType();
-        const fill = workloadTypeColors[workloadType];
-
-        const rowData: WorkloadData = {
-          code: workload.getCode() ?? "",
-          name:
-            workload.getActivityType() === "course" &&
-            workload.getName() !== "Proyecto Final de Graduación" &&
-            workload.getName() !== "Proyecto de Graduación (tribunal)"
-              ? `${workload.getName()} G${workload.getGroupNumber()}`
-              : workload.getName(),
-          hours: workload.getHours() ?? 0,
-          students: workload.getStudents() ?? 0,
-          workload: workload.getWorkload(),
-          fill: fill as FillPattern,
+        const titleCell = sheet.getCell(currentRow, 2);
+        titleCell.value = "Profesor:";
+        titleCell.font = { name: "Arial", size: 9, bold: true };
+        titleCell.alignment = { vertical: "middle", horizontal: "center" };
+        titleCell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFFFFF00" },
         };
 
-        workloadRows[workload.getActivityType()].push(rowData);
-      });
+        const loadedWorkload = this.professorDao
+          .getWorkloadByProfessorId(professor.getId())
+          .map((workload) =>
+            Workload.reinstantiate(workload as unknown as WorkloadInterface),
+          )
+          .filter((workload): workload is Workload => workload !== null);
 
-      const professorCell = sheet.getCell(currentRow, 3);
-      professorCell.value = professor.getName().toUpperCase();
-      professorCell.font = { name: "Arial", size: 9, bold: true };
-      professorCell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FFFFFF00" },
-      };
+        const workloadRows: { [key: string]: WorkloadData[] } = {
+          course: [],
+          research: [],
+          special: [],
+          administrative: [],
+        };
 
-      const normalTotal = loadedWorkload
-        .filter((w) => w.getWorkloadType() === "normal")
-        .reduce((sum, w) => sum + w.getWorkload()!, 0);
-      const extendedTotal = loadedWorkload
-        .filter((w) => w.getWorkloadType() === "extended")
-        .reduce((sum, w) => sum + w.getWorkload()!, 0);
-      const doubleTotal = loadedWorkload
-        .filter((w) => w.getWorkloadType() === "double")
-        .reduce((sum, w) => sum + w.getWorkload()!, 0);
-      const adHonoremTotal = loadedWorkload
-        .filter((w) => w.getWorkloadType() === "adHonorem")
-        .reduce((sum, w) => sum + w.getWorkload()!, 0);
-      const sumTotal = normalTotal + extendedTotal + doubleTotal;
-      const facultyTotal = loadedWorkload
-        .filter(
-          (w) =>
-            w.getActivityType() === "course" ||
-            w.getActivityType() === "administrative",
-        )
-        .reduce((sum, w) => sum + (w.getWorkload() || 0), 0);
+        loadedWorkload.forEach((workload) => {
+          const workloadType = workload.getWorkloadType();
+          const fill = workloadTypeColors[workloadType];
 
-      const summaryStartCol = 11;
+          const rowData: WorkloadData = {
+            code: workload.getCode() ?? "",
+            name:
+              workload.getActivityType() === "course" &&
+              workload.getName() !== "Proyecto Final de Graduación" &&
+              workload.getName() !== "Proyecto de Graduación (tribunal)"
+                ? `${workload.getName()} G${workload.getGroupNumber()}`
+                : workload.getName(),
+            hours: workload.getHours() ?? 0,
+            students: workload.getStudents() ?? 0,
+            workload: workload.getWorkload(),
+            fill: fill as FillPattern,
+          };
 
-      const summaryHeaders = [
-        "Carga normal:",
-        "Ampliación:",
-        "Doble ampliación:",
-        "Ad Honorem:",
-        "Carga total:",
-        "Carga escuela/total",
-      ];
-      const summaryValues = [
-        normalTotal,
-        extendedTotal,
-        doubleTotal,
-        adHonoremTotal,
-        sumTotal,
-        facultyTotal,
-      ];
+          workloadRows[workload.getActivityType()].push(rowData);
+        });
 
-      summaryHeaders.forEach((header, index) => {
-        const headerCell = sheet.getCell(currentRow + index, summaryStartCol);
-        headerCell.value = header;
-        headerCell.font = { name: "Arial", size: 9, bold: true };
-        headerCell.alignment = { vertical: "middle", horizontal: "right" };
+        const professorCell = sheet.getCell(currentRow, 3);
+        professorCell.value = professor.getName().toUpperCase();
+        professorCell.font = { name: "Arial", size: 9, bold: true };
+        professorCell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFFFFF00" },
+        };
 
-        const valueCell = sheet.getCell(
-          currentRow + index,
-          summaryStartCol + 1,
-        );
-        valueCell.value = summaryValues[index];
-        valueCell.font = { name: "Arial", size: 9, bold: true };
-        valueCell.alignment = { vertical: "middle", horizontal: "center" };
-        switch (index) {
-          case 1:
-            valueCell.fill = workloadTypeColors.extended;
-            break;
-          case 2:
-            valueCell.fill = workloadTypeColors.double;
-            break;
-          case 3:
-            valueCell.fill = workloadTypeColors.adHonorem;
-            break;
-          case 4:
-            valueCell.fill = {
+        const normalTotal = loadedWorkload
+          .filter((w) => w.getWorkloadType() === "normal")
+          .reduce((sum, w) => sum + w.getWorkload()!, 0);
+        const extendedTotal = loadedWorkload
+          .filter((w) => w.getWorkloadType() === "extended")
+          .reduce((sum, w) => sum + w.getWorkload()!, 0);
+        const doubleTotal = loadedWorkload
+          .filter((w) => w.getWorkloadType() === "double")
+          .reduce((sum, w) => sum + w.getWorkload()!, 0);
+        const adHonoremTotal = loadedWorkload
+          .filter((w) => w.getWorkloadType() === "adHonorem")
+          .reduce((sum, w) => sum + w.getWorkload()!, 0);
+        const sumTotal = normalTotal + extendedTotal + doubleTotal;
+        const facultyTotal = loadedWorkload
+          .filter(
+            (w) =>
+              w.getActivityType() === "course" ||
+              w.getActivityType() === "administrative",
+          )
+          .reduce((sum, w) => sum + (w.getWorkload() || 0), 0);
+
+        const summaryStartCol = 11;
+
+        const summaryHeaders = [
+          "Carga normal:",
+          "Ampliación:",
+          "Doble ampliación:",
+          "Ad Honorem:",
+          "Carga total:",
+          "Carga escuela/total",
+        ];
+        const summaryValues = [
+          normalTotal,
+          extendedTotal,
+          doubleTotal,
+          adHonoremTotal,
+          sumTotal,
+          facultyTotal,
+        ];
+
+        summaryHeaders.forEach((header, index) => {
+          const headerCell = sheet.getCell(currentRow + index, summaryStartCol);
+          headerCell.value = header;
+          headerCell.font = { name: "Arial", size: 9, bold: true };
+          headerCell.alignment = { vertical: "middle", horizontal: "right" };
+
+          const valueCell = sheet.getCell(
+            currentRow + index,
+            summaryStartCol + 1,
+          );
+          valueCell.value = summaryValues[index];
+          valueCell.font = { name: "Arial", size: 9, bold: true };
+          valueCell.alignment = { vertical: "middle", horizontal: "center" };
+          switch (index) {
+            case 0:
+              if (summaryValues[index] < 40) {
+                valueCell.fill = {
+                  type: "pattern",
+                  pattern: "solid",
+                  fgColor: { argb: "FF5ED14F" },
+                };
+              } else if (summaryValues[index] < 44) {
+                valueCell.fill = {
+                  type: "pattern",
+                  pattern: "solid",
+                  fgColor: { argb: "FFFFC000" },
+                };
+              } else {
+                valueCell.fill = {
+                  type: "pattern",
+                  pattern: "solid",
+                  fgColor: { argb: "FFFF0000" },
+                };
+              }
+              break;
+            case 1:
+              valueCell.fill = workloadTypeColors.extended;
+              break;
+            case 2:
+              valueCell.fill = workloadTypeColors.double;
+              break;
+            case 3:
+              valueCell.fill = workloadTypeColors.adHonorem;
+              break;
+            case 4:
+              valueCell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FF42F923" },
+              };
+              break;
+            default:
+              break;
+          }
+
+          if (index === 4) {
+            const totalRow = sheet.getCell(
+              currentRow + index,
+              summaryStartCol + 2,
+            );
+            totalRow.value = {
+              formula: `SUM(M${currentRow + index - 4}:M${currentRow + index - 1})`,
+              result: 0,
+            };
+            totalRow.font = { name: "Arial", size: 9, bold: true };
+            totalRow.alignment = { vertical: "middle", horizontal: "center" };
+            totalRow.fill = {
               type: "pattern",
               pattern: "solid",
               fgColor: { argb: "FF42F923" },
             };
-            break;
-          default:
-            break;
-        }
-
-        if (index === 4) {
-          const totalRow = sheet.getCell(
-            currentRow + index,
-            summaryStartCol + 2,
-          );
-          totalRow.value = {
-            formula: `SUM(M${currentRow + index - 4}:M${currentRow + index - 1})`,
-            result: 0,
-          };
-          totalRow.font = { name: "Arial", size: 9, bold: true };
-          totalRow.alignment = { vertical: "middle", horizontal: "center" };
-          totalRow.fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: { argb: "FF42F923" },
-          };
-        }
-        if (index === 5) {
-          const totalRow = sheet.getCell(
-            currentRow + index,
-            summaryStartCol + 2,
-          );
-          totalRow.value = summaryValues[index - 1];
-          totalRow.font = { name: "Arial", size: 9, bold: true };
-          totalRow.alignment = { vertical: "middle", horizontal: "center" };
-        }
-      });
-
-      currentRow += 6;
-
-      const headerRow = sheet.getRow(currentRow);
-      headerRow.getCell(2).value = "Código";
-      headerRow.getCell(3).value = "Labores docentes";
-      headerRow.getCell(4).value = "Hr";
-      headerRow.getCell(5).value = "Est";
-      headerRow.getCell(6).value = "Carga1";
-      headerRow.getCell(7).value = "Labores de investigación";
-      headerRow.getCell(8).value = "Carga 2";
-      headerRow.getCell(9).value = "Labores especiales";
-      headerRow.getCell(10).value = "Carga 3";
-      headerRow.getCell(11).value = "Labores Acade-Adminis";
-      headerRow.getCell(12).value = "Carga 4";
-      headerRow.font = { name: "Arial", size: 9, bold: true };
-      headerRow.eachCell((cell) => {
-        cell.alignment = { vertical: "middle", horizontal: "center" };
-        cell.border = {
-          top: { style: "medium" },
-          left: { style: "medium" },
-          bottom: { style: "medium" },
-          right: { style: "medium" },
-        };
-      });
-
-      currentRow++;
-
-      const maxRows = Math.max(
-        workloadRows.course.length,
-        workloadRows.research.length,
-        workloadRows.special.length,
-        workloadRows.administrative.length,
-      );
-
-      for (let i = 0; i < maxRows; i++) {
-        const row = sheet.getRow(currentRow);
-
-        const applyCellData = (
-          col: number,
-          data: string | number | null,
-          fill: FillPattern,
-          applyFill: boolean = false,
-        ): void => {
-          const cell = row.getCell(col);
-          cell.value = data !== null ? data : "";
-          if (applyFill) {
-            cell.fill = fill;
           }
-          cell.font = { name: "Arial", size: 9 };
-          cell.border = {
-            top: { style: "thin" },
-            left: { style: col === 2 ? "medium" : "thin" },
-            bottom: { style: "thin" },
-            right: { style: [6, 8, 10, 12].includes(col) ? "medium" : "thin" },
-          };
-        };
-
-        if (i < workloadRows.course.length) {
-          const course = workloadRows.course[i];
-          applyCellData(2, course.code, course.fill);
-          applyCellData(3, course.name.toUpperCase(), course.fill, true);
-          applyCellData(4, course.hours, course.fill);
-          applyCellData(5, course.students, course.fill);
-          applyCellData(6, course.workload, course.fill);
-        }
-
-        if (i < workloadRows.research.length) {
-          const research = workloadRows.research[i];
-          applyCellData(7, research.name, research.fill, true);
-          applyCellData(8, research.workload, research.fill);
-        }
-
-        if (i < workloadRows.special.length) {
-          const special = workloadRows.special[i];
-          applyCellData(9, special.name, special.fill, true);
-          applyCellData(10, special.workload, special.fill);
-        }
-
-        if (i < workloadRows.administrative.length) {
-          const administrative = workloadRows.administrative[i];
-          applyCellData(11, administrative.name, administrative.fill, true);
-          applyCellData(12, administrative.workload, administrative.fill);
-        }
-
-        for (let col = 2; col <= 12; col++) {
-          const cell = row.getCell(col);
-          if (!cell.value) {
-            cell.value = "";
+          if (index === 5) {
+            const totalRow = sheet.getCell(
+              currentRow + index,
+              summaryStartCol + 2,
+            );
+            totalRow.value = summaryValues[index - 1];
+            totalRow.font = { name: "Arial", size: 9, bold: true };
+            totalRow.alignment = { vertical: "middle", horizontal: "center" };
           }
+        });
+
+        currentRow += 6;
+
+        const headerRow = sheet.getRow(currentRow);
+        headerRow.getCell(2).value = "Código";
+        headerRow.getCell(3).value = "Labores docentes";
+        headerRow.getCell(4).value = "Hr";
+        headerRow.getCell(5).value = "Est";
+        headerRow.getCell(6).value = "Carga1";
+        headerRow.getCell(7).value = "Labores de investigación";
+        headerRow.getCell(8).value = "Carga 2";
+        headerRow.getCell(9).value = "Labores especiales";
+        headerRow.getCell(10).value = "Carga 3";
+        headerRow.getCell(11).value = "Labores Acade-Adminis";
+        headerRow.getCell(12).value = "Carga 4";
+        headerRow.font = { name: "Arial", size: 9, bold: true };
+        headerRow.eachCell((cell) => {
+          cell.alignment = { vertical: "middle", horizontal: "center" };
           cell.border = {
-            top: { style: "thin" },
-            left: { style: col === 2 ? "medium" : "thin" },
-            bottom: { style: i === maxRows - 1 ? "medium" : "thin" },
-            right: { style: [6, 8, 10, 12].includes(col) ? "medium" : "thin" },
+            top: { style: "medium" },
+            left: { style: "medium" },
+            bottom: { style: "medium" },
+            right: { style: "medium" },
           };
+        });
+
+        currentRow++;
+
+        const maxRows = Math.max(
+          workloadRows.course.length,
+          workloadRows.research.length,
+          workloadRows.special.length,
+          workloadRows.administrative.length,
+        );
+
+        for (let i = 0; i < maxRows; i++) {
+          const row = sheet.getRow(currentRow);
+
+          const applyCellData = (
+            col: number,
+            data: string | number | null,
+            fill: FillPattern,
+            applyFill: boolean = false,
+          ): void => {
+            const cell = row.getCell(col);
+            cell.value = data !== null ? data : "";
+            if (applyFill) {
+              cell.fill = fill;
+            }
+            cell.font = { name: "Arial", size: 9 };
+            cell.border = {
+              top: { style: "thin" },
+              left: { style: col === 2 ? "medium" : "thin" },
+              bottom: { style: "thin" },
+              right: {
+                style: [6, 8, 10, 12].includes(col) ? "medium" : "thin",
+              },
+            };
+          };
+
+          if (i < workloadRows.course.length) {
+            const course = workloadRows.course[i];
+            applyCellData(2, course.code, course.fill);
+            applyCellData(3, course.name.toUpperCase(), course.fill, true);
+            applyCellData(4, course.hours, course.fill);
+            applyCellData(5, course.students, course.fill);
+            applyCellData(6, course.workload, course.fill);
+          }
+
+          if (i < workloadRows.research.length) {
+            const research = workloadRows.research[i];
+            applyCellData(7, research.name, research.fill, true);
+            applyCellData(8, research.workload, research.fill);
+          }
+
+          if (i < workloadRows.special.length) {
+            const special = workloadRows.special[i];
+            applyCellData(9, special.name, special.fill, true);
+            applyCellData(10, special.workload, special.fill);
+          }
+
+          if (i < workloadRows.administrative.length) {
+            const administrative = workloadRows.administrative[i];
+            applyCellData(11, administrative.name, administrative.fill, true);
+            applyCellData(12, administrative.workload, administrative.fill);
+          }
+
+          for (let col = 2; col <= 12; col++) {
+            const cell = row.getCell(col);
+            if (!cell.value) {
+              cell.value = "";
+            }
+            cell.border = {
+              top: { style: "thin" },
+              left: { style: col === 2 ? "medium" : "thin" },
+              bottom: { style: i === maxRows - 1 ? "medium" : "thin" },
+              right: {
+                style: [6, 8, 10, 12].includes(col) ? "medium" : "thin",
+              },
+            };
+          }
+
+          currentRow++;
         }
 
         currentRow++;
-      }
+        const adHonoremRow = sheet.getRow(currentRow);
+        adHonoremRow.getCell(2).value =
+          "Actividades con cero horas en carga se realizan Adhonorem";
+        adHonoremRow.getCell(2).font = {
+          name: "Arial",
+          size: 9,
+          italic: true,
+        };
+        sheet.mergeCells(currentRow, 2, currentRow, 3);
+        adHonoremRow.getCell(2).fill = workloadTypeColors.adHonorem;
+        adHonoremRow.getCell(3).fill = workloadTypeColors.adHonorem;
 
-      currentRow++;
-      const adHonoremRow = sheet.getRow(currentRow);
-      adHonoremRow.getCell(2).value =
-        "Actividades con cero horas en carga se realizan Adhonorem";
-      adHonoremRow.getCell(2).font = {
-        name: "Arial",
-        size: 9,
-        italic: true,
-      };
-      sheet.mergeCells(currentRow, 2, currentRow, 3);
-      adHonoremRow.getCell(2).fill = workloadTypeColors.adHonorem;
-      adHonoremRow.getCell(3).fill = workloadTypeColors.adHonorem;
+        currentRow += 4;
 
-      currentRow += 4;
+        currentRow += 2;
+      });
+    };
 
-      currentRow += 2;
-    });
+    writeProfessorsWorkload(permanentProfessors);
+
+    const interinosCell = sheet.getCell(currentRow, 3);
+    interinosCell.value = "PROFESORES INTERINOS";
+    interinosCell.font = { name: "Arial", size: 10, bold: true, italic: true };
+    interinosCell.alignment = { vertical: "middle", horizontal: "center" };
+    interinosCell.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFFF0000" },
+    };
+    currentRow += 2;
+
+    writeProfessorsWorkload(temporaryProfessors);
   }
 
   /**
