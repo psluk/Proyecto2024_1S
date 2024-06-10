@@ -8,6 +8,10 @@ import GroupDao from "../database/GroupDao";
 import StudentProfessorDao from "../database/StudentProfessorDao";
 import fs from "fs";
 import path from "path";
+import {
+  convertIsoStringToLocalDate,
+  convertDateToLocalTime,
+} from "./DateTools";
 
 interface FileResult {
   success: boolean;
@@ -72,6 +76,23 @@ export default class ExcelExporter {
     this.studentDao = new StudentDao();
     this.groupDao = new GroupDao();
     this.studentProfessorDao = new StudentProfessorDao();
+  }
+
+  /**
+   * Removes a sheet from the Excel file and adds a new one with the same name.
+   * @param ExcelFile The Excel file to remove the sheet from.
+   * @param sheetName The name of the sheet to remove.
+   * @returns The new sheet added.
+   */
+  private removeAndAddSheet(
+    ExcelFile: Workbook,
+    sheetName: string,
+  ): ExcelJS.Worksheet {
+    const existingSheet = ExcelFile.getWorksheet(sheetName);
+    if (existingSheet) {
+      ExcelFile.removeWorksheet(existingSheet.id);
+    }
+    return ExcelFile.addWorksheet(sheetName);
   }
 
   /**
@@ -694,6 +715,7 @@ export default class ExcelExporter {
     this.exportGroupsSheet(workbook);
     this.exportAdvisorsSheet(workbook);
     this.exportPresentationsSheet(workbook);
+    this.exportInvitationsSheet(workbook);
 
     workbook.xlsx.writeBuffer().then((data) => {
       const blob = new Blob([data], {
@@ -710,15 +732,11 @@ export default class ExcelExporter {
   }
 
   /**
-   *Exports the students information sheet for the students Excel file
+   * Exports the students information sheet for the students Excel file
    * @param ExcelFile The Excel file to export to.
    */
   private exportStudentListSheet(ExcelFile: Workbook): void {
-    const existingSheet = ExcelFile.getWorksheet("Lista de estidiantes");
-    if (existingSheet) {
-      ExcelFile.removeWorksheet(existingSheet.id);
-    }
-    const sheet = ExcelFile.addWorksheet("Lista de estidiantes");
+    const sheet = this.removeAndAddSheet(ExcelFile, "Lista de estidiantes");
     const studentList = this.studentDao.getStudents();
 
     sheet.getColumn(2).width = 35; // Nombre completo
@@ -818,11 +836,7 @@ export default class ExcelExporter {
    * @param ExcelFile The Excel file to export to.
    */
   private exportGroupsSheet(ExcelFile: Workbook): void {
-    const existingSheet = ExcelFile.getWorksheet("Grupos");
-    if (existingSheet) {
-      ExcelFile.removeWorksheet(existingSheet.id);
-    }
-    const sheet = ExcelFile.addWorksheet("Grupos");
+    const sheet = this.removeAndAddSheet(ExcelFile, "Grupos");
     const groupList = this.groupDao.getGroups();
 
     let maxProfessors = 0;
@@ -1069,11 +1083,7 @@ export default class ExcelExporter {
    * @param ExcelFile The Excel file to export to.
    */
   public exportAdvisorsSheet(ExcelFile: ExcelJS.Workbook): void {
-    const existingSheet = ExcelFile.getWorksheet("Profesores");
-    if (existingSheet) {
-      ExcelFile.removeWorksheet(existingSheet.id);
-    }
-    const sheet = ExcelFile.addWorksheet("Profesores");
+    const sheet = this.removeAndAddSheet(ExcelFile, "Profesores");
     const studentProfesorList =
       this.studentProfessorDao.getStudentsProfessors();
     const studentOnlyList = this.studentDao.getStudents();
@@ -1190,11 +1200,7 @@ export default class ExcelExporter {
    * @param ExcelFile The Excel file to export to.
    */
   public exportPresentationsSheet(ExcelFile: ExcelJS.Workbook): void {
-    const existingSheet = ExcelFile.getWorksheet("Presentaciones");
-    if (existingSheet) {
-      ExcelFile.removeWorksheet(existingSheet.id);
-    }
-    const sheet = ExcelFile.addWorksheet("Presentaciones");
+    const sheet = this.removeAndAddSheet(ExcelFile, "Presentaciones");
     const presentationsList = this.studentProfessorDao.getPresentations();
     const studentList = this.studentDao.getStudents();
 
@@ -1332,5 +1338,117 @@ export default class ExcelExporter {
 
       startRow = endRow + 1;
     }
+  }
+
+  public exportInvitationsSheet(ExcelFile: ExcelJS.Workbook): void {
+    const presentations = this.studentProfessorDao.getPresentations();
+
+    const calendarSheet = this.removeAndAddSheet(
+      ExcelFile,
+      "Invitaciones al Calendario",
+    );
+    const emailSheet = this.removeAndAddSheet(
+      ExcelFile,
+      "Invitaciones por correo",
+    );
+
+    const calendarHeaders = [
+      "Asunto",
+      "Lugar",
+      "Fecha de comienzo",
+      "Comienzo",
+      "Fecha de finalizacion",
+      "Finalizacion",
+      "Asistentes (nombres)",
+      "Attendees",
+    ];
+
+    const emailHeaders = [
+      "Asunto",
+      "Cuerpo",
+      "Destinatarios (nombres)",
+      "Destinatarios (correos)",
+    ];
+
+    calendarSheet.getRow(1).values = calendarHeaders;
+    emailSheet.getRow(1).values = emailHeaders;
+
+    presentations.forEach((presentation) => {
+      const startTime = new Date(presentation.getStartTime());
+      const endTime = new Date(presentation.getStartTime());
+      endTime.setMinutes(
+        endTime.getMinutes() + presentation.getMinuteDuration(),
+      );
+      const attendees = presentation.getAttendees();
+      const student = attendees.getStudent();
+      const professors = attendees.getProfessors();
+
+      const advisor = professors.find((professor) => professor.isAdvisor);
+      const nonAdvisors = professors.filter(
+        (professor) => !professor.isAdvisor,
+      );
+
+      while (nonAdvisors.length < 2) {
+        nonAdvisors.push({
+          id: 0,
+          name: "No asignado",
+          email: "",
+          isAdvisor: false,
+        });
+      }
+
+      calendarSheet.addRow([
+        `Defensa - ${student.name}`,
+        presentation.getClassroom(),
+        convertIsoStringToLocalDate(startTime, "hyphenated"),
+        convertDateToLocalTime(startTime, false),
+        convertIsoStringToLocalDate(endTime, "hyphenated"),
+        convertDateToLocalTime(endTime, false),
+        [
+          student.name,
+          advisor?.name || "",
+          ...nonAdvisors.map((professor) => professor.name),
+        ]
+          .filter((name) => name)
+          .join(", "),
+        [
+          student?.email || "",
+          advisor?.email || "",
+          ...nonAdvisors.map((professor) => professor.email),
+        ]
+          .filter((email) => email)
+          .join(", "),
+      ]);
+
+      for (let i = 1; i < 9; i++) {
+        const calendarColumn = calendarSheet.getColumn(i);
+        calendarColumn.width = i == 1 ? 45 : 20;
+        calendarColumn.alignment = { wrapText: true };
+      }
+
+      emailSheet.addRow([
+        `Defensa - ${student.name}`,
+        `Estimado(a) ${student.name}:\n\nSe le informa que su defensa de tesis está programada para el día ${convertIsoStringToLocalDate(startTime, "natural")} a las ${convertDateToLocalTime(startTime, true)} en el aula ${presentation.getClassroom()}.\n\nSaludos,`,
+        [
+          student.name,
+          advisor?.name || "",
+          ...nonAdvisors.map((professor) => professor.name),
+        ]
+          .filter((name) => name)
+          .join(", "),
+        [
+          advisor?.email || "",
+          ...nonAdvisors.map((professor) => professor.email),
+        ]
+          .filter((email) => email)
+          .join(", "),
+      ]);
+
+      for (let i = 1; i < 5; i++) {
+        const emailColumn = emailSheet.getColumn(i);
+        emailColumn.width = i == 1 ? 40 : 56;
+        emailColumn.alignment = { wrapText: true };
+      }
+    });
   }
 }

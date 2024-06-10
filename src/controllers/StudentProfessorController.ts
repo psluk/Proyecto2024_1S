@@ -9,7 +9,7 @@ import {
 import Presentation from "../models/Presentation";
 import { convertApiDateToHtmlAttribute } from "../renderer/src/utils/DateFormatters";
 import { shuffleArray } from "../utils/Shuffle";
-import { doDatesOverlap } from "../utils/DateOverlap";
+import { doDatesOverlap } from "../utils/DateTools";
 
 const MAX_ATTEMPTS: number = 10;
 
