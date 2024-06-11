@@ -145,8 +145,7 @@ export default class ExcelDao {
     const jsonData: JSONProfessorInterface[] =
       XLSX.utils.sheet_to_json<JSONProfessorInterface>(worksheet);
     console.log(jsonData);
-    const result = jsonToProfessorList(jsonData);
-    return result;
+    return jsonToProfessorList(jsonData);
   }
 
   /**
@@ -275,8 +274,7 @@ export default class ExcelDao {
     );
     const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
     const jsonData = XLSX.utils.sheet_to_json<Course>(worksheet);
-    const result = jsonToCourseList(jsonData);
-    return result;
+    return jsonToCourseList(jsonData);
   }
 
   /**
@@ -512,7 +510,6 @@ export default class ExcelDao {
     );
     const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
     const jsonData = XLSX.utils.sheet_to_json<Student>(worksheet, { range: 4 });
-    const result = jsonToStudentList(jsonData);
-    return result;
+    return jsonToStudentList(jsonData);
   }
 }
