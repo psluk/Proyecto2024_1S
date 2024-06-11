@@ -1,5 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
+import React from "react";
 
 type Props = {
   handleConfirm: () => void;
@@ -21,7 +22,7 @@ export default function DialogConfirm({
   setShow,
   confirmText = "Confirmar",
   cancelText = "Cancelar",
-}: Props): JSX.Element {
+}: Props): React.ReactElement {
   return (
     <div
       className={`absolute left-0 top-0 z-0 h-full w-full items-center justify-center bg-gray-600/40 ${show ? "flex" : "hidden"}`}

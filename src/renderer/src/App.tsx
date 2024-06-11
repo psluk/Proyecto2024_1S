@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import StudentHome from "./pages/student/Home";
-import ProfessorerHome from "./pages/professor/Home";
+import ProfessorHome from "./pages/professor/Home";
 import AdminHome from "./pages/admin/Home";
 import ManageUsers from "./pages/admin/ManageUsers";
 import EditUser from "./pages/admin/EditUser";
@@ -32,8 +32,9 @@ import EditStudentProfessor from "./pages/admin/EditStudentProfessor";
 import { PresentationSwapContextProvider } from "./context/PresentationSwapContext";
 import AddPresentation from "./pages/admin/pfg/AddPresentation";
 import EditPresentation from "./pages/admin/pfg/EditPresentation";
+import React from "react";
 
-function App(): JSX.Element {
+function App(): React.ReactElement {
   return (
     <SessionContextProvider>
       <TitleBar />
@@ -42,7 +43,7 @@ function App(): JSX.Element {
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/student/home" element={<StudentHome />} />
-          <Route path="/professor/home" element={<ProfessorerHome />} />
+          <Route path="/professor/home" element={<ProfessorHome />} />
           <Route path="/admin/AddProfessor" element={<AddProfessor />} />
           <Route path="/admin/AddStudent" element={<AddStudent />} />
           <Route path="/admin/editProfessor/:id" element={<EditProfessor />} />

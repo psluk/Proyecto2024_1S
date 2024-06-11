@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Student from "../../../../models/Student";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,7 +10,7 @@ import {
 import DialogConfirm from "../../components/DialogConfirm";
 import DialogAlert from "@renderer/components/DialogAlert";
 
-export default function ManageStudents(): JSX.Element {
+export default function ManageStudents(): React.ReactElement {
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState<string>("");
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);

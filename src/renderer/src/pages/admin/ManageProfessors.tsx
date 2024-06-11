@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Professor from "../../../../models/Professor";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,7 +12,7 @@ import { professorTypes } from "@renderer/constants/RecordTypes";
 import DialogConfirm from "../../components/DialogConfirm";
 import DialogAlert from "@renderer/components/DialogAlert";
 
-export default function ManageProfessors(): JSX.Element {
+export default function ManageProfessors(): React.ReactElement {
   const [professors, setProfessors] = useState<Professor[]>([]);
   const [search, setSearch] = useState<string>("");
   const [filteredProfessors, setFilteredProfessors] = useState<Professor[]>([]);

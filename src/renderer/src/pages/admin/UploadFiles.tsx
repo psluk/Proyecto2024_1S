@@ -1,8 +1,8 @@
 import FileSelector from "@renderer/components/FileSelector";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import DialogAlert from "@renderer/components/DialogAlert";
 
-export default function UploadFiles(): JSX.Element {
+export default function UploadFiles(): React.ReactElement {
   const [professorsFile, setProfessorsFile] = useState<File | null>(null);
   const [studentsFile, setStudentsFile] = useState<File | null>(null);
   const [showDialog, setShowDialog] = useState<boolean>(false);

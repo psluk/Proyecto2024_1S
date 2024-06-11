@@ -1,5 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faCheck } from "@fortawesome/free-solid-svg-icons";
+import React from "react";
 
 type Props = {
   handleConfirm: () => void;
@@ -15,7 +16,7 @@ export default function DialogAlert({
   message,
   show,
   type,
-}: Props): JSX.Element {
+}: Props): React.ReactElement {
   const icon = type === "success" ? faCheck : faXmark;
   const colorIcon = type === "success" ? "text-sky-600" : "text-red-600";
   return (

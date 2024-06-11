@@ -1,4 +1,4 @@
-import {
+import React, {
   ChangeEvent,
   Dispatch,
   DragEvent,
@@ -14,7 +14,7 @@ interface FileSelectorProps {
 export default function FileSelector({
   identifier,
   onFileChange,
-}: FileSelectorProps): JSX.Element {
+}: FileSelectorProps): React.ReactElement {
   const isValidFileType = (file: File): boolean => {
     return (
       file.type ===

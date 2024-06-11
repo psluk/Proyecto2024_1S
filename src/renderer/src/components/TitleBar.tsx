@@ -13,7 +13,7 @@ import { adminOptions } from "@renderer/constants/AdminOptions";
 import { SessionContext } from "@renderer/context/SessionContext";
 import { ShowLogin } from "@renderer/global/ShowLogin";
 import { getNameInitials } from "../utils/NameFormatter";
-import { useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 const routesWithoutMenu = [
@@ -24,7 +24,7 @@ const routesWithoutMenu = [
   "/admin/home",
 ];
 
-export default function TitleBar(): JSX.Element {
+export default function TitleBar(): React.ReactElement {
   const [isMaximized, setIsMaximized] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const sessionContext = useContext(SessionContext);

@@ -3,7 +3,9 @@ import UserCard from "@renderer/components/UserCard";
 import { adminOptions } from "@renderer/constants/AdminOptions";
 import { ShowLogin } from "@renderer/global/ShowLogin";
 import { Link, useLocation } from "react-router-dom";
-export default function AdminHome(): JSX.Element {
+import React from "react";
+
+export default function AdminHome(): React.ReactElement {
   const location = useLocation();
   const { pathname } = location;
 
