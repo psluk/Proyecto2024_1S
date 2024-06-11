@@ -90,6 +90,8 @@ export default class StudentDao {
       database.prepare(clearActivity).run();
 
       list.forEach((student) => {
+        let wasSuccessful = true;
+
         try {
           const result = insertQuery.run(
             student.getName(),
@@ -99,13 +101,15 @@ export default class StudentDao {
             student.getIsEnabled() ? 1 : 0,
           );
           if (result.changes === 0) {
-            throw new Error(`Failed to insert student: ${student.getName()}`, {
-              cause: student,
-            });
+            wasSuccessful = false;
           }
           successfulInserts.push(student);
         } catch (error) {
+          wasSuccessful = false;
           console.error(error);
+        }
+
+        if (!wasSuccessful) {
           errors.push(student);
         }
       });

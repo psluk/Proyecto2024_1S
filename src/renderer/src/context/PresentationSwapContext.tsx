@@ -15,7 +15,11 @@ const PresentationSwapContext = createContext<PresentationSwapContextType>({
   setNewPresentationId: () => {},
 });
 
-const PresentationSwapContextProvider = ({ children }): React.ReactElement => {
+const PresentationSwapContextProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactElement => {
   const [swappingPresentation, setSwappingPresentation] = React.useState<
     number | null
   >(null);

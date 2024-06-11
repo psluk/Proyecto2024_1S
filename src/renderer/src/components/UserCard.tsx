@@ -1,6 +1,6 @@
 import { SessionContext } from "@renderer/context/SessionContext";
 import { getNameInitials } from "../utils/NameFormatter";
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
 const userColors = {
@@ -9,7 +9,7 @@ const userColors = {
   Student: "bg-emerald-500",
 };
 
-export default function UserCard() {
+export default function UserCard(): React.ReactElement {
   const sessionContext = useContext(SessionContext);
   const session = sessionContext?.session;
   const navigate = useNavigate();

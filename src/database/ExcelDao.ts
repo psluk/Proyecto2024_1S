@@ -20,6 +20,54 @@ interface JSONProfessorInterface {
   __EMPTY: string | null;
 }
 
+interface ScheduleJsonBodyInterface {
+  __EMPTY_1: string;
+  __EMPTY_2: string;
+  __EMPTY_3: string;
+  __EMPTY_4: string;
+  __EMPTY_5: string;
+  __EMPTY_6: string;
+  __EMPTY_7: number;
+  __EMPTY_8: number;
+  __EMPTY_9: string;
+  __EMPTY_10: string;
+  __EMPTY_11: string;
+  __EMPTY_12: string;
+  __EMPTY_13: number;
+  __EMPTY_14: string;
+  __EMPTY_15: string;
+}
+
+interface ScheduleJsonHeaderInterface {
+  __EMPTY_1: string;
+  __EMPTY_2: string;
+  __EMPTY_3: string;
+  __EMPTY_4: string;
+  __EMPTY_5: string;
+  __EMPTY_6: string;
+  __EMPTY_7: string;
+  __EMPTY_8: string;
+  __EMPTY_9: string;
+  __EMPTY_10: string;
+  __EMPTY_11: string;
+  __EMPTY_12: string;
+  __EMPTY_13: string;
+  __EMPTY_14: string;
+  __EMPTY_15: string;
+}
+
+interface ScheduleJsonInterface {
+  0: ScheduleJsonHeaderInterface;
+  1: {
+    __EMPTY_11: string;
+    __EMPTY_12: string;
+  };
+  [key: number]:
+    | ScheduleJsonBodyInterface
+    | ScheduleJsonHeaderInterface
+    | { __EMPTY_11: string; __EMPTY_12: string };
+}
+
 export default class ExcelDao {
   /**
    * Saves a file into internal storage to persist it
@@ -117,9 +165,11 @@ export default class ExcelDao {
       groupNumber: "__EMPTY_7",
     };
 
-    const jsonToScheduleList = (jsonData: any): CourseSchedule[] => {
+    const jsonToScheduleList = (
+      jsonData: ScheduleJsonInterface[],
+    ): CourseSchedule[] => {
       const courseScheduleList: CourseSchedule[] = [];
-      jsonData.slice(2).forEach((courseScheduleRow: any) => {
+      jsonData.slice(2).forEach((courseScheduleRow) => {
         const professors: CourseScheduleProfessorInterface[] = [];
 
         // If the group is closed, the row is skipped
@@ -181,9 +231,9 @@ export default class ExcelDao {
       (name) => name === "guiaHorario",
     );
     const worksheet = workbook.Sheets[workbook.SheetNames[sheetIndex]];
-    const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet);
-    const result = jsonToScheduleList(jsonData);
-    return result;
+    const jsonData: ScheduleJsonInterface[] =
+      XLSX.utils.sheet_to_json(worksheet);
+    return jsonToScheduleList(jsonData);
   }
 
   /**
@@ -336,8 +386,26 @@ export default class ExcelDao {
             new ImportedWorkload(
               "course",
               getCourseLoadType(
-                (courseNameCell as any).style.fill?.fgColor?.tint ||
-                  (courseNameCell as any).style.fill?.fgColor?.argb ||
+                (
+                  courseNameCell as unknown as {
+                    style: {
+                      fill: {
+                        type: string;
+                        fgColor: { tint: string };
+                      };
+                    };
+                  }
+                ).style.fill?.fgColor?.tint ||
+                  (
+                    courseNameCell as {
+                      style: {
+                        fill: {
+                          type: string;
+                          fgColor: { argb: string };
+                        };
+                      };
+                    }
+                  ).style.fill?.fgColor?.argb ||
                   0,
               ),
               courseCode,

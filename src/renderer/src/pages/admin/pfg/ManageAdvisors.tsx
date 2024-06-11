@@ -55,7 +55,7 @@ export default function ManageAdvisors(): React.ReactElement {
   };
 
   const generateRandom = (): void => {
-    window.mainController.generateRandomProfessorsAssigments();
+    window.mainController.generateRandomProfessorsAssignments();
     const loadedStudents = window.mainController.getStudentsProfessors();
     setStudents(loadedStudents);
     setFilteredStudents(loadedStudents);
@@ -202,7 +202,7 @@ export default function ManageAdvisors(): React.ReactElement {
         message="Todos los estudiantes tienen profesores asignados. ¿Desea generarlos nuevamente?"
         show={openDialog}
         handleConfirm={() => {
-          window.mainController.deleteProfessorsAssigments();
+          window.mainController.deleteProfessorsAssignments();
           generateRandom();
           setOpenDialog(false);
         }}

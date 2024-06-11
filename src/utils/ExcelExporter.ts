@@ -1,8 +1,8 @@
 import ExcelJS, { Workbook, FillPattern } from "exceljs";
 import ProfessorDao from "../database/ProfessorDao";
-import Professor from "src/models/Professor";
+import Professor from "../models/Professor";
 import Workload, { WorkloadInterface } from "../models/Workload";
-import Course from "src/models/Course";
+import Course from "../models/Course";
 import StudentDao from "../database/StudentDao";
 import GroupDao from "../database/GroupDao";
 import StudentProfessorDao from "../database/StudentProfessorDao";

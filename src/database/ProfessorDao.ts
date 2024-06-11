@@ -110,20 +110,22 @@ export default class ProfessorDao {
       }
 
       list.forEach((professor) => {
+        let wasSuccessful = true;
         try {
           const result = insertQuery.run(
             professor.getName(),
             professor.getType(),
           );
           if (result.changes === 0) {
-            throw new Error(
-              `Failed to insert professor: ${professor.getName()}`,
-              { cause: professor },
-            );
+            wasSuccessful = false;
           }
           successfulInserts.push(professor);
         } catch (error) {
+          wasSuccessful = false;
           console.error(error);
+        }
+
+        if (!wasSuccessful) {
           errors.push(professor);
         }
       });
@@ -238,6 +240,7 @@ export default class ProfessorDao {
       }
 
       list.forEach((course) => {
+        let wasSuccessful = true;
         try {
           const result = insertQuery.run(
             course.getCode(),
@@ -246,13 +249,15 @@ export default class ProfessorDao {
             course.getType(),
           );
           if (result.changes === 0) {
-            throw new Error(`Failed to insert course: ${course.getName()}`, {
-              cause: course,
-            });
+            wasSuccessful = false;
           }
           successfulInserts.push(course);
         } catch (error) {
+          wasSuccessful = false;
           console.error(error);
+        }
+
+        if (!wasSuccessful) {
           errors.push(course);
         }
       });
@@ -543,12 +548,16 @@ export default class ProfessorDao {
       FROM Courses C
              JOIN CourseTypes CT USING (courseTypeId)`;
     const readQuery = database.prepare(query);
-    const coursesData = readQuery.all();
-    const courses: Course[] = coursesData.map((row: any) => {
+    const coursesData = readQuery.all() as {
+      id: number;
+      name: string;
+      type: string;
+      code: string;
+      hours: number;
+    }[];
+    return coursesData.map((row) => {
       return new Course(row.id, row.type, row.code, row.name, row.hours);
     });
-
-    return courses;
   }
 
   /**
@@ -561,10 +570,7 @@ export default class ProfessorDao {
       FROM Activities a
       WHERE a.activityTypeId BETWEEN 2 AND 4
     `;
-    const otherActivitiesList = database
-      .prepare(query)
-      .all() as OtherActivity[];
-    return otherActivitiesList;
+    return database.prepare(query).all() as OtherActivity[];
   }
 
   /**
@@ -800,7 +806,7 @@ export default class ProfessorDao {
           WHERE activityId = ?;
         `;
 
-        const result2 = database
+        database
           .prepare(ActivityCourseQuery)
           .run(
             courseCode,
@@ -815,7 +821,7 @@ export default class ProfessorDao {
   }
 
   /**
-   * Gets the calculated workload for a course activity, given its parameters..
+   * Gets the calculated workload for a course activity, given its parameters
    * @param courseCode Code of the course
    * @param students Number of students
    * @param hours Number of hours
@@ -894,7 +900,7 @@ export default class ProfessorDao {
         FROM ActivityCourses
         WHERE activityId = ?;
       `;
-      const result = database.prepare(query).run(activityId);
+      database.prepare(query).run(activityId);
 
       const query2 = `
         DELETE
@@ -910,14 +916,14 @@ export default class ProfessorDao {
 
   getStudentsDistribution(): { label: string; value: number }[] {
     const query = `
-    SELECT 
-        students, 
+    SELECT
+        students,
         COUNT(*) AS CountOfProfessors
-    FROM 
+    FROM
         Activities
-    WHERE 
+    WHERE
         suggestedStudents IS NOT NULL
-    GROUP BY 
+    GROUP BY
         Students`;
 
     const result = database.prepare(query).all() as {
@@ -934,18 +940,18 @@ export default class ProfessorDao {
   getWorkloadStats(): { label: string; value: number }[] {
     const query = `
       WITH TotalLoadPerProfessor AS (
-        SELECT 
+        SELECT
             professorId,
             SUM(load) AS TotalLoad
-        FROM 
+        FROM
             Activities
-        GROUP BY 
+        GROUP BY
             professorId
     ),
     LoadRanges AS (
         SELECT
             professorId,
-            CASE 
+            CASE
                 WHEN TotalLoad <= 10 THEN '0-10'
                 WHEN TotalLoad <= 20 THEN '11-20'
                 WHEN TotalLoad <= 30 THEN '21-30'
@@ -954,17 +960,17 @@ export default class ProfessorDao {
                 WHEN TotalLoad <= 60 THEN '51-60'
                 ELSE '61+'
             END AS LoadRange
-        FROM 
+        FROM
             TotalLoadPerProfessor
     )
-    SELECT 
+    SELECT
         LoadRange,
         COUNT(*) AS NumberOfProfessors
-    FROM 
+    FROM
         LoadRanges
-    GROUP BY 
+    GROUP BY
         LoadRange
-    ORDER BY 
+    ORDER BY
         LoadRange;
 `;
 

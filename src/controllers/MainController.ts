@@ -5,14 +5,12 @@ import Professor, { ProfessorInterface } from "../models/Professor";
 import { UserInterface } from "../models/User";
 import Group, { GroupInterface } from "../models/Group";
 import Student, { StudentInterface } from "../models/Student";
-
 import GroupController from "./GroupController";
 import Workload from "../models/Workload";
-import { CourseInterface } from "src/models/Course";
-import { OtherActivity } from "src/database/ProfessorDao";
-
+import { CourseInterface } from "../models/Course";
+import { OtherActivity } from "../database/ProfessorDao";
 import StudentProfessorController from "./StudentProfessorController";
-import { StudentProfessorInterface } from "src/models/StudentProfessor";
+import { StudentProfessorInterface } from "../models/StudentProfessor";
 import { PresentationInterface } from "../models/Presentation";
 import { Classroom } from "../interfaces/PresentationGeneration";
 import ExcelExporter from "../utils/ExcelExporter";
@@ -87,10 +85,10 @@ export default class MainController {
     this.deleteActivity = this.deleteActivity.bind(this);
 
     this.getStudentsProfessors = this.getStudentsProfessors.bind(this);
-    this.generateRandomProfessorsAssigments =
-      this.generateRandomProfessorsAssigments.bind(this);
-    this.deleteProfessorsAssigments =
-      this.deleteProfessorsAssigments.bind(this);
+    this.generateRandomProfessorsAssignments =
+      this.generateRandomProfessorsAssignments.bind(this);
+    this.deleteProfessorsAssignments =
+      this.deleteProfessorsAssignments.bind(this);
 
     this.gatherStatistics = this.gatherStatistics.bind(this);
     this.deleteProfessorFromGroups = this.deleteProfessorFromGroups.bind(this);
@@ -104,8 +102,10 @@ export default class MainController {
 
     this.getPresentations = this.getPresentations.bind(this);
     this.getPresentation = this.getPresentation.bind(this);
-    this.getPresentationsByProfessorId = this.getPresentationsByProfessorId.bind(this);
-    this.getPresentationsByClassroom = this.getPresentationsByClassroom.bind(this);
+    this.getPresentationsByProfessorId =
+      this.getPresentationsByProfessorId.bind(this);
+    this.getPresentationsByClassroom =
+      this.getPresentationsByClassroom.bind(this);
     this.generatePresentations = this.generatePresentations.bind(this);
     this.addPresentation = this.addPresentation.bind(this);
     this.updatePresentation = this.updatePresentation.bind(this);
@@ -774,7 +774,7 @@ export default class MainController {
   }
 
   /**
-   * Gets the calculated workload for a course activity, given its parameters..
+   * Gets the calculated workload for a course activity, given its parameters
    * @param courseCode Code of the course
    * @param students Number of students
    * @param hours Number of hours
@@ -818,12 +818,12 @@ export default class MainController {
       .map((sp) => sp.asObject());
   }
 
-  public generateRandomProfessorsAssigments(): void {
-    return this.studentProfessorController.generateRandomProfessorsAssigments();
+  public generateRandomProfessorsAssignments(): void {
+    return this.studentProfessorController.generateRandomProfessorsAssignments();
   }
 
-  public deleteProfessorsAssigments(): void {
-    return this.studentProfessorController.deleteProfessorsAssigments();
+  public deleteProfessorsAssignments(): void {
+    return this.studentProfessorController.deleteProfessorsAssignments();
   }
 
   public gatherStatistics(): {

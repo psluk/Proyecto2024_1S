@@ -33,7 +33,7 @@ export default function TitleBar(): JSX.Element {
   const pathname = location.pathname;
   const navigate = useNavigate();
 
-  const handleAction = (action: string) => {
+  const handleAction = (action: string): void => {
     window.electron.ipcRenderer.send(action);
   };
 

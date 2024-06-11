@@ -91,9 +91,15 @@ export default class UserController {
    * @param name The name of the user.
    * @param email The email of the user.
    * @param password The password of the user.
-   * @returns 
+   * @returns
    */
-  public updateUser(userId: number, type: string, name: string, email: string, password: string): User {
+  public updateUser(
+    userId: number,
+    type: string,
+    name: string,
+    email: string,
+    password: string,
+  ): User {
     const user = new User(userId, type, name, email, password);
     return this.userDao.updateUser(user);
   }

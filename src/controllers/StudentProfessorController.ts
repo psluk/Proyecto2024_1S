@@ -44,7 +44,7 @@ export default class StudentProfessorController {
    * Generates random professors assignments.
    * It will assign a random advisor to students that don't have one.
    */
-  public generateRandomProfessorsAssigments(): void {
+  public generateRandomProfessorsAssignments(): void {
     const students = this.studentProfessorDao.getStudentsProfessors();
     const professorsSuggestions =
       this.studentProfessorDao.getProfessorsSuggestions();
@@ -122,8 +122,8 @@ export default class StudentProfessorController {
     });
   }
 
-  public deleteProfessorsAssigments(): void {
-    this.studentProfessorDao.deleteProfessorsAssigments();
+  public deleteProfessorsAssignments(): void {
+    this.studentProfessorDao.deleteProfessorsAssignments();
   }
 
   /**

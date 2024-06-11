@@ -14,16 +14,20 @@ interface SessionContextType {
 
 const SessionContext = createContext<SessionContextType | null>(null);
 
-const SessionContextProvider = ({ children }) => {
+const SessionContextProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactElement => {
   const [session, setSession] = React.useState<Session | null>(null);
 
-  const login = (name: string, email: string, type: string) => {
+  const login = (name: string, email: string, type: string): void => {
     setSession({ name, email, type });
   };
 
-  const logout = () => {
+  const logout = (): void => {
     setSession(null);
-  }
+  };
 
   return (
     <SessionContext.Provider value={{ session, login, logout }}>

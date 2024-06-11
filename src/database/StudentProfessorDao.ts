@@ -140,11 +140,7 @@ export default class StudentProfessorDao {
     WHERE P.name IS NOT NULL AND A.students IS NOT NULL AND A.suggestedStudents IS NOT NULL
     `;
 
-    const rows: ProfessorsSuggestionsRow[] = database
-      .prepare(query)
-      .all() as ProfessorsSuggestionsRow[];
-
-    return rows;
+    return database.prepare(query).all() as ProfessorsSuggestionsRow[];
   }
 
   addPresentations(
@@ -571,7 +567,7 @@ export default class StudentProfessorDao {
   /**
    * Deletes all student-professor assignments.
    */
-  deleteProfessorsAssigments(): void {
+  deleteProfessorsAssignments(): void {
     const query = `DELETE FROM StudentProfessors`;
     const clearActivity = `UPDATE Activities SET students = 0, load = 0 WHERE suggestedStudents IS NOT NULL OR (name = 'Proyecto de Graduación (tribunal)' AND workloadTypeId = 1);`;
     database.transaction(() => {

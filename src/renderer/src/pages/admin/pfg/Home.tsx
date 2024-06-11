@@ -1,8 +1,9 @@
 import { pfgOptions } from "@renderer/constants/PFGOptions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
+import React from "react";
 
-const PFGHome = () => {
+const PFGHome = (): React.ReactElement => {
   return (
     <main className="gap-10">
       <div className="flex w-full flex-col items-center gap-10">

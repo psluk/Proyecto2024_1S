@@ -551,7 +551,7 @@ export default class ProfessorController {
   }
 
   /**
-   * Gets the calculated workload for a course activity, given its parameters..
+   * Gets the calculated workload for a course activity, given its parameters.
    * @param courseCode Code of the course
    * @param students Number of students
    * @param hours Number of hours
