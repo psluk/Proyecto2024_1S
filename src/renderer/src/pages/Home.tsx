@@ -1,9 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import UserCard from "@renderer/components/UserCard";
-import { adminOptions } from "@renderer/constants/AdminOptions";
-import { ShowLogin } from "@renderer/global/ShowLogin";
 import { Link, useLocation } from "react-router-dom";
 import React from "react";
+import { menuOptions } from "../constants/MenuOptions";
 
 export default function AdminHome(): React.ReactElement {
   const location = useLocation();
@@ -18,15 +16,8 @@ export default function AdminHome(): React.ReactElement {
         </h2>
       </picture>
       <div className="flex w-full flex-col items-center gap-10">
-        {ShowLogin && (
-          <>
-            <h1 className="text-3xl font-bold">Panel de administración</h1>
-            <UserCard />
-          </>
-        )}
-
         <ul className="flex w-full max-w-2xl flex-row flex-wrap">
-          {adminOptions
+          {menuOptions
             .filter((option) => option.path !== pathname)
             .map((option, index) => (
               <li className="w-1/2 px-2 py-3" key={index}>

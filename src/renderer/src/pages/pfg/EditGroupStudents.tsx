@@ -1,7 +1,7 @@
 import { ReactElement, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Group from "../../../../../models/Group";
-import Student from "../../../../../models/Student";
+import Group from "../../../../models/Group";
+import Student from "../../../../models/Student";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import {

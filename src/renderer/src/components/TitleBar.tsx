@@ -9,26 +9,15 @@ import {
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { adminOptions } from "@renderer/constants/AdminOptions";
-import { SessionContext } from "@renderer/context/SessionContext";
-import { ShowLogin } from "@renderer/global/ShowLogin";
-import { getNameInitials } from "../utils/NameFormatter";
-import React, { useContext, useState } from "react";
+import { menuOptions } from "@renderer/constants/MenuOptions";
+import React, { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
-const routesWithoutMenu = [
-  "/",
-  "/register",
-  "/student/home",
-  "/professor/home",
-  "/admin/home",
-];
+const routesWithoutMenu = ["/"];
 
 export default function TitleBar(): React.ReactElement {
   const [isMaximized, setIsMaximized] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const sessionContext = useContext(SessionContext);
-  const session = sessionContext?.session;
   const location = useLocation();
   const pathname = location.pathname;
   const navigate = useNavigate();
@@ -85,21 +74,8 @@ export default function TitleBar(): React.ReactElement {
         id="side-menu"
       >
         <nav className="flex h-full w-full flex-col items-center justify-evenly gap-12">
-          {ShowLogin && (
-            <div className="flex w-full flex-row items-center rounded-md border border-slate-800 bg-slate-500 py-2 shadow-lg">
-              <span>
-                <span className="mx-2 flex size-10 items-center justify-center rounded-full bg-orange-500 text-xl">
-                  {getNameInitials(session?.name || "")}
-                </span>
-              </span>
-              <div className="flex flex-col">
-                <p>{session?.name}</p>
-                <p className="text-sm">{session?.email}</p>
-              </div>
-            </div>
-          )}
           <ul className="flex flex-col gap-2">
-            {adminOptions.map((option, index) => (
+            {menuOptions.map((option, index) => (
               <li key={index}>
                 <NavLink
                   to={option.path}
@@ -116,19 +92,6 @@ export default function TitleBar(): React.ReactElement {
               </li>
             ))}
           </ul>
-          {ShowLogin && (
-            <button
-              className="flex w-full justify-center rounded-md bg-red-500 px-3 py-1.5 font-semibold leading-6 text-white shadow-md hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-              onClick={() => {
-                setIsMenuOpen(false);
-                sessionContext?.logout();
-                navigate("/");
-              }}
-              type="button"
-            >
-              Cerrar sesión
-            </button>
-          )}
         </nav>
       </div>
       <span className="h-full grow" id="draggable-title-bar"></span>

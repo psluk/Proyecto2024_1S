@@ -263,7 +263,7 @@ export default function PresentationClassroom({
                                         icon={faPencil}
                                         onClick={() =>
                                           navigate(
-                                            `/admin/manageTheses/presentations/edit/${presentation.id}`,
+                                            `/manageTheses/presentations/edit/${presentation.id}`,
                                           )
                                         }
                                         title="Editar"

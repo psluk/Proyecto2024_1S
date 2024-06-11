@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { professorTypes } from "../../constants/RecordTypes";
-import Professor from "../../../../models/Professor";
+import { professorTypes } from "../constants/RecordTypes";
+import Professor from "../../../models/Professor";
 import DialogAlert from "@renderer/components/DialogAlert";
 
 interface ProfessorData {

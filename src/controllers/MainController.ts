@@ -1,8 +1,6 @@
 import ProfessorController from "./ProfessorController";
 import StudentController from "./StudentController";
-import UserController from "./UserController";
 import Professor, { ProfessorInterface } from "../models/Professor";
-import { UserInterface } from "../models/User";
 import Group, { GroupInterface } from "../models/Group";
 import Student, { StudentInterface } from "../models/Student";
 import GroupController from "./GroupController";
@@ -24,7 +22,6 @@ interface ProfessorsSuggestionsRow {
 
 export default class MainController {
   private static instance: MainController;
-  private userController: UserController;
   private professorController: ProfessorController;
   private studentController: StudentController;
   private groupController: GroupController;
@@ -32,7 +29,6 @@ export default class MainController {
   private excelExporter: ExcelExporter;
 
   private constructor() {
-    this.userController = new UserController();
     this.professorController = new ProfessorController();
     this.studentController = new StudentController();
     this.groupController = new GroupController();
@@ -40,15 +36,6 @@ export default class MainController {
     this.excelExporter = new ExcelExporter();
 
     // Bind methods
-    this.login = this.login.bind(this);
-    this.addUser = this.addUser.bind(this);
-    this.getUserById = this.getUserById.bind(this);
-    this.getUserByEmail = this.getUserByEmail.bind(this);
-    this.getUsers = this.getUsers.bind(this);
-    this.getUsersByType = this.getUsersByType.bind(this);
-    this.updateUser = this.updateUser.bind(this);
-    this.deleteUser = this.deleteUser.bind(this);
-
     this.addProfessor = this.addProfessor.bind(this);
     this.importProfessors = this.importProfessors.bind(this);
     this.getProfessorById = this.getProfessorById.bind(this);
@@ -123,102 +110,6 @@ export default class MainController {
     }
 
     return MainController.instance;
-  }
-
-  /**
-   * USER CONTROLLER METHODS
-   */
-
-  /**
-   * Logs in a user.
-   * @param email The email of the user.
-   * @param password The password of the user.
-   * @returns The user that was logged in, or null if the login failed.
-   */
-  public login(email: string, password: string): UserInterface | null {
-    return this.userController.login(email, password)?.asObject() || null;
-  }
-
-  /**
-   * Adds a new user.
-   * Throws an error if the user could not be added.
-   * @param name The name of the user.
-   * @param email The email of the user.
-   * @param password The password of the user.
-   * @returns The user that was added.
-   */
-  public addUser(name: string, email: string, password: string): UserInterface {
-    return this.userController.addUser(name, email, password).asObject();
-  }
-
-  /**
-   * Gets a user from the database.
-   * @param id The id of the user to get.
-   * @returns The user with the given id.
-   */
-  public getUserById(id: number): UserInterface | null {
-    return this.userController.getUserById(id)?.asObject() || null;
-  }
-
-  /**
-   * Gets a user from the database by email.
-   * @param email The email of the user to get.
-   * @returns The user with the given email.
-   */
-  public getUserByEmail(email: string): UserInterface | null {
-    return this.userController.getUserByEmail(email)?.asObject() || null;
-  }
-
-  /**
-   * Gets a list of all users in the database.
-   * @returns A list of all users in the database.
-   */
-  public getUsers(): UserInterface[] {
-    return this.userController.getUsers().map((user) => user.asObject());
-  }
-
-  /**
-   * Gets a list of all users of a specific type in the database.
-   * @param type The type of user to get:
-   * - "Administrator"
-   * - "Professor"
-   * - "Student"
-   * @returns A list of all users of the given type in the database.
-   */
-  public getUsersByType(type: string): UserInterface[] {
-    return this.userController
-      .getUsersByType(type)
-      .map((user) => user.asObject());
-  }
-
-  /**
-   * Updates a user in the database.
-   * @param id The ID of the user to update.
-   * @param type The type of the user.
-   * @param name The name of the user.
-   * @param email The email of the user.
-   * @param password The password of the user.
-   * @returns
-   */
-  public updateUser(
-    id: number,
-    type: string,
-    name: string,
-    email: string,
-    password: string,
-  ): UserInterface {
-    return this.userController
-      .updateUser(id, type, name, email, password)
-      .asObject();
-  }
-
-  /**
-   * Deletes a user from the database.
-   * Throws an error if the user could not be deleted.
-   * @param id The id of the user to delete.
-   */
-  public deleteUser(id: number): void {
-    this.userController.deleteUser(id);
   }
 
   /**

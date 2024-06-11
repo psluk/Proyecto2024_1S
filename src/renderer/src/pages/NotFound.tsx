@@ -14,7 +14,7 @@ export default function NotFound(): React.ReactElement {
         type="submit"
         className="mt-5 flex justify-center rounded-md bg-blue-600 px-3 py-1.5 font-semibold leading-6 text-white shadow-md transition hover:bg-blue-500"
         onClick={() => {
-          navigate("/admin/home");
+          navigate("/");
         }}
       >
         Regresar al inicio

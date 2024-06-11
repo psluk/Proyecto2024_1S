@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { ReactElement, useEffect, useState } from "react";
-import Student from "../../../../models/Student";
+import Student from "../../../models/Student";
 import DialogAlert from "@renderer/components/DialogAlert";
 
 interface StudentData {

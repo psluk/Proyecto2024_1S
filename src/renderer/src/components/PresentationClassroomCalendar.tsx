@@ -65,7 +65,7 @@ export default function PresentationClassroomCalendar({
   }, [adaptedPresentations]);
 
   const onSelectEvent = useCallback((calEvent: Event) => {
-    navigate(`/admin/manageTheses/presentations/edit/${calEvent.id}`);
+    navigate(`/manageTheses/presentations/edit/${calEvent.id}`);
   }, []);
 
   const eventPropGetter = useCallback(

@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { StudentProfessorInterface } from "../../../../../models/StudentProfessor";
+import { StudentProfessorInterface } from "../../../../models/StudentProfessor";
 import { useNavigate, useParams } from "react-router-dom";
-import { convertApiDateToHtmlAttribute } from "../../../utils/DateFormatters";
+import { convertApiDateToHtmlAttribute } from "../../utils/DateFormatters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
-import CustomCalendar from "../../../components/Calendar";
+import CustomCalendar from "../../components/Calendar";
 
 interface Event {
   title: string;

@@ -474,7 +474,7 @@ export default function WorkloadInfo({
                     <div
                       className="flex w-full cursor-pointer items-center justify-center hover:bg-gray-100"
                       onClick={() =>
-                        navigate("/admin/addCourseActivity", {
+                        navigate("/addCourseActivity", {
                           state: {
                             id: id,
                             name: name,
@@ -714,7 +714,7 @@ export default function WorkloadInfo({
                     <div
                       className="flex w-full cursor-pointer items-center justify-center hover:bg-gray-100"
                       onClick={() =>
-                        navigate("/admin/addTFGActivity", {
+                        navigate("/addTFGActivity", {
                           state: {
                             id: id,
                             name: name,
@@ -872,7 +872,7 @@ export default function WorkloadInfo({
                     <div
                       className="flex w-full cursor-pointer items-center justify-center hover:bg-gray-100"
                       onClick={() =>
-                        navigate("/admin/addOtherActivity", {
+                        navigate("/addOtherActivity", {
                           state: {
                             id: id,
                             name: name,
@@ -1031,7 +1031,7 @@ export default function WorkloadInfo({
                     <div
                       className="flex h-auto w-full cursor-pointer items-center justify-center hover:bg-gray-100"
                       onClick={() =>
-                        navigate("/admin/addOtherActivity", {
+                        navigate("/addOtherActivity", {
                           state: {
                             id: id,
                             name: name,
@@ -1191,7 +1191,7 @@ export default function WorkloadInfo({
                     <div
                       className="flex w-full cursor-pointer items-center justify-center hover:bg-gray-100"
                       onClick={() =>
-                        navigate("/admin/addOtherActivity", {
+                        navigate("/addOtherActivity", {
                           state: {
                             id: id,
                             name: name,

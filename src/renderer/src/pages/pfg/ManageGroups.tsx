@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import Group from "../../../../../models/Group";
+import Group from "../../../../models/Group";
 import DebouncedInput from "@renderer/components/DebouncedInput";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import DialogAlert from "@renderer/components/DialogAlert";
-import Student from "../../../../../models/Student";
-import Professor from "../../../../../models/Professor";
-import { shuffleArray } from "../../../../../utils/Shuffle";
+import Student from "../../../../models/Student";
+import Professor from "../../../../models/Professor";
+import { shuffleArray } from "../../../../utils/Shuffle";
 import RandomGroupsForm from "@renderer/components/RandomGroupsForm";
 const ManageGroups = (): React.ReactElement => {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -201,7 +201,7 @@ const ManageGroups = (): React.ReactElement => {
                 <div className="flex w-full justify-end">
                   <Link
                     className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
-                    to={`/admin/manageTheses/groups/editProfessors/${group.getId()}`}
+                    to={`/manageTheses/groups/editProfessors/${group.getId()}`}
                   >
                     Editar
                   </Link>
@@ -217,7 +217,7 @@ const ManageGroups = (): React.ReactElement => {
                 <div className="flex w-full justify-end">
                   <Link
                     className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
-                    to={`/admin/manageTheses/groups/editStudents/${group.getId()}`}
+                    to={`/manageTheses/groups/editStudents/${group.getId()}`}
                   >
                     Editar
                   </Link>

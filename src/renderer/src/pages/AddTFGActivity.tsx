@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import DialogAlert from "@renderer/components/DialogAlert";
 import { useState, useEffect } from "react";
-import Course from "../../../../models/Course";
+import Course from "../../../models/Course";
 
 export default function AddTFGActivity(): React.ReactElement {
   const navigate = useNavigate();

@@ -4,11 +4,11 @@ import {
   convertApiDateToHtmlAttribute,
   convertApiDateToLocalString,
   convertApiTimeToLocalString,
-} from "../../../utils/DateFormatters";
+} from "../../utils/DateFormatters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
-import { PresentationInterface } from "../../../../../models/Presentation";
-import CustomCalendar from "../../../components/Calendar";
+import { PresentationInterface } from "../../../../models/Presentation";
+import CustomCalendar from "../../components/Calendar";
 
 interface Event {
   title: string;

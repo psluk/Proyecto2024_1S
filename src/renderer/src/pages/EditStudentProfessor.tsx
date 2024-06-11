@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { ReactElement, useEffect, useState, useRef } from "react";
 import DialogAlert from "@renderer/components/DialogAlert";
-import { StudentProfessorInterface } from "../../../../models/StudentProfessor";
+import { StudentProfessorInterface } from "../../../models/StudentProfessor";
 
 interface StudentProfessorData {
   id: number | null;

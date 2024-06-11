@@ -7,17 +7,17 @@ import {
   faPlus,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { convertApiDateToHtmlAttribute } from "../../../utils/DateFormatters";
-import { Classroom } from "../../../../../interfaces/PresentationGeneration";
-import { PresentationInterface } from "../../../../../models/Presentation";
-import DialogAlert from "../../../components/DialogAlert";
-import DialogConfirm from "../../../components/DialogConfirm";
-import PresentationClassroom from "../../../components/PresentationClassroom";
-import { PresentationSwapContext } from "../../../context/PresentationSwapContext";
-import { StudentProfessorInterface } from "../../../../../models/StudentProfessor";
+import { convertApiDateToHtmlAttribute } from "../../utils/DateFormatters";
+import { Classroom } from "../../../../interfaces/PresentationGeneration";
+import { PresentationInterface } from "../../../../models/Presentation";
+import DialogAlert from "../../components/DialogAlert";
+import DialogConfirm from "../../components/DialogConfirm";
+import PresentationClassroom from "../../components/PresentationClassroom";
+import { PresentationSwapContext } from "../../context/PresentationSwapContext";
+import { StudentProfessorInterface } from "../../../../models/StudentProfessor";
 import { useNavigate } from "react-router-dom";
-import { doDatesOverlap } from "../../../utils/DateOverlap";
-import PresentationClassroomCalendar from "../../../components/PresentationClassroomCalendar";
+import { doDatesOverlap } from "../../utils/DateOverlap";
+import PresentationClassroomCalendar from "../../components/PresentationClassroomCalendar";
 
 const calculateNumberOfPresentations = (
   classrooms: Classroom[],
@@ -940,7 +940,7 @@ export default function ManagePresentations(): React.ReactElement {
                         icon={faPlus}
                         onClick={() =>
                           navigate(
-                            `/admin/manageTheses/presentations/add/${studentProfessor.student.id}`,
+                            `/manageTheses/presentations/add/${studentProfessor.student.id}`,
                           )
                         }
                         title="Asignar"

@@ -64,16 +64,6 @@ CREATE TABLE Students
 );
 
 
--- UserTypes definition
-
-CREATE TABLE UserTypes
-(
-    userTypeId INTEGER
-        primary key autoincrement,
-    typeName   TEXT
-);
-
-
 -- Activities definition
 
 CREATE TABLE Activities
@@ -197,20 +187,6 @@ CREATE TABLE StudentProfessors
 );
 
 
--- Users definition
-
-CREATE TABLE Users
-(
-    userId     INTEGER
-        primary key autoincrement,
-    userTypeId INTEGER
-        references UserTypes,
-    name       TEXT,
-    email      TEXT,
-    password   TEXT
-);
-
-
 -- ActivityCourses definition
 
 CREATE TABLE ActivityCourses
@@ -291,10 +267,6 @@ INSERT INTO StudentFactors (courseTypeId,minStudents,minHours,factor) VALUES
 	 (3,16,0,3.75),
 	 (3,26,0,5.25),
 	 (3,36,0,6.5);
-INSERT INTO UserTypes (typeName) VALUES
-	 ('Administrator'),
-	 ('Professor'),
-	 ('Student');
 
 
 -- NEW COMMANDS (2024-04-26)

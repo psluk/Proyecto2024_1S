@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Group from "../../../../../models/Group";
-import Professor from "../../../../../models/Professor";
+import Group from "../../../../models/Group";
+import Professor from "../../../../models/Professor";
 import { getTranslation } from "@renderer/utils/Translator";
 import { professorTypes } from "@renderer/constants/RecordTypes";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

@@ -8,7 +8,7 @@
     "src/database/**/*",
     "src/utils/**/*",
     "src/constants/**/*"
-, "src/renderer/src/utils/NameFormatter.tsx"  ],
+  ],
   "compilerOptions": {
     "composite": true,
     "types": [

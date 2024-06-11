@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Professor from "../../../../models/Professor";
+import Professor from "../../../models/Professor";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -9,7 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { getTranslation } from "@renderer/utils/Translator";
 import { professorTypes } from "@renderer/constants/RecordTypes";
-import DialogConfirm from "../../components/DialogConfirm";
+import DialogConfirm from "../components/DialogConfirm";
 import DialogAlert from "@renderer/components/DialogAlert";
 
 export default function ManageProfessors(): React.ReactElement {
@@ -85,14 +85,14 @@ export default function ManageProfessors(): React.ReactElement {
         <button
           className="h-8 rounded-md bg-cyan-600 px-4 font-semibold text-white shadow-sm"
           type="button"
-          onClick={() => navigate("/admin/manageWorkloads")}
+          onClick={() => navigate("/manageWorkloads")}
         >
           Ver cargas de trabajo
         </button>
         <button
           className="h-8 rounded-md bg-sky-600 px-4 font-semibold text-white shadow-sm"
           type="button"
-          onClick={() => navigate("/admin/addProfessor")}
+          onClick={() => navigate("/addProfessor")}
         >
           Agregar profesor
         </button>
@@ -133,7 +133,7 @@ export default function ManageProfessors(): React.ReactElement {
                     </td>
                     <td className="space-x-3">
                       <Link
-                        to={`/admin/editProfessor/${professor.getId()}`}
+                        to={`/editProfessor/${professor.getId()}`}
                         className="text-sm font-semibold text-blue-600"
                         title="Editar"
                       >
