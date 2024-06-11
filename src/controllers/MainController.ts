@@ -240,6 +240,7 @@ export default class MainController {
 
   /**
    * Imports a list of students from an Excel file.
+   * @param fileName The file name it has when uploaded
    * @param fileBuffer The Excel file's array buffer.
    * @returns An object containing two arrays: one for the students added successfully, and another for errors.
    */
@@ -434,8 +435,12 @@ export default class MainController {
   /**
    * Updates a group in the database.
    * Throws an error if the group could not be updated.
-   * @param group The group to update.
-   * @returns The group that was updated.
+   * @param id The ID of the group to update.
+   * @param groupNumber The number of the group.
+   * @param classroom The classroom of the group.
+   * @param students The students in the group.
+   * @param professors The professors in the group.
+   * @param moderator The moderator of the group.
    */
   public updateGroup(
     id: number,
@@ -539,6 +544,7 @@ export default class MainController {
    * @param courseId id of the course to be added
    * @param courseName name of the course to be added
    * @param courseHours quantity of hours of the course
+   * @param courseType type of the course
    * @param students quantity of students the course has
    * @param experienceFactor experience factor the professor has with that specific course
    * @param group group number for the course
@@ -574,6 +580,7 @@ export default class MainController {
    * @param courseId id of the course to be added
    * @param courseName name of the course to be added
    * @param courseHours quantity of hours of the course
+   * @param courseType type of the course
    * @param students quantity of students the course has
    * @param loadType defines the type of load the course is for that professor
    * @param id id of the professor the course is added to
@@ -789,8 +796,8 @@ export default class MainController {
 
   /**
    * Updates the activity table.
-   * @param oldLectorId
-   * @param newLectorId
+   * @param oldAdvisorId The old advisor ID.
+   * @param newAdvisorId The new advisor ID.
    */
   public updateActivityAdvisor(
     oldAdvisorId: number,
