@@ -56,7 +56,7 @@ export default function UploadFiles(): React.ReactElement {
     }
 
     try {
-      const result = await window.mainController.importStudents(
+      const result = window.mainController.importStudents(
         studentsFile.name,
         await studentsFile.arrayBuffer(),
       );
@@ -98,18 +98,20 @@ export default function UploadFiles(): React.ReactElement {
 
   return (
     <main className="flex flex-col items-center gap-10">
-      <h3 className="mb-10 text-3xl font-bold uppercase text-sky-700">
+      <h1 className="mb-5 text-4xl font-bold text-sky-700">
         Módulo de carga de datos
-      </h3>
-      <div className="flex justify-center">
-        <div className="mr-3 flex flex-col items-start justify-center rounded-md bg-sky-200 p-4 text-left">
-          <h4 className="mb-5 text-center font-serif">Archivo de profesores</h4>
+      </h1>
+      <div className="flex flex-col justify-center gap-10 lg:flex-row">
+        <div className="mr-3 flex flex-col items-center justify-center rounded-md bg-sky-200 p-4 shadow-md">
+          <h2 className="mb-5 text-center text-xl font-bold">
+            Archivo de profesores
+          </h2>
           <FileSelector
             identifier="professors"
             onFileChange={setProfessorsFile}
           />
           <div className="ml-3 mt-2 place-self-start">
-            <label>
+            <label className="line-clamp-1">
               {professorsFile
                 ? `${professorsFile.name}`
                 : "No se ha seleccionado ningún archivo"}
@@ -119,21 +121,23 @@ export default function UploadFiles(): React.ReactElement {
           <button
             type="button"
             disabled={!professorsFile}
-            className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700  focus:outline-none focus:ring-4 focus:ring-sky-300  ${
+            className={`mt-4 w-fit rounded-lg px-5 py-2.5 text-center text-sm font-medium transition focus:outline-none ${
               !professorsFile
-                ? "cursor-not-allowed bg-black text-gray-300"
-                : "bg-sky-700 text-white"
+                ? "cursor-not-allowed bg-gray-500 text-gray-300"
+                : "bg-sky-700 text-white hover:bg-sky-700 focus:ring-4 focus:ring-sky-300"
             }`}
             onClick={handleProfessorsFile}
           >
             Cargar archivo
           </button>
         </div>
-        <div className="ml-10 flex flex-col items-start  justify-center rounded-md bg-sky-200 p-4 text-left">
-          <p className="mb-5 text-center font-serif">Archivo de estudiantes</p>
+        <div className="flex flex-col items-center justify-center rounded-md bg-sky-200 p-4 shadow-md">
+          <h2 className="mb-5 text-center text-xl font-bold">
+            Archivo de estudiantes
+          </h2>
           <FileSelector identifier="students" onFileChange={setStudentsFile} />
           <div className="ml-3 mt-2 place-self-start">
-            <label>
+            <label className="line-clamp-1">
               {studentsFile
                 ? `${studentsFile.name}`
                 : "No se ha seleccionado ningún archivo"}
@@ -143,10 +147,10 @@ export default function UploadFiles(): React.ReactElement {
           <button
             type="button"
             disabled={!studentsFile}
-            className={`mt-4 w-fit rounded-lg bg-sky-600 px-5 py-2.5 text-center text-sm font-medium hover:bg-sky-700  focus:outline-none focus:ring-4 focus:ring-sky-300 ${
+            className={`mt-4 w-fit rounded-lg px-5 py-2.5 text-center text-sm font-medium transition focus:outline-none ${
               !studentsFile
-                ? "cursor-not-allowed bg-black text-gray-300"
-                : "bg-sky-700 text-white"
+                ? "cursor-not-allowed bg-gray-500 text-gray-300"
+                : "bg-sky-600 text-white hover:bg-sky-700 focus:ring-4 focus:ring-sky-300"
             }`}
             onClick={handleStudentsFile}
           >

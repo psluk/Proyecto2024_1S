@@ -84,13 +84,13 @@ export default function RandomGroupsForm({
             </p>
             <div className="flex gap-2">
               <button
-                className="z-20 h-8 rounded-md bg-sky-600 px-4 font-semibold text-white shadow-sm"
+                className="z-20 h-8 rounded-md bg-sky-500 px-4 font-semibold text-white shadow-md transition hover:bg-sky-600"
                 type="submit"
               >
                 Generar
               </button>
               <button
-                className="z-20 h-8 rounded-md bg-red-600 px-4 font-semibold text-white shadow-sm"
+                className="z-20 h-8 rounded-md bg-red-500 px-4 font-semibold text-white shadow-md transition hover:bg-red-600"
                 onClick={handleCancel}
               >
                 Cancelar

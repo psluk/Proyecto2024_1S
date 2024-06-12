@@ -9,6 +9,7 @@ import Student from "../../../../models/Student";
 import Professor from "../../../../models/Professor";
 import { shuffleArray } from "../../../../utils/Shuffle";
 import RandomGroupsForm from "@renderer/components/RandomGroupsForm";
+
 const ManageGroups = (): React.ReactElement => {
   const [groups, setGroups] = useState<Group[]>([]);
   const [showDialog, setShowDialog] = useState(false);
@@ -146,7 +147,7 @@ const ManageGroups = (): React.ReactElement => {
       <h1 className="text-3xl font-bold">Listado de grupos</h1>
       <div className="mx-auto space-x-6">
         <button
-          className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
+          className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white shadow-md transition hover:bg-blue-600"
           onClick={() => {
             addGroup();
           }}
@@ -154,7 +155,7 @@ const ManageGroups = (): React.ReactElement => {
           Añadir grupo
         </button>
         <button
-          className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
+          className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white shadow-md transition hover:bg-blue-600"
           onClick={() =>
             amountProfessors > 3 && amountStudents > 0
               ? setShowDialog(true)
@@ -171,7 +172,7 @@ const ManageGroups = (): React.ReactElement => {
               className="min-w-[600px] overflow-hidden rounded-md bg-white shadow-md"
               key={group.getId()}
             >
-              <div className="flex w-full justify-between bg-gray-600 p-3 font-semibold text-white">
+              <div className="flex w-full justify-between bg-slate-500 p-3 font-semibold text-white">
                 <h3 className="text-2xl">Grupo {group.getGroupNumber()}</h3>
                 <div className="flex gap-6">
                   <p>
@@ -183,24 +184,28 @@ const ManageGroups = (): React.ReactElement => {
                     />
                   </p>
                   <button onClick={() => handleDeleteGroup(group.getId())}>
-                    <FontAwesomeIcon icon={faXmark} className="text-red-500" />
+                    <FontAwesomeIcon
+                      icon={faXmark}
+                      className="size-6 text-red-600 [&_path]:stroke-white [&_path]:stroke-[16px]"
+                    />
                   </button>
                 </div>
               </div>
-              <div className="w-full space-y-2 border-b-2 border-b-gray-800 p-3">
-                <h5 className="text-xl font-medium">Profesores y lectores</h5>
+              <div className="w-full space-y-2 border-b border-b-gray-700 p-3">
+                <h5 className="text-xl font-semibold">Profesores y lectores</h5>
                 <div className="w-full text-lg">
                   {group.getProfessors().map((professor) => (
                     <p key={professor.getId()}>
-                      {group.getModerator()?.getId() == professor.getId()
-                        ? `${professor.getName()} (Moderador)`
-                        : professor.getName()}
+                      {professor.getName()}
+                      {group.getModerator()?.getId() == professor.getId() && (
+                        <span className="font-semibold"> (moderador)</span>
+                      )}
                     </p>
                   ))}
                 </div>
                 <div className="flex w-full justify-end">
                   <Link
-                    className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
+                    className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white shadow-md transition hover:bg-blue-600"
                     to={`/manageTheses/groups/editProfessors/${group.getId()}`}
                   >
                     Editar
@@ -208,7 +213,7 @@ const ManageGroups = (): React.ReactElement => {
                 </div>
               </div>
               <div className="w-full space-y-2 p-3">
-                <h5 className="text-xl font-medium">Estudiantes</h5>
+                <h5 className="text-xl font-semibold">Estudiantes</h5>
                 <div className="w-full text-lg">
                   {group.getStudents().map((student) => (
                     <p key={student.getId()}>{student.getName()}</p>
@@ -216,7 +221,7 @@ const ManageGroups = (): React.ReactElement => {
                 </div>
                 <div className="flex w-full justify-end">
                   <Link
-                    className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
+                    className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white shadow-md transition hover:bg-blue-600"
                     to={`/manageTheses/groups/editStudents/${group.getId()}`}
                   >
                     Editar

@@ -26,7 +26,7 @@ function DebouncedInput({
       type="text"
       value={value?.toString() ?? "Sin asignar"}
       onChange={(e) => setValue(e.target.value)}
-      className="w-20 rounded-md border-2 border-gray-800 bg-white p-1 text-center text-sm text-black"
+      className="w-28 rounded-md border border-blue-500/70 bg-white p-1 text-center text-sm text-black focus:border-blue-500 focus:ring-blue-500 transition"
     />
   );
 }

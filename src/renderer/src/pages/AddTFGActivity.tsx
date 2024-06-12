@@ -133,8 +133,7 @@ export default function AddTFGActivity(): React.ReactElement {
             <option value={1}>Normal</option>
             <option value={2}>Ampliación</option>
             <option value={3}>Doble ampliación</option>
-            <option value={4}>Recargo</option>
-            <option value={5}>Ad honorem</option>
+            <option value={4}>Ad honorem</option>
           </select>
         </div>
 

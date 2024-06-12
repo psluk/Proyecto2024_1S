@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRotateLeft,
@@ -207,10 +207,10 @@ export default function WorkloadInfo({
   ]);
 
   return (
-    <div className="mb-5 overflow-hidden">
-      <div className="flex bg-blue-200">
+    <div className="mb-5">
+      <div className="flex bg-blue-200 rounded-md shadow-sm">
         <a
-          className="grow px-2 text-start font-bold text-blue-500 hover:text-blue-700"
+          className="grow px-2 text-start font-bold text-blue-600 hover:text-blue-800"
           onClick={toggleTables}
         >
           {name}
@@ -250,8 +250,7 @@ export default function WorkloadInfo({
                           ? "bg-orange-200"
                           : activity.getWorkloadType() === "double"
                             ? "bg-blue-200"
-                            : activity.getWorkloadType() === "overload"
-                              ? "bg-yellow-300"
+
                               : activity.getWorkloadType() === "adHonorem"
                                 ? "bg-gray-200"
                                 : ""
@@ -525,8 +524,6 @@ export default function WorkloadInfo({
                           ? "bg-orange-200"
                           : activity.getWorkloadType() === "double"
                             ? "bg-blue-200"
-                            : activity.getWorkloadType() === "overload"
-                              ? "bg-yellow-300"
                               : activity.getWorkloadType() === "adHonorem"
                                 ? "bg-gray-200"
                                 : ""
@@ -757,8 +754,6 @@ export default function WorkloadInfo({
                           ? "bg-orange-200"
                           : activity.getWorkloadType() === "double"
                             ? "bg-blue-200"
-                            : activity.getWorkloadType() === "overload"
-                              ? "bg-yellow-300"
                               : activity.getWorkloadType() === "adHonorem"
                                 ? "bg-gray-200"
                                 : ""
@@ -916,8 +911,6 @@ export default function WorkloadInfo({
                           ? "bg-orange-200"
                           : activity.getWorkloadType() === "double"
                             ? "bg-blue-200"
-                            : activity.getWorkloadType() === "overload"
-                              ? "bg-yellow-300"
                               : activity.getWorkloadType() === "adHonorem"
                                 ? "bg-gray-200"
                                 : ""
@@ -1076,8 +1069,6 @@ export default function WorkloadInfo({
                           ? "bg-orange-200"
                           : activity.getWorkloadType() === "double"
                             ? "bg-blue-200"
-                            : activity.getWorkloadType() === "overload"
-                              ? "bg-yellow-300"
                               : activity.getWorkloadType() === "adHonorem"
                                 ? "bg-gray-200"
                                 : ""
@@ -1218,15 +1209,13 @@ export default function WorkloadInfo({
             <div className="w-full overflow-hidden rounded-md shadow-md">
               <table className="w-full table-auto">
                 <thead>
-                  <tr className="bg-teal-600 font-bold text-white">
+                  <tr className="bg-gray-600 font-bold text-white">
                     <th>Tipo</th>
                     <th>Horas</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {WorkloadTypes.filter(
-                    (workloadType) => workloadType.value !== "overload",
-                  ).map((workloadType, index) => {
+                  {WorkloadTypes.map((workloadType, index) => {
                     const totalWorkload = workload
                       .filter((w) => w.getWorkloadType() === workloadType.value)
                       .reduce((acc, w) => acc + w.getWorkload(), 0);
@@ -1243,7 +1232,7 @@ export default function WorkloadInfo({
                       </tr>
                     );
                   })}
-                  <tr className="bg-teal-600 font-semibold text-white [&>td]:px-3 [&>td]:text-center">
+                  <tr className="bg-gray-600 font-semibold text-white [&>td]:px-3 [&>td]:text-center">
                     <td>Carga total</td>
                     <td>
                       {workload

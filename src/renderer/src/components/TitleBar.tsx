@@ -18,6 +18,7 @@ const routesWithoutMenu = ["/"];
 export default function TitleBar(): React.ReactElement {
   const [isMaximized, setIsMaximized] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  
   const location = useLocation();
   const pathname = location.pathname;
   const navigate = useNavigate();
@@ -80,7 +81,7 @@ export default function TitleBar(): React.ReactElement {
                 <NavLink
                   to={option.path}
                   className={({ isActive }) =>
-                    `flex flex-row items-center gap-5 rounded-lg px-5 py-4 text-xl ${isActive ? "bg-slate-300 font-bold text-cyan-700" : "hover:bg-slate-400"} transition`
+                    `flex flex-row items-center gap-5 rounded-lg px-5 py-4 text-xl ${isActive ? `bg-slate-300 font-bold ${option.textColor ?? "text-cyan-700"}` : "hover:bg-slate-400"} transition`
                   }
                   onClick={() => setIsMenuOpen(false)}
                 >

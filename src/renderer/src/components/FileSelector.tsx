@@ -79,7 +79,7 @@ export default function FileSelector({
           </svg>
           <p className="light:text-gray-400 mb-2 px-4 text-sm text-gray-500">
             <span className="font-semibold text-sky-600">
-              Haga click para cargar
+              Haga clic para cargar
             </span>{" "}
             o arrastre y suelte el archivo
           </p>

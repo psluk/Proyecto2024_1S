@@ -254,7 +254,7 @@ export default function EditPresentation(): React.ReactElement {
       {originalPresentation && (
         <div className="flex w-full max-w-7xl flex-col items-center gap-8 rounded-lg bg-white p-10 shadow-md lg:flex-row">
           <form
-            className="flex w-full flex-col items-center gap-5 lg:w-1/3 [&_input]:rounded-md [&_input]:shadow-sm"
+            className="flex w-full max-w-md flex-col items-center gap-5 lg:w-1/3 [&_input]:rounded-md [&_input]:shadow-sm"
             onSubmit={handleSubmit}
           >
             <h2 className="w-full text-center text-3xl font-bold">
@@ -273,7 +273,7 @@ export default function EditPresentation(): React.ReactElement {
                 originalPresentation.startTime,
               )}
             />
-            <div className="flex w-full max-w-md flex-col items-start">
+            <div className="flex w-full flex-col items-start">
               <label htmlFor="inputDuration" className="text-lg font-bold">
                 Duración:
               </label>

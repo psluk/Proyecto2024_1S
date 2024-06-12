@@ -21,12 +21,7 @@ export const experienceFactors: { label: string; value: string }[] = [
   },
 ];
 
-export type WorkloadValue =
-  | "normal"
-  | "extended"
-  | "double"
-  | "overload"
-  | "adHonorem";
+export type WorkloadValue = "normal" | "extended" | "double" | "adHonorem";
 
 export const WorkloadTypes: {
   label: string;
@@ -47,11 +42,6 @@ export const WorkloadTypes: {
     label: "Doble ampliación",
     value: "double",
     color: "bg-blue-200",
-  },
-  {
-    label: "Recargo",
-    value: "overload",
-    color: "bg-yellow-300",
   },
   {
     label: "Ad honorem",

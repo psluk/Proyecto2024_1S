@@ -82,6 +82,8 @@ export default class StudentDao {
     database.transaction(() => {
       if (shouldClearList) {
         this.cleanTable("GroupStudents");
+        this.cleanTable("GroupProfessors");
+        this.cleanTable("Groups");
         this.cleanTable("StudentProfessors");
         this.cleanTable("Presentations");
         this.cleanTable("Students");

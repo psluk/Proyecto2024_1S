@@ -160,7 +160,7 @@ const EditGroupStudents = (): ReactElement => {
             </div>
             <div className="mx-auto mt-6 w-fit">
               <button
-                className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white"
+                className="rounded-md bg-blue-500 px-2 py-1 font-semibold text-white shadow-md transition hover:bg-blue-600"
                 onClick={() => handleSave()}
               >
                 Guardar

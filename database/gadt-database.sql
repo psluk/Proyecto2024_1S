@@ -284,7 +284,7 @@ INSERT INTO ActivityTypes(name, hasStudents)
 VALUES ('course', 1), ('research', 0), ('special', 0), ('administrative', 0);
 
 INSERT INTO WorkloadTypes(name)
-VALUES ('normal'), ('extended'), ('double'), ('overload'), ('adHonorem');
+VALUES ('normal'), ('extended'), ('double'), ('adHonorem');
 
 -- Add group number to ActivityCourses
 ALTER TABLE ActivityCourses

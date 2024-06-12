@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import Professor from "../../../models/Professor";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-
 import WorkloadInfo from "@renderer/components/WorkloadInfo";
 
 export default function ManageWorkloads(): React.ReactElement {

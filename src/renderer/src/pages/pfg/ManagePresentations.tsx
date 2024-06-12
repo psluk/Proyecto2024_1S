@@ -15,7 +15,7 @@ import DialogConfirm from "../../components/DialogConfirm";
 import PresentationClassroom from "../../components/PresentationClassroom";
 import { PresentationSwapContext } from "../../context/PresentationSwapContext";
 import { StudentProfessorInterface } from "../../../../models/StudentProfessor";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { doDatesOverlap } from "../../utils/DateOverlap";
 import PresentationClassroomCalendar from "../../components/PresentationClassroomCalendar";
 
@@ -411,6 +411,16 @@ export default function ManagePresentations(): React.ReactElement {
       return;
     }
 
+    // Warn if there are no students with professors assigned
+    if (numberOfStudents === 0) {
+      setAlertDialogParams({
+        title: "Advertencia",
+        message: "No hay estudiantes con profesores asignados.",
+        type: "error",
+      });
+      return;
+    }
+
     // Warn if all presentations have been generated
     if (unassignedStudents.length === 0) {
       setConfirmationDialogParams({
@@ -705,7 +715,7 @@ export default function ManagePresentations(): React.ReactElement {
                           <td>
                             <input
                               type="date"
-                              value={
+                              defaultValue={
                                 convertApiDateToHtmlAttribute(
                                   schedule.startTime,
                                 ).split("T")[0]
@@ -724,7 +734,7 @@ export default function ManagePresentations(): React.ReactElement {
                           <td>
                             <input
                               type="time"
-                              value={
+                              defaultValue={
                                 convertApiDateToHtmlAttribute(
                                   schedule.startTime,
                                 ).split("T")[1]
@@ -743,7 +753,7 @@ export default function ManagePresentations(): React.ReactElement {
                           <td>
                             <input
                               type="time"
-                              value={
+                              defaultValue={
                                 convertApiDateToHtmlAttribute(
                                   schedule.endTime,
                                 ).split("T")[1]
@@ -815,10 +825,13 @@ export default function ManagePresentations(): React.ReactElement {
             {numberOfStudents === 0 && (
               <>
                 <br />
-                <span className="animate-pulse font-bold text-red-500">
-                  ¡No se asignarán las presentaciones sin asignar a los
-                  profesores!
+                <span className="animate-pulse rounded-md bg-red-200 px-2 font-bold text-red-600">
+                  ¡No se generán citas si no se han asignado los profesores de
+                  ningún estudiante!
                 </span>
+                <Link to={"/manageTheses/advisors"} className="text-blue-600 transition hover:text-blue-700 hover:underline font-semibold ms-2">
+                  Asignar profesores
+                </Link>.
               </>
             )}
             <br />

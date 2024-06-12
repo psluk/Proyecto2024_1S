@@ -103,7 +103,7 @@ export default function ManageAdvisors(): React.ReactElement {
           />
         </div>
         <button
-          className="h-8 rounded-md bg-teal-500 px-4 font-semibold text-white shadow-sm hover:bg-teal-600"
+          className="h-8 rounded-md bg-teal-600 px-4 font-semibold text-white shadow-sm transition hover:bg-teal-700"
           type="button"
           onClick={() => handleRandomGeneration()}
         >

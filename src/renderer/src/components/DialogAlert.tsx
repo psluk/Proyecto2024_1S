@@ -38,7 +38,7 @@ export default function DialogAlert({
           </div>
           <div className="flex gap-4">
             <button
-              className="h-8 rounded-md bg-sky-600 px-4 font-semibold text-white shadow-sm"
+              className="h-8 rounded-md bg-sky-500 px-4 font-semibold text-white shadow-md transition hover:bg-sky-600"
               onClick={handleConfirm}
             >
               Confirmar
