@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link, useLocation } from "react-router-dom";
 import React from "react";
 import { menuOptions } from "../constants/MenuOptions";
+import logo from "../assets/Logo.png";
 
 export default function AdminHome(): React.ReactElement {
   const location = useLocation();
@@ -10,7 +11,7 @@ export default function AdminHome(): React.ReactElement {
   return (
     <main className="gap-16">
       <picture className="flex w-full items-center justify-center gap-6">
-        <img src={"/Logo.png"} alt="Logo" className="max-w-32" />
+        <img src={logo} alt="Logo" className="max-w-32" />
         <h2 className="text-3xl font-bold">
           Gestor de Asignaciones de Defensas de Tesis
         </h2>
