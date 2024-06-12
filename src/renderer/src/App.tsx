@@ -34,18 +34,32 @@ function App(): React.ReactElement {
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/AddProfessor" element={<AddProfessor />} />
-          <Route path="/AddStudent" element={<AddStudent />} />
-          <Route path="/editProfessor/:id" element={<EditProfessor />} />
-          <Route path="/editStudent/:id" element={<EditStudent />} />
+          <Route path="/professors/add" element={<AddProfessor />} />
+          <Route path="/manageTheses/students/add" element={<AddStudent />} />
+          <Route path="/professors/edit/:id" element={<EditProfessor />} />
+          <Route
+            path="/manageTheses/students/edit/:id"
+            element={<EditStudent />}
+          />
           <Route path="/uploadFiles" element={<UploadFiles />} />
           <Route path="/exportFiles" element={<ExportFiles />} />
-          <Route path="/manageProfessors" element={<ManageProfessors />} />
-          <Route path="/manageStudents" element={<ManageStudents />} />
-          <Route path="/manageWorkloads" element={<ManageWorkloads />} />
-          <Route path="/addCourseActivity" element={<AddCourseActivity />} />
-          <Route path="/addTFGActivity" element={<AddTFGActivity />} />
-          <Route path="/addOtherActivity" element={<AddOtherActivity />} />
+          <Route path="/professors" element={<ManageProfessors />} />
+          <Route
+            path="/professors/manageWorkloads"
+            element={<ManageWorkloads />}
+          />
+          <Route
+            path="/professors/manageWorkloads/addCourseActivity"
+            element={<AddCourseActivity />}
+          />
+          <Route
+            path="/professors/manageWorkloads/addTFGActivity"
+            element={<AddTFGActivity />}
+          />
+          <Route
+            path="/professors/manageWorkloads/addOtherActivity"
+            element={<AddOtherActivity />}
+          />
           <Route path="/manageTheses" element={<PFGHome />} />
           <Route path="/manageTheses/groups" element={<ManageGroups />} />
           <Route

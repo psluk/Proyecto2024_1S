@@ -80,9 +80,9 @@ export default function ManageStudents(): React.ReactElement {
           />
         </div>
         <button
-          className="h-8 rounded-md bg-teal-500 px-4 font-semibold text-white shadow-sm hover:bg-teal-600"
+          className="h-8 rounded-md bg-teal-600 px-4 font-semibold text-white shadow-sm hover:bg-teal-700"
           type="button"
-          onClick={() => navigate("/addStudent")}
+          onClick={() => navigate("/manageTheses/students/add")}
         >
           Agregar estudiante
         </button>
@@ -108,9 +108,7 @@ export default function ManageStudents(): React.ReactElement {
                   </p>
                 </th>
                 <th>
-                  <p className="flex items-center justify-start gap-3">
-                    Carnet
-                  </p>
+                  <p className="flex items-center justify-start gap-3">Carné</p>
                 </th>
                 <th>
                   <p className="flex items-center justify-start gap-3">
@@ -135,7 +133,7 @@ export default function ManageStudents(): React.ReactElement {
                     <td>{student.getIsEnabled() ? "Sí" : "No"}</td>
                     <td className="space-x-3">
                       <Link
-                        to={`/editStudent/${student.getId()}`}
+                        to={`/manageTheses/students/edit/${student.getId()}`}
                         className="text-sm font-semibold text-teal-800 hover:text-teal-600"
                         title="Editar"
                       >

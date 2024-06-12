@@ -85,14 +85,14 @@ export default function ManageProfessors(): React.ReactElement {
         <button
           className="h-8 rounded-md bg-cyan-600 px-4 font-semibold text-white shadow-sm"
           type="button"
-          onClick={() => navigate("/manageWorkloads")}
+          onClick={() => navigate("/professors/manageWorkloads")}
         >
           Ver cargas de trabajo
         </button>
         <button
           className="h-8 rounded-md bg-sky-600 px-4 font-semibold text-white shadow-sm"
           type="button"
-          onClick={() => navigate("/addProfessor")}
+          onClick={() => navigate("/professors/add")}
         >
           Agregar profesor
         </button>
@@ -133,7 +133,7 @@ export default function ManageProfessors(): React.ReactElement {
                     </td>
                     <td className="space-x-3">
                       <Link
-                        to={`/editProfessor/${professor.getId()}`}
+                        to={`/professors/edit/${professor.getId()}`}
                         className="text-sm font-semibold text-blue-600"
                         title="Editar"
                       >

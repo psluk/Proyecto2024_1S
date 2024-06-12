@@ -123,7 +123,7 @@ const EditGroupStudents = (): ReactElement => {
                     </th>
                     <th className="w-1/5 px-2 py-1">
                       <p className="flex items-center justify-start gap-3">
-                        Carnet
+                        Carné
                       </p>
                     </th>
                     <th className="w-1/12 px-2 py-1 text-center">Acciones</th>
@@ -204,7 +204,7 @@ const EditGroupStudents = (): ReactElement => {
                       </th>
                       <th className="w-1/5 px-2 py-1">
                         <p className="flex items-center justify-start gap-3">
-                          Carnet
+                          Carné
                         </p>
                       </th>
                       <th className="w-1/12 px-2 py-1 text-center">Acciones</th>

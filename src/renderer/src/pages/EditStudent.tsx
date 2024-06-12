@@ -167,7 +167,7 @@ export default function EditStudent(): ReactElement | null {
             htmlFor="universityId"
             className="text-white-900 block text-sm font-medium leading-6"
           >
-            Carnet
+            Carné
           </label>
           <input
             type="text"
@@ -205,7 +205,7 @@ export default function EditStudent(): ReactElement | null {
         </div>
         <button
           type="submit"
-          className="mt-4 w-full rounded-md bg-teal-500 px-3 py-1.5 font-semibold text-white shadow-sm hover:bg-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          className="mt-4 w-full rounded-md bg-teal-600 px-3 py-1.5 font-semibold text-white shadow-sm hover:bg-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         >
           Actualizar
         </button>

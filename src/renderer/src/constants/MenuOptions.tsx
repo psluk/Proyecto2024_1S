@@ -14,6 +14,7 @@ export const menuOptions = [
     path: "/",
     background: "",
     hoverBackground: "",
+    keywords: [],
   },
   {
     name: "Estadísticas",
@@ -22,14 +23,16 @@ export const menuOptions = [
     background: "bg-rose-600",
     hoverBackground: "hover:bg-rose-500",
     textColor: "text-rose-700",
+    keywords: [],
   },
   {
     name: "Profesores",
     icon: faChalkboardUser,
-    path: "/manageProfessors",
+    path: "/professors",
     background: "bg-purple-600",
     hoverBackground: "hover:bg-purple-500",
     textColor: "text-purple-700",
+    keywords: ["professor", "workload"],
   },
   {
     name: "Tesis",
@@ -38,6 +41,7 @@ export const menuOptions = [
     background: "bg-cyan-600",
     hoverBackground: "hover:bg-cyan-500",
     textColor: "text-cyan-700",
+    keywords: ["student"],
   },
   {
     name: "Cargar datos",
@@ -46,6 +50,7 @@ export const menuOptions = [
     background: "bg-blue-600",
     hoverBackground: "hover:bg-blue-500",
     textColor: "text-blue-700",
+    keywords: [],
   },
   {
     name: "Exportar datos",
@@ -54,5 +59,6 @@ export const menuOptions = [
     background: "bg-green-600",
     hoverBackground: "hover:bg-green-500",
     textColor: "text-green-700",
+    keywords: [],
   },
 ];

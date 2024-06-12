@@ -208,7 +208,7 @@ export default function WorkloadInfo({
 
   return (
     <div className="mb-5">
-      <div className="flex bg-blue-200 rounded-md shadow-sm">
+      <div className="flex rounded-md bg-blue-200 shadow-sm">
         <a
           className="grow px-2 text-start font-bold text-blue-600 hover:text-blue-800"
           onClick={toggleTables}
@@ -250,10 +250,9 @@ export default function WorkloadInfo({
                           ? "bg-orange-200"
                           : activity.getWorkloadType() === "double"
                             ? "bg-blue-200"
-
-                              : activity.getWorkloadType() === "adHonorem"
-                                ? "bg-gray-200"
-                                : ""
+                            : activity.getWorkloadType() === "adHonorem"
+                              ? "bg-gray-200"
+                              : ""
                       } ${
                         activity.getId() === idCurrentlyEditing &&
                         activityBeingEdited !== null
@@ -473,12 +472,15 @@ export default function WorkloadInfo({
                     <div
                       className="flex w-full cursor-pointer items-center justify-center hover:bg-gray-100"
                       onClick={() =>
-                        navigate("/addCourseActivity", {
-                          state: {
-                            id: id,
-                            name: name,
+                        navigate(
+                          "/professors/manageWorkloads/addCourseActivity",
+                          {
+                            state: {
+                              id: id,
+                              name: name,
+                            },
                           },
-                        })
+                        )
                       }
                     >
                       <FontAwesomeIcon
@@ -524,9 +526,9 @@ export default function WorkloadInfo({
                           ? "bg-orange-200"
                           : activity.getWorkloadType() === "double"
                             ? "bg-blue-200"
-                              : activity.getWorkloadType() === "adHonorem"
-                                ? "bg-gray-200"
-                                : ""
+                            : activity.getWorkloadType() === "adHonorem"
+                              ? "bg-gray-200"
+                              : ""
                       } ${
                         activity.getId() === idCurrentlyEditing &&
                         activityBeingEdited !== null
@@ -711,7 +713,7 @@ export default function WorkloadInfo({
                     <div
                       className="flex w-full cursor-pointer items-center justify-center hover:bg-gray-100"
                       onClick={() =>
-                        navigate("/addTFGActivity", {
+                        navigate("/professors/manageWorkloads/addTFGActivity", {
                           state: {
                             id: id,
                             name: name,
@@ -754,9 +756,9 @@ export default function WorkloadInfo({
                           ? "bg-orange-200"
                           : activity.getWorkloadType() === "double"
                             ? "bg-blue-200"
-                              : activity.getWorkloadType() === "adHonorem"
-                                ? "bg-gray-200"
-                                : ""
+                            : activity.getWorkloadType() === "adHonorem"
+                              ? "bg-gray-200"
+                              : ""
                       } ${
                         activity.getId() === idCurrentlyEditing &&
                         activityBeingEdited !== null
@@ -867,13 +869,16 @@ export default function WorkloadInfo({
                     <div
                       className="flex w-full cursor-pointer items-center justify-center hover:bg-gray-100"
                       onClick={() =>
-                        navigate("/addOtherActivity", {
-                          state: {
-                            id: id,
-                            name: name,
-                            pageActivityType: 2,
+                        navigate(
+                          "/professors/manageWorkloads/addOtherActivity",
+                          {
+                            state: {
+                              id: id,
+                              name: name,
+                              pageActivityType: 2,
+                            },
                           },
-                        })
+                        )
                       }
                     >
                       <FontAwesomeIcon
@@ -911,9 +916,9 @@ export default function WorkloadInfo({
                           ? "bg-orange-200"
                           : activity.getWorkloadType() === "double"
                             ? "bg-blue-200"
-                              : activity.getWorkloadType() === "adHonorem"
-                                ? "bg-gray-200"
-                                : ""
+                            : activity.getWorkloadType() === "adHonorem"
+                              ? "bg-gray-200"
+                              : ""
                       } ${
                         activity.getId() === idCurrentlyEditing &&
                         activityBeingEdited !== null
@@ -1024,13 +1029,16 @@ export default function WorkloadInfo({
                     <div
                       className="flex h-auto w-full cursor-pointer items-center justify-center hover:bg-gray-100"
                       onClick={() =>
-                        navigate("/addOtherActivity", {
-                          state: {
-                            id: id,
-                            name: name,
-                            pageActivityType: 3,
+                        navigate(
+                          "/professors/manageWorkloads/addOtherActivity",
+                          {
+                            state: {
+                              id: id,
+                              name: name,
+                              pageActivityType: 3,
+                            },
                           },
-                        })
+                        )
                       }
                     >
                       <FontAwesomeIcon
@@ -1069,9 +1077,9 @@ export default function WorkloadInfo({
                           ? "bg-orange-200"
                           : activity.getWorkloadType() === "double"
                             ? "bg-blue-200"
-                              : activity.getWorkloadType() === "adHonorem"
-                                ? "bg-gray-200"
-                                : ""
+                            : activity.getWorkloadType() === "adHonorem"
+                              ? "bg-gray-200"
+                              : ""
                       } ${
                         activity.getId() === idCurrentlyEditing &&
                         activityBeingEdited !== null
@@ -1182,13 +1190,16 @@ export default function WorkloadInfo({
                     <div
                       className="flex w-full cursor-pointer items-center justify-center hover:bg-gray-100"
                       onClick={() =>
-                        navigate("/addOtherActivity", {
-                          state: {
-                            id: id,
-                            name: name,
-                            pageActivityType: 4,
+                        navigate(
+                          "/professors/manageWorkloads/addOtherActivity",
+                          {
+                            state: {
+                              id: id,
+                              name: name,
+                              pageActivityType: 4,
+                            },
                           },
-                        })
+                        )
                       }
                     >
                       <FontAwesomeIcon
