@@ -1105,6 +1105,9 @@ export default class ExcelExporter {
     sheet.getColumn(4).width = 35; // Profesor guía
     sheet.getColumn(5).width = 35; // Profesor lector
     sheet.getColumn(6).width = 35; // Profesor lector
+    sheet.getColumn(9).width = 35; // Profesor sumas
+    sheet.getColumn(10).width = 35; // Cantidad guías
+    sheet.getColumn(11).width = 35; // Cantidad lecturas
 
     const titleRow = sheet.getRow(4);
     const titleCell = titleRow.getCell(2);
@@ -1204,6 +1207,87 @@ export default class ExcelExporter {
 
     sheet.eachRow((row) => {
       row.height = 15;
+    });
+
+    // Summary table
+    const startColumn = 9;
+    const headerRow2 = sheet.getRow(5);
+    headerRow2.getCell(startColumn).value = "Profesor";
+    headerRow2.getCell(startColumn + 1).value =
+      "Cantidad de guias por profesor";
+    headerRow2.getCell(startColumn + 2).value =
+      "Cantidad de lecturas por profesor";
+    headerRow2.font = {
+      name: "Calibri",
+      size: 12,
+      bold: true,
+      color: { argb: "FFFFFFFF" },
+    };
+    headerRow2.alignment = { vertical: "middle", horizontal: "center" };
+    headerRow2.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF305496" },
+      };
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
+
+    const professorMap = new Map<
+      string,
+      { guides: number; readings: number }
+    >();
+
+    studentProfesorList.forEach((one) => {
+      const professors = one.getProfessors();
+      const advisor = professors.find(
+        (professor) => +professor.isAdvisor === 1,
+      );
+      const nonAdvisors = professors.filter(
+        (professor) => +professor.isAdvisor === 0,
+      );
+
+      if (advisor) {
+        if (!professorMap.has(advisor.name)) {
+          professorMap.set(advisor.name, { guides: 0, readings: 0 });
+        }
+        professorMap.get(advisor.name)!.guides += 1;
+      }
+      nonAdvisors.forEach((professor) => {
+        if (professor.name !== "No asignado") {
+          if (!professorMap.has(professor.name)) {
+            professorMap.set(professor.name, { guides: 0, readings: 0 });
+          }
+          professorMap.get(professor.name)!.readings += 1;
+        }
+      });
+    });
+
+    let newTableRow = 6;
+    professorMap.forEach((counts, professorName) => {
+      if (counts.guides > 0 || counts.readings > 0) {
+        const row = sheet.getRow(newTableRow);
+        row.getCell(startColumn).value = professorName;
+        row.getCell(startColumn + 1).value = counts.guides;
+        row.getCell(startColumn + 2).value = counts.readings;
+
+        row.eachCell((cell) => {
+          cell.font = { name: "Arial", size: 10 };
+          cell.border = {
+            top: { style: "thin" },
+            left: { style: "thin" },
+            bottom: { style: "thin" },
+            right: { style: "thin" },
+          };
+        });
+
+        newTableRow++;
+      }
     });
   }
 
