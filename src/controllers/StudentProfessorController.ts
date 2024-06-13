@@ -49,6 +49,10 @@ export default class StudentProfessorController {
     const professorsSuggestions =
       this.studentProfessorDao.getProfessorsSuggestions();
 
+    const professorReaderCount = new Map<number, number>(
+      professorsSuggestions.map((prof) => [prof.professorId, 0]),
+    );
+
     const professorCapacities = new Map<number, ProfessorCapacity>(
       professorsSuggestions.map((prof) => [
         prof.professorId,
@@ -96,8 +100,12 @@ export default class StudentProfessorController {
       }
 
       let readersNeeded = 2 - currentReaders?.length;
-      const potentialReaders = shuffledProfessors.filter((prof) =>
-        student.getProfessors().every((p) => p.id !== prof.professorId),
+
+      const potentialReaders = shuffledProfessors.filter(
+        (prof) =>
+          student.getProfessors().every((p) => p.id !== prof.professorId) &&
+          (professorReaderCount.get(prof.professorId) || 0) <
+            Math.ceil(2 * shuffledStudents.length) / shuffledProfessors.length,
       );
 
       while (readersNeeded > 0 && potentialReaders.length > 0) {
@@ -109,6 +117,10 @@ export default class StudentProfessorController {
           name: reader.name,
           isAdvisor: false,
         });
+        professorReaderCount.set(
+          reader.professorId,
+          (professorReaderCount.get(reader.professorId) || 0) + 1,
+        );
         readersNeeded--;
       }
 
